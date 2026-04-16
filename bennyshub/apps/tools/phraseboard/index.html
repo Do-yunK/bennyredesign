@@ -105,7 +105,7 @@
     }
     
     .sentence-display {
-      background: rgba(0, 71, 241, 0.07);
+      background: #0047F112;
       border-top: 3px solid #FFF;
       border-right: 3px solid #FFF;
       border-bottom: 55px solid #FFF;
@@ -136,9 +136,10 @@
       border-radius: 10px;
       border-top: 3px solid #FFF;
       border-right: 3px solid #FFF;
-      border-bottom: 55px solid #FFF;
+      --footer-strip-height: 55px;
+      border-bottom: var(--footer-strip-height) solid #FFF;
       border-left: 3px solid #FFF;
-      background: rgba(0, 71, 241, 0.07);
+      background: #0047F112;
       box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
       padding: 15px;
       cursor: pointer;
@@ -154,6 +155,58 @@
       aspect-ratio: 3/2;
       transition: all 0.2s;
       position: relative;
+    }
+
+    .grid-button .label {
+      width: 100%;
+      text-align: center;
+      line-height: 1.2;
+      display: block;
+    }
+
+    .main-grid > .grid-button {
+      justify-content: flex-start;
+      padding-bottom: 18px;
+    }
+
+    .main-grid > .grid-button::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 120px;
+      height: 120px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(50% 50% at 50% 50%, #FFF 0%, rgba(255, 255, 255, 0.00) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .main-grid > .grid-button > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-grid > .grid-button .label {
+      position: absolute !important;
+      left: 50% !important;
+      top: calc(100% + (var(--footer-strip-height) / 2));
+      transform: translate(-50%, -50%);
+      width: calc(100% - 20px);
+      margin: 0 !important;
+    }
+
+    .main-grid > .grid-button.phrase-board-card,
+    .main-grid > .grid-button.main-menu-card {
+      --footer-strip-height: 3px;
+      border-bottom: 3px solid #FFF;
+    }
+
+    .main-grid > .grid-button.phrase-board-card .label,
+    .main-grid > .grid-button.main-menu-card .label {
+      top: auto;
+      bottom: 8px;
+      transform: translateX(-50%);
     }
     
     .grid-button:hover {
@@ -305,6 +358,26 @@
     .grid-button .icon {
       font-size: 24px;
       margin-bottom: 8px;
+    }
+
+    .main-grid > .grid-button .icon,
+    .main-grid > .grid-button img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+    }
+
+    .main-grid > .grid-button .icon {
+      font-size: 28px;
+    }
+
+    .main-grid > .grid-button img {
+      max-width: 72px;
+      max-height: 72px;
+      width: auto;
+      height: auto;
     }
     
     .page-indicator {
@@ -851,7 +924,16 @@ function updateHeaderForCurrentView(){
     function createButton(text, icon = '', clickHandler = null, className = '') {
       const btn = document.createElement('button');
       btn.className = `grid-button ${className}`;
-      btn.innerHTML = `${icon ? `<span class="icon">${icon}</span>` : ''}${text}`;
+      if (icon) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'icon';
+        iconSpan.textContent = icon;
+        btn.appendChild(iconSpan);
+      }
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'label';
+      labelSpan.textContent = text;
+      btn.appendChild(labelSpan);
       if (clickHandler) btn.addEventListener('click', clickHandler);
       return btn;
     }
@@ -929,9 +1011,11 @@ function updateHeaderForCurrentView(){
         for (let i = startIdx; i < endIdx; i++) {
           const item = allMainItems[i];
           const btn = createButton(item.text, item.icon, item.action, item.className || '');
+          btn.classList.add('main-menu-card');
           
           // Apply board color and image if available
           if (item.boardData) {
+            btn.classList.add('phrase-board-card');
             if (item.boardData.color) {
               btn.style.background = rgbaFromHex(item.boardData.color, 0.2);
               btn.style.borderColor = item.boardData.color;
@@ -953,14 +1037,17 @@ function updateHeaderForCurrentView(){
           renderMainMenu(); 
           updateHeaderForCurrentView(); 
         }, 'next-btn');
+        nextBtn.classList.add('main-menu-card');
         el.mainGrid.appendChild(nextBtn);
       } else {
         // Single page - add all items
         allMainItems.forEach(item => {
           const btn = createButton(item.text, item.icon, item.action, item.className || '');
+          btn.classList.add('main-menu-card');
           
           // Apply board color and image if available
           if (item.boardData) {
+            btn.classList.add('phrase-board-card');
             if (item.boardData.color) {
               btn.style.background = rgbaFromHex(item.boardData.color, 0.2);
               btn.style.borderColor = item.boardData.color;
@@ -1008,7 +1095,7 @@ function updateHeaderForCurrentView(){
           btn.insertBefore(img, btn.firstChild);
         }
         
-        btn.style.background = rgbaFromHex(cat.color, 0.2);
+        btn.style.background = '#0047F112';
         btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
         const catTotalPages = Math.ceil(cat.items.length / itemsPerPage);
@@ -1454,7 +1541,7 @@ function updateHeaderForCurrentView(){
         }
         const tileColor = item.tileColor || cat.color;
         if (tileColor) {
-          btn.style.background = rgbaFromHex(tileColor, 0.2);
+          btn.style.background = '#0047F112';
           btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : '#000000';
         }
         gridPositions.push({ type: 'phrase', button: btn });
