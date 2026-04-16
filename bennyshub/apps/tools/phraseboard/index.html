@@ -393,11 +393,19 @@
       position: absolute;
       top: 5px;
       right: 8px;
-      background: var(--muted);
-      color: white;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
+      display: inline-flex;
+      padding: var(--Spacing-1, 4px) var(--Spacing-2, 8px);
+      justify-content: center;
+      align-items: center;
+      gap: var(--Spacing-1, 4px);
+      border-radius: var(--Radius-1-max, 3px);
+      background: var(--Colors-Accent-Accent-Alpha-3, rgba(0, 71, 241, 0.07));
+      color: var(--Colors-Accent-Accent-Alpha-11, rgba(0, 43, 183, 0.77));
+      font-size: var(--Typography-Font-size-2, 14px);
+      font-style: normal;
+      font-weight: 510;
+      line-height: var(--Typography-Line-height-2, 20px);
+      letter-spacing: var(--Typography-Letter-spacing-2, 0);
     }
     
     footer {
@@ -1104,7 +1112,8 @@ function updateHeaderForCurrentView(){
           btn.insertBefore(img, btn.firstChild);
         }
         
-        btn.style.background = '#0047F112';
+        const isFeelingsCard = (cat.name || '').trim().toLowerCase() === 'feelings';
+        btn.style.background = isFeelingsCard ? '#FF9C0029' : '#0047F112';
         btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
         const catTotalPages = Math.ceil(cat.items.length / itemsPerPage);
@@ -1122,6 +1131,8 @@ function updateHeaderForCurrentView(){
       }
       while (gridPositions.length < totalSlots) gridPositions.push({ type: 'empty', button: null });
       gridPositions.forEach(pos => { if (pos.button) el.mainGrid.appendChild(pos.button); });
+      applyNarbeDefaultFirstRowCenterColors();
+      applyNarbeDefaultBottomRowColors();
       updateScannable();
     }
 
@@ -2347,6 +2358,37 @@ function updateHeaderForCurrentView(){
     function useWhiteBordersForCurrentBoard() {
       const boardTitle = (state.currentBoardTitle || '').toLowerCase();
       return boardTitle.includes('narbe default') || boardTitle.includes('narbe house default');
+    }
+
+    function applyNarbeDefaultFirstRowCenterColors() {
+      if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
+      if (state.gridSize.cols < 4) return;
+
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn)'));
+      const centerIndices = [1, 2];
+
+      centerIndices.forEach(index => {
+        const btn = buttons[index];
+        if (!btn) return;
+        if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
+        btn.style.background = '#FF005216';
+      });
+    }
+
+    function applyNarbeDefaultBottomRowColors() {
+      if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
+
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn)'));
+      if (buttons.length === 0) return;
+
+      const cols = state.gridSize.cols;
+      const lastRowStart = Math.floor((buttons.length - 1) / cols) * cols;
+      const lastRowButtons = buttons.slice(lastRowStart, lastRowStart + cols);
+
+      lastRowButtons.forEach(btn => {
+        if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
+        btn.style.background = '#00C2D121';
+      });
     }
 
     // CSV
