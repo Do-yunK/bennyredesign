@@ -1,3 +1,7 @@
+# Welcome to the redesign :)
+
+
+
 # Benny's Accessibility Hub 2.0
 
 **A bespoke software suite for one- and two-switch accessibility, built with Electron.**
