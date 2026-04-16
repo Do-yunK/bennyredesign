@@ -182,9 +182,16 @@
       z-index: 0;
     }
 
-    .main-grid > .grid-button > * {
+    .main-grid > .grid-button > :not(.page-indicator) {
       position: relative;
       z-index: 1;
+    }
+
+    .main-grid > .grid-button .page-indicator {
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      z-index: 2;
     }
 
     .main-grid > .grid-button .label {
@@ -360,17 +367,9 @@
       margin-bottom: 8px;
     }
 
-    .main-grid > .grid-button .icon,
-    .main-grid > .grid-button img {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      margin: 0;
-    }
-
     .main-grid > .grid-button .icon {
       font-size: 28px;
+      margin-bottom: 8px;
     }
 
     .main-grid > .grid-button img {
@@ -378,6 +377,16 @@
       max-height: 72px;
       width: auto;
       height: auto;
+      margin-bottom: 8px;
+    }
+
+    .main-grid > .grid-button.main-menu-card .icon,
+    .main-grid > .grid-button.main-menu-card img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
     }
     
     .page-indicator {
