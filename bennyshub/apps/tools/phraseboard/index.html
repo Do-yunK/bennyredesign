@@ -73,12 +73,15 @@
 .header-right{ width:24px; }
     
     .main-grid {
-      padding: 20px;
+      padding: 84px 143px 251px 142px;
       display: grid;
       gap: 15px;
       grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
-      grid-template-rows: repeat(var(--grid-rows, 4), 1fr); /* Default uniform spacing */
-      align-items: stretch;
+      grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
+      align-items: center;
+      justify-content: center;
+      width: 1440px;
+      margin: 0 auto;
     }
     
     /* Only use auto row sizing when sentence mode is active */
@@ -102,12 +105,15 @@
     }
     
     .sentence-display {
-      background: var(--card);
-      border: 2px solid #000000;
-      border-radius: var(--tileRadius);
-      padding: 5px 10px; /* Reduced padding */
-      font-size: 20px; /* Slightly reduced font size */
-      height: 60px; /* Fixed height */
+      background: rgba(0, 71, 241, 0.07);
+      border-top: 3px solid #FFF;
+      border-right: 3px solid #FFF;
+      border-bottom: 55px solid #FFF;
+      border-left: 3px solid #FFF;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 20px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -115,6 +121,7 @@
       word-wrap: break-word;
       font-weight: 500;
       cursor: pointer;
+      box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
     }
     
     /* Sentence row buttons should also have fixed height to match */
@@ -126,9 +133,13 @@
     }
     
     .grid-button {
-      background: var(--card);
-      border: 2px solid #000000;
-      border-radius: var(--tileRadius);
+      border-radius: 10px;
+      border-top: 3px solid #FFF;
+      border-right: 3px solid #FFF;
+      border-bottom: 55px solid #FFF;
+      border-left: 3px solid #FFF;
+      background: rgba(0, 71, 241, 0.07);
+      box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
       padding: 15px;
       cursor: pointer;
       display: flex;
@@ -138,18 +149,26 @@
       text-align: center;
       font-size: 16px;
       font-weight: 600;
-      min-height: 80px;
+      width: 255px;
+      height: 170px;
+      aspect-ratio: 3/2;
       transition: all 0.2s;
       position: relative;
     }
     
     .grid-button:hover {
-      background: #f8fafc;
-      border-color: #000000;
+      background: rgba(0, 71, 241, 0.12);
+      border-top: 3px solid #FFF;
+      border-right: 3px solid #FFF;
+      border-bottom: 55px solid #FFF;
+      border-left: 3px solid #FFF;
     }
     
     .grid-button.scan-highlight {
-      border: 2px solid #000000 !important;
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
       background: var(--columnHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
@@ -347,6 +366,10 @@
     }
     
     #iframeControls .grid-button {
+      border-top: 3px solid #FFF;
+      border-right: 3px solid #FFF;
+      border-bottom: 55px solid #FFF;
+      border-left: 3px solid #FFF;
       background: #374151;
       color: white;
       min-height: 50px;
@@ -986,7 +1009,7 @@ function updateHeaderForCurrentView(){
         }
         
         btn.style.background = rgbaFromHex(cat.color, 0.2);
-        btn.style.borderColor = cat.color;
+        btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
         const catTotalPages = Math.ceil(cat.items.length / itemsPerPage);
         if (catTotalPages > 1) {
@@ -1432,7 +1455,7 @@ function updateHeaderForCurrentView(){
         const tileColor = item.tileColor || cat.color;
         if (tileColor) {
           btn.style.background = rgbaFromHex(tileColor, 0.2);
-          btn.style.borderColor = '#000000';
+          btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : '#000000';
         }
         gridPositions.push({ type: 'phrase', button: btn });
       }
@@ -2225,6 +2248,11 @@ function updateHeaderForCurrentView(){
       }
     }
 
+    function useWhiteBordersForCurrentBoard() {
+      const boardTitle = (state.currentBoardTitle || '').toLowerCase();
+      return boardTitle.includes('narbe default') || boardTitle.includes('narbe house default');
+    }
+
     // CSV
     function parseCSV(text) {
       const lines = text.split(/\r?\n/).filter(Boolean);
@@ -2650,27 +2678,39 @@ function updateHeaderForCurrentView(){
 
   <style>
     .grid-button.row-highlight {
-      border: 2px solid #000000 !important;
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
       background: var(--rowHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
     }
     
     .sentence-display.row-highlight {
-      border: 2px solid #000000 !important;
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
       background: var(--rowHighlight) !important;
       color: #000 !important;
     }
-    
+
     .sentence-display.scan-highlight {
-      border: 2px solid #000000 !important;
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
       background: var(--columnHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
     }
     
     .grid-button.scan-highlight {
-      border: 2px solid #000000 !important;
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
       background: var(--columnHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
