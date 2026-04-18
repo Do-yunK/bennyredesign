@@ -149,6 +149,10 @@ main {
   order: 2; /* Ensure it comes between textbar and predictbar */
 }
 
+.keyboard.add-word-mode {
+  grid-template-columns: repeat(7, 1fr);
+}
+
 .key {
   background: var(--btn);
   color: var(--btn-text);
@@ -217,12 +221,22 @@ main {
   color: #000 !important;
 }
 
+.key.confirm {
+  background: #a5d6a7 !important;
+  color: #000 !important;
+}
+
 .key.exit {
   background: #ffab91 !important;
   color: #000 !important;
 }
 
 .key.settings.highlighted {
+  background: yellow !important;
+  color: black !important;
+}
+
+.key.confirm.highlighted {
   background: yellow !important;
   color: black !important;
 }

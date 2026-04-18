@@ -822,6 +822,14 @@
       justify-self: start;
     }
 
+    .quick-right-actions.single-action {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quick-right-actions.single-action .quick-word-option {
+      width: 100%;
+    }
+
     .keyboard-tool-option:hover,
     .quick-word-option:hover {
       background: var(--muted-blue) !important;
@@ -887,6 +895,51 @@
       content: '✕';
     }
 
+    #addWordQuickBtn {
+      display: none;
+      width: 100%;
+      justify-self: stretch;
+      background: #9ca3af !important;
+      color: #ffffff !important;
+      border: 2px dotted #e5e7eb !important;
+      position: relative;
+      padding-top: 18px !important;
+      padding-bottom: 18px !important;
+      gap: 0 !important;
+    }
+
+    #addWordQuickBtn .icon {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -58%);
+      margin: 0 !important;
+      font-size: 52px !important;
+      line-height: 1;
+    }
+
+    #addWordQuickBtn .label {
+      position: absolute !important;
+      left: 50% !important;
+      bottom: 10px !important;
+      transform: translateX(-50%) !important;
+      width: calc(100% - 20px) !important;
+      margin: 0 !important;
+      text-align: center !important;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    #addWordQuickBtn:hover,
+    #addWordQuickBtn.row-highlight,
+    #addWordQuickBtn.scan-highlight {
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      font-weight: 800 !important;
+      border: 2px dotted #fff !important;
+    }
+
     @media (max-width: 768px) {
       .row-back-option {
         left: 10px;
@@ -935,6 +988,10 @@
           </button>
           <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button">
             No
+          </button>
+          <button class="grid-button quick-word-option add-category-btn" id="addWordQuickBtn" type="button">
+            <span class="icon">＋</span>
+            <span class="label">Add Word to Category</span>
           </button>
         </div>
       </div>
@@ -1058,6 +1115,9 @@
 
     // ---- Settings Persistence ----
     const STORAGE_KEY = 'phraseboard_settings';
+    const ADD_WORD_RETURN_KEY = 'phraseboard_pending_add_word';
+    const RETURN_CONTEXT_KEY = 'phraseboard_return_context';
+    const ADDED_WORDS_KEY = 'phraseboard_added_words';
     
     function saveSettings() {
       try {
@@ -1106,6 +1166,98 @@
     // Load settings immediately
     loadSettings();
 
+    // ---- Added Words Persistence ----
+    function saveAddedWordToPersistence(boardName, categoryName, word) {
+      try {
+        let addedWords = {};
+        const raw = localStorage.getItem(ADDED_WORDS_KEY);
+        if (raw) addedWords = JSON.parse(raw);
+        
+        const boardKey = (boardName || '').trim();
+        if (!boardKey) return false;
+        
+        if (!addedWords[boardKey]) {
+          addedWords[boardKey] = {};
+        }
+        
+        if (!addedWords[boardKey][categoryName]) {
+          addedWords[boardKey][categoryName] = [];
+        }
+        
+        // Add word if not already present
+        if (!addedWords[boardKey][categoryName].includes(word)) {
+          addedWords[boardKey][categoryName].push(word);
+        }
+        
+        localStorage.setItem(ADDED_WORDS_KEY, JSON.stringify(addedWords));
+        return true;
+      } catch (e) {
+        console.error('Failed to save added word to persistence:', e);
+        return false;
+      }
+    }
+
+    function loadAddedWordsForBoard(boardName) {
+      try {
+        const raw = localStorage.getItem(ADDED_WORDS_KEY);
+        if (!raw) return {};
+        
+        const addedWords = JSON.parse(raw);
+        const boardKey = (boardName || '').trim();
+        
+        return addedWords[boardKey] || {};
+      } catch (e) {
+        console.error('Failed to load added words:', e);
+        return {};
+      }
+    }
+
+    function reapplyAddedWordsForBoard(boardName) {
+      try {
+        const added = loadAddedWordsForBoard(boardName);
+        if (!added || Object.keys(added).length === 0) return;
+        
+        Object.entries(added).forEach(([categoryName, words]) => {
+          if (Array.isArray(words) && state.byCat.has(categoryName)) {
+            words.forEach(word => {
+              // Check if word already exists in category
+              const category = state.byCat.get(categoryName);
+              const wordExists = category.items.some(item => item.display === word && !item.image);
+              if (!wordExists) {
+                // Reapply the word without triggering UI renders
+                const nextTileOrder = category.items.reduce((maxOrder, item) => Math.max(maxOrder, item.tileOrder || 0), 0) + 1;
+                const boardRow = state.raw[0] || {};
+                const newItem = {
+                  category: categoryName,
+                  categoryOrder: category.order,
+                  display: word.trim(),
+                  speak: word.trim(),
+                  image: '',
+                  categoryColor: category.color || '#5bb0ff',
+                  tileColor: '',
+                  tileOrder: nextTileOrder,
+                  categoryImage: category.image || '',
+                  boardName: boardRow.boardName || state.currentBoardTitle || '',
+                  boardColor: boardRow.boardColor || '',
+                  boardImage: boardRow.boardImage || ''
+                };
+                
+                state.raw = [...state.raw, newItem];
+                const updatedCategory = {
+                  ...category,
+                  items: [...category.items, newItem].sort((a, b) => a.tileOrder - b.tileOrder)
+                };
+                state.categories = state.categories.map(existingCategory => existingCategory.name === categoryName ? updatedCategory : existingCategory);
+                state.byCat.set(categoryName, updatedCategory);
+              }
+            });
+          }
+        });
+      } catch (e) {
+        console.error('Failed to reapply added words:', e);
+      }
+    }
+
     const SCAN_SPEEDS = { slow: 2000, medium: 1200, fast: 600 };
 
     const HIGHLIGHT_COLORS = {
@@ -1141,12 +1293,15 @@
       loadBoardProceed: document.getElementById('loadBoardProceed'),
       rowBackOptionBtn: document.getElementById('rowBackOptionBtn'),
       topQuickActions: document.getElementById('topQuickActions'),
+      quickRightActions: document.querySelector('#topQuickActions .quick-right-actions'),
       yesQuickBtn: document.getElementById('yesQuickBtn'),
       noQuickBtn: document.getElementById('noQuickBtn'),
+      addWordQuickBtn: document.getElementById('addWordQuickBtn'),
       keyboardToolBtn: document.getElementById('keyboardToolBtn')
     };
 
     function openKeyboardTool() {
+      saveReturnContext();
       window.location.href = '../keyboard/index.html?returnTo=phraseboard';
     }
 
@@ -1154,11 +1309,177 @@
       onTileClick({ display: text, speak: text });
     }
 
+    function openAddWordTool() {
+      if (!state.currentCategory) return;
+      saveReturnContext();
+      const params = new URLSearchParams({
+        returnTo: 'phraseboard',
+        mode: 'add-word',
+        category: state.currentCategory,
+        board: state.currentBoardTitle || ''
+      });
+      window.location.href = `../keyboard/index.html?${params.toString()}`;
+    }
+
+    function addWordToCategory(categoryName, wordText) {
+      const normalizedWord = (wordText || '').trim();
+      if (!normalizedWord) return false;
+
+      const category = state.byCat.get(categoryName);
+      if (!category) return false;
+
+      const nextTileOrder = category.items.reduce((maxOrder, item) => Math.max(maxOrder, item.tileOrder || 0), 0) + 1;
+      const boardRow = state.raw[0] || {};
+      const newItem = {
+        category: categoryName,
+        categoryOrder: category.order,
+        display: normalizedWord,
+        speak: normalizedWord,
+        image: '',
+        categoryColor: category.color || '#5bb0ff',
+        tileColor: '',
+        tileOrder: nextTileOrder,
+        categoryImage: category.image || '',
+        boardName: boardRow.boardName || state.currentBoardTitle || '',
+        boardColor: boardRow.boardColor || '',
+        boardImage: boardRow.boardImage || ''
+      };
+
+      state.raw = [...state.raw, newItem];
+      const updatedCategory = {
+        ...category,
+        items: [...category.items, newItem].sort((a, b) => a.tileOrder - b.tileOrder)
+      };
+      state.categories = state.categories.map(existingCategory => existingCategory.name === categoryName ? updatedCategory : existingCategory);
+      state.byCat.set(categoryName, updatedCategory);
+
+      // Save the added word to persistence
+      saveAddedWordToPersistence(state.currentBoardTitle, categoryName, normalizedWord);
+
+      const totalSlots = state.gridSize.rows * state.gridSize.cols;
+      const availableSlots = totalSlots - 1;
+      const itemsPerPage = Math.max(1, availableSlots - 1);
+      const totalPages = Math.ceil(updatedCategory.items.length / itemsPerPage);
+      state.currentCategory = categoryName;
+      state.page = Math.max(0, totalPages - 1);
+      renderCategory();
+      updateHeaderForCurrentView();
+      updateScannable();
+      el.statusFooter.textContent = `Added ${normalizedWord} to ${categoryName}`;
+      speak(`${cleanTextForTTS(normalizedWord)} added to ${cleanTextForTTS(categoryName)}`);
+      return true;
+    }
+
+    function saveReturnContext() {
+      try {
+        sessionStorage.setItem(RETURN_CONTEXT_KEY, JSON.stringify({
+          boardTitle: state.currentBoardTitle || '',
+          menu: state.currentMenu || 'main',
+          category: state.currentCategory || '',
+          page: state.page || 0,
+          ts: Date.now()
+        }));
+      } catch (error) {
+        console.error('Failed to save phraseboard return context:', error);
+      }
+    }
+
+    function getSavedReturnContext() {
+      try {
+        const raw = sessionStorage.getItem(RETURN_CONTEXT_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.menu) return null;
+        return parsed;
+      } catch (error) {
+        console.error('Failed to read phraseboard return context:', error);
+        return null;
+      }
+    }
+
+    function clearSavedReturnContext() {
+      try {
+        sessionStorage.removeItem(RETURN_CONTEXT_KEY);
+      } catch (error) {
+        console.error('Failed to clear phraseboard return context:', error);
+      }
+    }
+
+    async function restoreReturnContext(context) {
+      if (!context) return false;
+
+      const boardTitle = (context.boardTitle || '').trim();
+      if (!boardTitle) {
+        if (context.menu === 'main') {
+          clearSavedReturnContext();
+          return false;
+        }
+        return false;
+      }
+
+      let restored = false;
+      const localBoard = getLocalSavedBoard();
+      if (localBoard && localBoard.name.trim().toLowerCase() === boardTitle.toLowerCase()) {
+        state.currentBoardTitle = localBoard.name;
+        buildIndex(parseCSV(localBoard.csv));
+        restored = true;
+      } else {
+        const targetBoard = state.availableBoards.find(board => (board.name || '').trim().toLowerCase() === boardTitle.toLowerCase());
+        if (targetBoard) {
+          restored = await loadBoard(targetBoard.path);
+        }
+      }
+
+      if (!restored) return false;
+
+      state.page = Math.max(0, Number.isFinite(context.page) ? context.page : 0);
+      if (context.menu === 'category' && context.category && state.byCat.has(context.category)) {
+        state.currentCategory = context.category;
+        renderCategory();
+      } else {
+        state.currentCategory = null;
+        renderCategoryMenu();
+      }
+      updateHeaderForCurrentView();
+      setTimeout(() => { updateScannable(); }, 50);
+      clearSavedReturnContext();
+      return true;
+    }
+
+    function applyPendingAddWordFromKeyboard() {
+      let rawPayload = null;
+      try {
+        rawPayload = sessionStorage.getItem(ADD_WORD_RETURN_KEY);
+        if (!rawPayload) return false;
+        const payload = JSON.parse(rawPayload);
+        const targetCategory = (payload.category || state.currentCategory || '').trim();
+        const targetBoard = (payload.board || '').trim();
+        const currentBoard = (state.currentBoardTitle || '').trim();
+        if (!targetCategory || !payload.word) {
+          sessionStorage.removeItem(ADD_WORD_RETURN_KEY);
+          return false;
+        }
+        if (targetBoard && currentBoard && targetBoard !== currentBoard) return false;
+        if (!state.byCat.has(targetCategory)) return false;
+        sessionStorage.removeItem(ADD_WORD_RETURN_KEY);
+        return addWordToCategory(targetCategory, payload.word);
+      } catch (error) {
+        console.error('Failed to apply pending add-word payload:', error);
+        if (rawPayload) sessionStorage.removeItem(ADD_WORD_RETURN_KEY);
+        return false;
+      }
+    }
+
     function updateKeyboardToolButtonVisibility() {
       if (!el.topQuickActions) return;
       const onDefaultBoardView = useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category');
+      const onCategoryPage = onDefaultBoardView && state.currentMenu === 'category';
       el.topQuickActions.classList.toggle('hidden', !onDefaultBoardView);
       el.mainGrid.classList.toggle('has-top-quick-actions', onDefaultBoardView);
+      if (el.yesQuickBtn) el.yesQuickBtn.style.display = onCategoryPage ? 'none' : '';
+      if (el.noQuickBtn) el.noQuickBtn.style.display = onCategoryPage ? 'none' : '';
+      if (el.addWordQuickBtn) el.addWordQuickBtn.style.display = onCategoryPage ? 'flex' : 'none';
+      if (el.quickRightActions) el.quickRightActions.classList.toggle('single-action', onCategoryPage);
     }
 
     if (el.keyboardToolBtn) {
@@ -1172,6 +1493,10 @@
     if (el.noQuickBtn) {
       el.noQuickBtn.dataset.speakText = 'No';
       el.noQuickBtn.addEventListener('click', () => quickPhrase('No'));
+    }
+    if (el.addWordQuickBtn) {
+      el.addWordQuickBtn.dataset.speakText = 'Add word to category';
+      el.addWordQuickBtn.addEventListener('click', openAddWordTool);
     }
 
     
@@ -1355,7 +1680,7 @@ function updateHeaderForCurrentView(){
     }
 
     function clearGrid() {
-      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn)');
+      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)');
       buttons.forEach(btn => btn.remove());
     }
 
@@ -2063,6 +2388,7 @@ function updateHeaderForCurrentView(){
       }
       gridPositions.forEach(pos => { if (pos.button) el.mainGrid.appendChild(pos.button); });
       updateScannable();
+      applyPendingAddWordFromKeyboard();
     }
 
     // Scanning Logic
@@ -2095,11 +2421,11 @@ function updateHeaderForCurrentView(){
         return;
       }
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)'));
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        const quickRow = [el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn].filter(isVisible);
+        const quickRow = [el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn, el.addWordQuickBtn].filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
@@ -2815,6 +3141,7 @@ function updateHeaderForCurrentView(){
     scanForBoards().then(async () => {
       // Load saved board or default
       const saved = getLocalSavedBoard();
+      const savedReturnContext = getSavedReturnContext();
       // Load settings from ScanManager
       if (window.NarbeScanManager) {
         updateAutoScan();
@@ -2834,6 +3161,7 @@ function updateHeaderForCurrentView(){
       // Check for board URL parameter
       const urlParams = new URLSearchParams(window.location.search);
       const boardParam = urlParams.get('board');
+      const categoryParam = urlParams.get('category');
 
       if (boardParam) {
         // Find the board in availableBoards (check filename or name)
@@ -2846,11 +3174,26 @@ function updateHeaderForCurrentView(){
            const success = await loadBoard(targetBoard.path);
            if (success) {
                el.statusFooter.textContent = `Loaded board: ${targetBoard.name}`;
-               updateScannable();
-               state.currentRow = 0; state.scanIndex = 0;
-               setTimeout(() => { updateScannable(); }, 100);
+               if (categoryParam && state.byCat.has(categoryParam)) {
+                 state.currentCategory = categoryParam;
+                 state.page = 0;
+                 renderCategory();
+                 updateHeaderForCurrentView();
+               } else {
+                 updateScannable();
+                 state.currentRow = 0; state.scanIndex = 0;
+                 setTimeout(() => { updateScannable(); }, 100);
+               }
                return; // Skip rendering main menu
            }
+        }
+      }
+
+      if (savedReturnContext) {
+        const restored = await restoreReturnContext(savedReturnContext);
+        if (restored) {
+          applyPendingAddWordFromKeyboard();
+          return;
         }
       }
 
@@ -2864,6 +3207,14 @@ function updateHeaderForCurrentView(){
       updateScannable();
       state.currentRow = 0; state.scanIndex = 0;
       setTimeout(() => { updateScannable(); }, 100);
+    });
+
+    window.addEventListener('pageshow', () => {
+      applyPendingAddWordFromKeyboard();
+    });
+
+    window.addEventListener('focus', () => {
+      applyPendingAddWordFromKeyboard();
     });
 
     // Theme
@@ -3175,7 +3526,7 @@ function updateHeaderForCurrentView(){
     function applyNarbeDefaultBottomRowColors() {
       if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)'));
       if (buttons.length === 0) return;
 
       const cols = state.gridSize.cols;
@@ -3309,6 +3660,10 @@ function updateHeaderForCurrentView(){
       state.categories = cats;
       state.byCat = new Map(cats.map(c => [c.name, c]));
       state.csvLoaded = true;
+      
+      // Reapply any previously added words for this board
+      reapplyAddedWordsForBoard(state.currentBoardTitle);
+      
       el.statusFooter.textContent = `Loaded ${cats.length} categories with ${rows.length} phrases`;
       state.navigationHistory = [];
       openMenu('categories');

@@ -6,6 +6,11 @@
   const settingsMenu = $("#settingsMenu");
   const launchParams = new URLSearchParams(window.location.search);
   const returnToPhraseboard = launchParams.get("returnTo") === "phraseboard";
+  const phraseboardMode = launchParams.get("mode") || "";
+  const phraseboardCategory = launchParams.get("category") || "";
+  const phraseboardBoard = launchParams.get("board") || "";
+  const PHRASEBOARD_ADD_WORD_RETURN_KEY = "phraseboard_pending_add_word";
+  const isAddWordMode = returnToPhraseboard && phraseboardMode === "add-word";
 
   const defaultSettings = {
     autocapI: true,
@@ -166,7 +171,9 @@
 
   // Keyboard layout with symbols for control buttons
   const rows = [
-    ["Space", "Del Letter", "Del Word", "Clear", "Settings", "Exit"],
+    isAddWordMode
+      ? ["Space", "Del Letter", "Del Word", "Clear", "Settings", "Add Word", "Exit"]
+      : ["Space", "Del Letter", "Del Word", "Clear", "Settings", "Exit"],
     ["A","B","C","D","E","F"],
     ["G","H","I","J","K","L"],
     ["M","N","O","P","Q","R"],
@@ -182,11 +189,13 @@
     "Del Word": "⌦",     // Delete forward symbol
     "Clear": "✕",        // Clear/X symbol
     "Settings": "⚙",     // Gear symbol
+    "Add Word": "＋",    // Confirm/save symbol
     "Exit": "⏻"          // Power/Exit symbol
   };
 
   function renderKeyboard() {
     kb.innerHTML = "";
+    kb.classList.toggle("add-word-mode", isAddWordMode);
     rows.forEach((row, rIdx) => {
       row.forEach((key) => {
         const btn = document.createElement("button");
@@ -194,6 +203,8 @@
         
         if (key === "Settings") {
           btn.classList.add("settings");
+        } else if (key === "Add Word") {
+          btn.classList.add("confirm");
         } else if (key === "Exit") {
           btn.classList.add("exit");
         }
@@ -1120,6 +1131,10 @@
       openSettings();
       return; 
     }
+    if (key === "Add Word")   {
+      confirmAddWord();
+      return;
+    }
     if (key === "Exit")       { 
       console.log("Exit button pressed");
       exitKeyboard();
@@ -1127,18 +1142,55 @@
     }
   }
 
+  function saveAddWordToPhraseboard() {
+      const text = buffer.replace(/\|/g, "").trim();
+      if (!text) return false;
+      sessionStorage.setItem(PHRASEBOARD_ADD_WORD_RETURN_KEY, JSON.stringify({
+        word: text,
+        category: phraseboardCategory,
+        board: phraseboardBoard,
+        ts: Date.now()
+      }));
+      return true;
+  }
+
+  function confirmAddWord() {
+      if (!isAddWordMode) {
+          exitKeyboard();
+          return;
+      }
+
+      if (!saveAddWordToPhraseboard()) {
+          speak("type a word first");
+          return;
+      }
+
+      speak("adding word to category");
+      returnToPhraseboardView();
+  }
+
+  function returnToPhraseboardView() {
+      try {
+          if (window.history.length > 1) {
+              window.history.back();
+              return;
+          }
+      } catch (e) {
+          console.error("Failed to navigate back to phraseboard:", e);
+      }
+
+      if (isAddWordMode) {
+          const params = new URLSearchParams({ board: phraseboardBoard, category: phraseboardCategory });
+          window.location.href = `../phraseboard/index.html?${params.toString()}`;
+      } else {
+          window.location.href = "../phraseboard/index.html";
+      }
+  }
+
   function exitKeyboard() {
       if (returnToPhraseboard) {
           speak("returning to phrase board");
-          try {
-              if (window.history.length > 1) {
-                  window.history.back();
-                  return;
-              }
-          } catch (e) {
-              console.error("Failed to navigate back to phraseboard:", e);
-          }
-          window.location.href = "../phraseboard/index.html";
+          returnToPhraseboardView();
           return;
       }
 
