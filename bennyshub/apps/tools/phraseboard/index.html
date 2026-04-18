@@ -579,17 +579,22 @@
 
     .top-quick-actions {
       grid-column: 1 / -1;
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols, 4), minmax(0, 1fr));
       align-items: center;
-      justify-content: space-between;
+      column-gap: 15px;
       width: 100%;
-      margin-bottom: 15px;
+      justify-self: stretch;
+      margin-bottom: 0;
     }
 
     .quick-right-actions {
-      display: flex;
+      grid-column: 3 / span 2;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: center;
       gap: 15px;
+      width: 100%;
     }
 
     .keyboard-tool-option,
@@ -600,18 +605,20 @@
       border-bottom: 3px solid #fff;
     }
 
+    .keyboard-tool-option {
+      grid-column: 1 / span 1;
+      justify-self: start;
+    }
+
+    .quick-right-actions .quick-word-option {
+      justify-self: start;
+    }
+
     @media (max-width: 768px) {
       .row-back-option {
         right: 10px;
         bottom: 55px;
         width: 140px;
-        height: 75px;
-        min-height: 75px;
-      }
-
-      .keyboard-tool-option,
-      .quick-word-option {
-        width: 200px;
         height: 75px;
         min-height: 75px;
       }
@@ -1230,18 +1237,22 @@ function updateHeaderForCurrentView(){
         }
         
         const isFeelingsCard = (cat.name || '').trim().toLowerCase() === 'feelings';
+        const isPeopleCard = (cat.name || '').trim().toLowerCase() === 'people';
         const isBasicStyleCard = isNarbeBasicStyleCategory(cat.name);
         const isTealCard = isNarbeTealAccentCategory(cat.name);
         btn.style.background = isFeelingsCard
-          ? '#FF9C0029'
+          ? rgbaFromHex(cat.color || '#ff9c00', 0.2)
+          : isPeopleCard
+            ? rgbaFromHex(cat.color || '#5bb0ff', 0.2)
           : isBasicStyleCard
             ? '#FF005216'
             : isTealCard
-              ? '#00C2D121'
+              ? rgbaFromHex('#7ed957', 0.2)
               : '#0047F112';
         btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
         applyNarbeFeelingsCardBorder(btn, isFeelingsCard);
         applyNarbeBlueCardBorder(btn, !isFeelingsCard && isNarbeBlueAccentCategory(cat.name));
+        applyNarbePeopleCardBorder(btn, !isFeelingsCard && isNarbePeopleCategory(cat.name));
         applyNarbeTealCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && isTealCard);
         applyNarbeRedCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && !isTealCard && (isBasicStyleCard || isRedTone(cat.color)));
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
@@ -2578,12 +2589,12 @@ function updateHeaderForCurrentView(){
 
     function applyNarbeAccentCardBorder(button, borderColor) {
       if (!button || !useWhiteBordersForCurrentBoard() || !borderColor) return;
-      // Keep the thick white bottom strip for label readability, and add a full ring around the card.
+      // Keep the white border strips, but use soft colored shadows instead of a hard ring.
       button.style.borderTopColor = '#FFFFFF';
       button.style.borderRightColor = '#FFFFFF';
       button.style.borderLeftColor = '#FFFFFF';
       button.style.borderBottomColor = '#FFFFFF';
-      button.style.boxShadow = `0 4px 10.9px 0 rgba(0, 0, 0, 0.10), 0 0 0 3px ${borderColor}`;
+      button.style.boxShadow = `0 6px 14px rgba(0, 0, 0, 0.12), 0 10px 22px -12px ${borderColor}, 0 0 20px -8px ${borderColor}`;
     }
 
     function applyNarbeRedCardBorder(button, isRedCard) {
@@ -2603,6 +2614,9 @@ function updateHeaderForCurrentView(){
              normalized === 'verbs' ||
              normalized === 'helpers';
     }
+    function isNarbePeopleCategory(categoryName) {
+      return (categoryName || '').trim().toLowerCase() === 'people';
+    }
 
     function isNarbeBasicStyleCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
@@ -2620,6 +2634,10 @@ function updateHeaderForCurrentView(){
     function applyNarbeBlueCardBorder(button, isBlueCard) {
       if (!isBlueCard) return;
       applyNarbeAccentCardBorder(button, '#1C49DDC5');
+    }
+    function applyNarbePeopleCardBorder(button, isPeopleCard) {
+      if (!isPeopleCard) return;
+      applyNarbeAccentCardBorder(button, '#6A1B9A');
     }
 
     function applyNarbeTealCardBorder(button, isTealCard) {
@@ -2658,11 +2676,13 @@ function updateHeaderForCurrentView(){
 
       lastRowButtons.forEach((btn, index) => {
         if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
-        btn.style.background = '#00C2D121';
-        const categoryName = btn.textContent.trim();
+        btn.style.background = rgbaFromHex('#7ed957', 0.2);
+        const labelEl = btn.querySelector('.label');
+        const categoryName = (labelEl ? labelEl.textContent : btn.textContent).trim();
         const isBlueCard = isNarbeBlueAccentCategory(categoryName);
         const isTealCard = isNarbeTealAccentCategory(categoryName) || index === lastStylableIndex;
         applyNarbeBlueCardBorder(btn, isBlueCard);
+        applyNarbePeopleCardBorder(btn, isNarbePeopleCategory(categoryName));
         applyNarbeTealCardBorder(btn, !isBlueCard && isTealCard);
       });
     }
