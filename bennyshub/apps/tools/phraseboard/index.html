@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NARBE Phrase & Media Board</title>
+  <title>Phrase Board</title>
   <style>
     :root {
       --brand: #5bb0ff;
@@ -460,7 +460,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      font-size: 10.5px;
+      font-size: 16px;
       font-weight: 600;
       line-height: 1.2;
       padding: 6px;
@@ -485,14 +485,29 @@
     }
 
     .radial-menu-item.radial-cancel {
-      background: rgba(254, 226, 226, 0.97);
-      border-color: #ef4444;
+      background: rgba(254, 240, 138, 0.97);
+      border-color: #eab308;
       font-size: 18px;
+      color: #111827;
     }
 
     .radial-menu-item.radial-cancel.scan-highlight {
+      background: #facc15;
+      color: #111827;
+      border-color: #ca8a04;
+    }
+
+    .radial-menu-item.radial-close {
+      background: rgba(254, 226, 226, 0.97);
+      border-color: #ef4444;
+      font-size: 18px;
+      color: #7f1d1d;
+    }
+
+    .radial-menu-item.radial-close.scan-highlight {
       background: #ef4444;
       color: white;
+      border-color: #b91c1c;
     }
     
     footer {
@@ -729,6 +744,25 @@
       justify-self: start;
     }
 
+    .keyboard-tool-option:hover,
+    .quick-word-option:hover {
+      background: var(--muted-blue) !important;
+      border-top: 3px solid #fff !important;
+      border-right: 3px solid #fff !important;
+      border-bottom: 3px solid #fff !important;
+      border-left: 3px solid #fff !important;
+    }
+
+    .keyboard-tool-option.row-highlight,
+    .quick-word-option.row-highlight,
+    .keyboard-tool-option.scan-highlight,
+    .quick-word-option.scan-highlight {
+      border-top: 3px solid #fff !important;
+      border-right: 3px solid #fff !important;
+      border-bottom: 3px solid #fff !important;
+      border-left: 3px solid #fff !important;
+    }
+
     @media (max-width: 768px) {
       .row-back-option {
         right: 10px;
@@ -748,7 +782,7 @@
   <div class="app-container">
     <header>
   <div class="header-inner">
-    <div class="brand">🧡 NARBE Phrase & Media Board</div>
+    <div class="header-right" aria-hidden="true"></div>
     <div id="viewTitle" class="header-title">Main Menu</div>
     <div class="header-right"></div>
   </div>
@@ -1005,6 +1039,7 @@
     }
 
     if (el.keyboardToolBtn) {
+      el.keyboardToolBtn.dataset.speakText = 'Keyboard';
       el.keyboardToolBtn.addEventListener('click', openKeyboardTool);
     }
     if (el.yesQuickBtn) {
@@ -1018,13 +1053,19 @@
 
     
 // ---- Dynamic header title ----
+function formatBoardDisplayTitle(title) {
+  const normalized = (title || '').trim().toLowerCase();
+  if (normalized === 'narbe default') return 'DEFAULT';
+  return title;
+}
+
 function updateHeaderForCurrentView(){
   const t = document.getElementById('viewTitle');
   if(!t) return;
   let title = 'Main Menu';
   switch(state.currentMenu){
     case 'main': title = 'Main Menu'; break;
-    case 'categories': title = state.currentBoardTitle || 'Categories'; break;
+    case 'categories': title = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories'; break;
     case 'settings': title = 'Settings'; break;
     case 'gridsize': title = 'Grid Size'; break;
     case 'tts': title = 'Voice & TTS'; break;
@@ -1034,6 +1075,7 @@ function updateHeaderForCurrentView(){
     case 'category': title = state.currentCategory || 'Category'; break;
   }
   t.textContent = title;
+  document.title = state.currentMenu === 'main' ? 'Tools' : 'Phrase Board';
   updateKeyboardToolButtonVisibility();
 }
 // Modal Functions
@@ -1253,16 +1295,25 @@ function updateHeaderForCurrentView(){
       
       // Add available boards to main items list
       state.availableBoards.forEach(board => {
+        const normalizedBoardName = (board.name || '')
+          .toLowerCase()
+          .replace(/['’]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (normalizedBoardName === 'bennys phrase board' || normalizedBoardName === 'youtube videos') return;
+
+        const displayBoardName = formatBoardDisplayTitle(board.name);
+
         allMainItems.push({
-          text: board.name,
+          text: displayBoardName,
           icon: board.image ? '' : '📋', // Only use clipboard icon if no image is available
           boardData: board, // Store board data for styling
           action: async () => {
-            const cleanBoardName = cleanTextForTTS(board.name);
+            const cleanBoardName = cleanTextForTTS(displayBoardName);
             if (cleanBoardName) speak(cleanBoardName);
             
             const success = await loadBoard(board.path);
-            el.statusFooter.textContent = success ? `Loaded board: ${board.name}` : `Failed to load board: ${board.name}`;
+            el.statusFooter.textContent = success ? `Loaded board: ${displayBoardName}` : `Failed to load board: ${displayBoardName}`;
           }
         });
       });
@@ -1884,6 +1935,9 @@ function updateHeaderForCurrentView(){
       const savedIndex = state.scanIndex;
       const isCellMode = state.userScanPreference === 'cell';
 
+      // Keep quick-action visibility in sync with current board/menu before scanning rows are computed.
+      updateKeyboardToolButtonVisibility();
+
       hideRowBackOption();
       document.body.classList.remove('column-selection-active');
       
@@ -1968,16 +2022,8 @@ function updateHeaderForCurrentView(){
     function showRowBackOptionForCurrentRow() {
       if (!el.rowBackOptionBtn) return;
       if (state.userScanPreference === 'cell' || state.videoModalActive) return;
-      if (state.currentMenu !== 'categories' && state.currentMenu !== 'category') return;
+      if (state.currentMenu !== 'main' && state.currentMenu !== 'categories' && state.currentMenu !== 'category') return;
       if (state.currentRow < 0 || !state.scannableRows[state.currentRow]) return;
-
-      const currentRowItems = state.scannableRows[state.currentRow];
-      const firstRowItem = currentRowItems[0];
-      const rowAlreadyStartsWithBack = firstRowItem && firstRowItem.classList && firstRowItem.classList.contains('back-btn');
-      if (rowAlreadyStartsWithBack) {
-        hideRowBackOption();
-        return;
-      }
 
       hideRowBackOption();
       state.scannableRows[state.currentRow].unshift(el.rowBackOptionBtn);
@@ -2043,7 +2089,11 @@ function updateHeaderForCurrentView(){
       closeRadialMenu();
       const MAX = 5;
       const preview = items.slice(0, MAX);
-      const allItems = [{ display: '→ Page', speak: '', _openPage: true }, ...preview];
+      const allItems = [
+        { display: '→ Page', speak: 'Open page', _openPage: true },
+        { display: '✕', speak: 'Close menu', _closeMenu: true },
+        ...preview
+      ];
       const count = allItems.length;
       const rect = anchorEl.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
@@ -2061,7 +2111,7 @@ function updateHeaderForCurrentView(){
         const y = cy + radius * Math.sin(angle);
 
         const btn = document.createElement('button');
-        btn.className = 'radial-menu-item' + (item._openPage ? ' radial-cancel' : '');
+        btn.className = 'radial-menu-item' + (item._openPage ? ' radial-cancel' : '') + (item._closeMenu ? ' radial-close' : '');
         btn.style.left = x + 'px';
         btn.style.top = y + 'px';
         btn.textContent = item.display || item.speak || '';
@@ -2119,13 +2169,14 @@ function updateHeaderForCurrentView(){
         const anchor = state.radialAnchor;
         closeRadialMenu();
         if (anchor) anchor.click();
+      } else if (def._closeMenu) {
+        closeRadialMenu();
       } else {
         const text = (def.speak || def.display || '').trim();
         if (text) {
           if (state.sentenceMode) { state.sentence.push(text); updateSentenceDisplay(); }
           else { const clean = cleanTextForTTS(text); if (clean) speak(clean); }
         }
-        closeRadialMenu();
       }
     }
 
@@ -2707,7 +2758,7 @@ function updateHeaderForCurrentView(){
         switch (prevState.menu) {
           case 'main': backMessage = 'Main Menu'; break;
           case 'settings': backMessage = 'Settings Menu'; break;
-          case 'categories': backMessage = state.currentBoardTitle || 'Categories'; break;
+          case 'categories': backMessage = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories'; break;
           case 'category': backMessage = prevState.category || 'Category'; break;
         }
         
@@ -2756,7 +2807,7 @@ function updateHeaderForCurrentView(){
           break;
         case 'categories': 
           renderCategoryMenu(); 
-          menuTitle = state.currentBoardTitle || 'Categories';
+          menuTitle = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
           break;
         case 'settings': 
           renderSettingsMenu(); 

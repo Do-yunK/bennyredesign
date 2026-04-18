@@ -34,7 +34,7 @@
     },
     {
       "id": "phraseboard",
-      "title": "Phrase & Media Board",
+      "title": "Phrase Board",
       "description": "Editable phrase & media tiles with scanning and speak-out.",
       "path": "apps/tools/phraseboard/index.html",
       "image": "images/tools/phraseboard.png",

@@ -47,6 +47,10 @@
     localStorage.setItem("kb_settings", JSON.stringify(settings));
   }
 
+  // Scanning timers/state used by manager subscription callback.
+  let autoScanInterval = null;
+  let isAutoScanning = false;
+
   // TTS functionality using unified voice manager with interruption
   function speak(text) {
     // Always cancel any currently speaking TTS first
@@ -79,8 +83,7 @@
       return 2000; // Fallback default
   }
 
-  let autoScanInterval = null;
-  let isAutoScanning = false;
+  let currentScanSpeed = settings.scanSpeed || "medium";
 
   // Theme management
   const themes = ["default", "light", "dark", "blue", "green", "purple", "orange", "red"];
