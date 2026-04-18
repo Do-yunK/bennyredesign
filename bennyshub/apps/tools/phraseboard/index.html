@@ -251,6 +251,48 @@
       background: var(--brand);
       color: white;
     }
+
+    .main-grid > .grid-button.back-btn,
+    .main-grid > .grid-button.next-btn {
+      background: #9ca3af !important;
+      color: #ffffff !important;
+      border: 1px solid #6b7280 !important;
+      --footer-strip-height: 1px;
+      border-bottom: 1px solid #6b7280 !important;
+      justify-content: center !important;
+      align-items: center !important;
+      text-align: center !important;
+      padding-bottom: 15px !important;
+    }
+
+    .main-grid > .grid-button.back-btn::before,
+    .main-grid > .grid-button.next-btn::before {
+      display: none;
+    }
+
+    .main-grid > .grid-button.back-btn .label,
+    .main-grid > .grid-button.next-btn .label {
+      position: static !important;
+      left: auto !important;
+      top: auto !important;
+      transform: none !important;
+      width: 100% !important;
+      margin-top: 8px !important;
+      text-align: center !important;
+    }
+
+    .main-grid > .grid-button.back-btn:hover,
+    .main-grid > .grid-button.next-btn:hover,
+    .main-grid > .grid-button.back-btn.row-highlight,
+    .main-grid > .grid-button.next-btn.row-highlight,
+    .main-grid > .grid-button.back-btn.scan-highlight,
+    .main-grid > .grid-button.next-btn.scan-highlight {
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      font-weight: 800 !important;
+      border: 1px solid #fff !important;
+      border-bottom: 1px solid #fff !important;
+    }
     
     .grid-button.settings-btn {
       background: var(--ok);
@@ -761,6 +803,52 @@
       border-right: 3px solid #fff !important;
       border-bottom: 3px solid #fff !important;
       border-left: 3px solid #fff !important;
+    }
+
+    #yesQuickBtn,
+    #noQuickBtn {
+      background: var(--muted-blue) !important;
+      color: #ffffff !important;
+      border-top: 3px solid #fff !important;
+      border-right: 3px solid #fff !important;
+      border-bottom: 3px solid #fff !important;
+      border-left: 3px solid #fff !important;
+      position: relative;
+      padding-top: 34px;
+    }
+
+    #yesQuickBtn:hover,
+    #yesQuickBtn.row-highlight,
+    #yesQuickBtn.scan-highlight,
+    #noQuickBtn:hover,
+    #noQuickBtn.row-highlight,
+    #noQuickBtn.scan-highlight {
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      font-weight: 800 !important;
+      border-top: 3px solid #fff !important;
+      border-right: 3px solid #fff !important;
+      border-bottom: 3px solid #fff !important;
+      border-left: 3px solid #fff !important;
+    }
+
+    #yesQuickBtn::before,
+    #noQuickBtn::before {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    #yesQuickBtn::before {
+      content: '✓';
+    }
+
+    #noQuickBtn::before {
+      content: '✕';
     }
 
     @media (max-width: 768px) {
@@ -2993,7 +3081,7 @@ function updateHeaderForCurrentView(){
     function applyNarbeDefaultBottomRowColors() {
       if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn)'));
       if (buttons.length === 0) return;
 
       const cols = state.gridSize.cols;
@@ -3008,6 +3096,11 @@ function updateHeaderForCurrentView(){
       lastRowButtons.forEach((btn, index) => {
         if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
         btn.style.background = rgbaFromHex('#7ed957', 0.2);
+        const indicator = btn.querySelector('.page-indicator');
+        if (indicator) {
+          indicator.style.color = '#007491EF';
+          indicator.style.background = '#00C2D121';
+        }
         const labelEl = btn.querySelector('.label');
         const categoryName = (labelEl ? labelEl.textContent : btn.textContent).trim();
         const isBlueCard = isNarbeBlueAccentCategory(categoryName);
