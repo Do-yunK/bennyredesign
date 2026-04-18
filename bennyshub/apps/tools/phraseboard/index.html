@@ -940,6 +940,71 @@
       border: 2px dotted #fff !important;
     }
 
+    #editCategoryBtn {
+      display: none;
+      width: 100%;
+      justify-self: stretch;
+      background: #f59e0b !important;
+      color: #ffffff !important;
+      border: 2px dotted #e5e7eb !important;
+      position: relative;
+      padding-top: 18px !important;
+      padding-bottom: 18px !important;
+      gap: 0 !important;
+    }
+
+    #editCategoryBtn .icon {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -58%);
+      margin: 0 !important;
+      font-size: 52px !important;
+      line-height: 1;
+    }
+
+    #editCategoryBtn .label {
+      position: absolute !important;
+      left: 50% !important;
+      bottom: 10px !important;
+      transform: translateX(-50%) !important;
+      width: calc(100% - 20px) !important;
+      margin: 0 !important;
+      text-align: center !important;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    #editCategoryBtn:hover,
+    #editCategoryBtn.row-highlight,
+    #editCategoryBtn.scan-highlight {
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      font-weight: 800 !important;
+      border: 2px dotted #fff !important;
+    }
+
+    .edit-mode .grid-button.phrase-board-card::after {
+      content: '✕';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ef4444;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 10;
+      border: 2px solid white;
+    }
+
     @media (max-width: 768px) {
       .row-back-option {
         left: 10px;
@@ -992,6 +1057,10 @@
           <button class="grid-button quick-word-option add-category-btn" id="addWordQuickBtn" type="button">
             <span class="icon">＋</span>
             <span class="label">Add Word to Category</span>
+          </button>
+          <button class="grid-button quick-word-option edit-category-btn" id="editCategoryBtn" type="button">
+            <span class="icon">✎</span>
+            <span class="label">Edit Category</span>
           </button>
         </div>
       </div>
@@ -1107,7 +1176,8 @@
       radialItems: [],
       radialIndex: -1,
       radialAnchor: null,
-      radialItemDefs: []
+      radialItemDefs: [],
+      editMode: false
     };
 
     // Expose state globally for header title updater
@@ -1297,6 +1367,7 @@
       yesQuickBtn: document.getElementById('yesQuickBtn'),
       noQuickBtn: document.getElementById('noQuickBtn'),
       addWordQuickBtn: document.getElementById('addWordQuickBtn'),
+      editCategoryBtn: document.getElementById('editCategoryBtn'),
       keyboardToolBtn: document.getElementById('keyboardToolBtn')
     };
 
@@ -1319,6 +1390,47 @@
         board: state.currentBoardTitle || ''
       });
       window.location.href = `../keyboard/index.html?${params.toString()}`;
+    }
+
+    function toggleEditMode() {
+      state.editMode = !state.editMode;
+      if (state.editMode) {
+        el.mainGrid.classList.add('edit-mode');
+        el.editCategoryBtn.classList.add('active-green');
+        el.editCategoryBtn.dataset.speakText = 'Exit edit mode';
+        speak('Edit mode enabled. Click delete icons to remove cards.');
+      } else {
+        el.mainGrid.classList.remove('edit-mode');
+        el.editCategoryBtn.classList.remove('active-green');
+        el.editCategoryBtn.dataset.speakText = 'Edit category';
+        speak('Edit mode disabled.');
+      }
+    }
+
+    function deleteCardFromCategory(index) {
+      if (!state.currentCategory) return false;
+      const category = state.byCat.get(state.currentCategory);
+      if (!category || !category.items[index]) return false;
+
+      const item = category.items[index];
+      const display = item.display || item.speak || 'Unknown';
+      
+      if (!confirm(`Delete "${display}"?`)) return false;
+
+      // Remove from state.raw
+      state.raw = state.raw.filter(r => !(r.category === state.currentCategory && r.display === display && r.tileOrder === item.tileOrder));
+      
+      // Remove from category items
+      const updatedItems = category.items.filter((_, i) => i !== index);
+      const updatedCategory = { ...category, items: updatedItems };
+      
+      state.categories = state.categories.map(cat => cat.name === state.currentCategory ? updatedCategory : cat);
+      state.byCat.set(state.currentCategory, updatedCategory);
+      
+      renderCategory();
+      el.statusFooter.textContent = `Deleted ${display}`;
+      speak(`${cleanTextForTTS(display)} deleted`);
+      return true;
     }
 
     function addWordToCategory(categoryName, wordText) {
@@ -1365,8 +1477,9 @@
       renderCategory();
       updateHeaderForCurrentView();
       updateScannable();
-      el.statusFooter.textContent = `Added ${normalizedWord} to ${categoryName}`;
-      speak(`${cleanTextForTTS(normalizedWord)} added to ${cleanTextForTTS(categoryName)}`);
+      const displayCategoryName = getDisplayCategoryName(categoryName);
+      el.statusFooter.textContent = `Added ${normalizedWord} to ${displayCategoryName}`;
+      speak(`${cleanTextForTTS(normalizedWord)} added to ${cleanTextForTTS(displayCategoryName)}`);
       return true;
     }
 
@@ -1479,6 +1592,7 @@
       if (el.yesQuickBtn) el.yesQuickBtn.style.display = onCategoryPage ? 'none' : '';
       if (el.noQuickBtn) el.noQuickBtn.style.display = onCategoryPage ? 'none' : '';
       if (el.addWordQuickBtn) el.addWordQuickBtn.style.display = onCategoryPage ? 'flex' : 'none';
+      if (el.editCategoryBtn) el.editCategoryBtn.style.display = onCategoryPage ? 'flex' : 'none';
       if (el.quickRightActions) el.quickRightActions.classList.toggle('single-action', onCategoryPage);
     }
 
@@ -1498,6 +1612,10 @@
       el.addWordQuickBtn.dataset.speakText = 'Add word to category';
       el.addWordQuickBtn.addEventListener('click', openAddWordTool);
     }
+    if (el.editCategoryBtn) {
+      el.editCategoryBtn.dataset.speakText = 'Edit category';
+      el.editCategoryBtn.addEventListener('click', toggleEditMode);
+    }
 
     
 // ---- Dynamic header title ----
@@ -1505,6 +1623,17 @@ function formatBoardDisplayTitle(title) {
   const normalized = (title || '').trim().toLowerCase();
   if (normalized === 'narbe default') return 'DEFAULT';
   return title;
+}
+
+function getDisplayCategoryName(categoryName) {
+  const normalized = (categoryName || '').trim().toLowerCase();
+  if (normalized === 'basic') return 'Core Phrases';
+  if (normalized === 'needs') return 'Needs & Wants';
+  if (normalized === 'pronouns') return 'Actions';
+  if (normalized === 'verbs') return 'Questions';
+  if (normalized === 'helpers') return 'Places';
+  if (normalized === 'questions & time') return 'Time';
+  return categoryName;
 }
 
 function updateHeaderForCurrentView(){
@@ -1520,7 +1649,7 @@ function updateHeaderForCurrentView(){
     case 'scan': title = 'Scan Settings'; break;
     case 'highlight': title = 'Highlight Colors'; break;
     case 'theme': title = 'Theme'; break;
-    case 'category': title = state.currentCategory || 'Category'; break;
+    case 'category': title = getDisplayCategoryName(state.currentCategory) || 'Category'; break;
   }
   t.textContent = title;
   document.title = state.currentMenu === 'main' ? 'Tools' : 'Phrase Board';
@@ -1862,7 +1991,8 @@ function updateHeaderForCurrentView(){
       }
       for (let i = startIdx; i < endIdx; i++) {
         const cat = state.categories[i];
-        const btn = createButton(cat.name, '', () => openCategory(cat.name));
+        const displayName = getDisplayCategoryName(cat.name);
+        const btn = createButton(displayName, '', () => openCategory(cat.name));
         
         // Add category image if available
         if (cat.image) {
@@ -1906,9 +2036,9 @@ function updateHeaderForCurrentView(){
             previewSpan.className = 'card-preview';
             previewSpan.textContent = previewText;
             btn.appendChild(previewSpan);
-            btn.dataset.speakText = `${cat.name}. ${previewText}`;
+            btn.dataset.speakText = `${displayName}. ${previewText}`;
           } else {
-            btn.dataset.speakText = cat.name;
+            btn.dataset.speakText = displayName;
           }
         }
 
@@ -2353,7 +2483,7 @@ function updateHeaderForCurrentView(){
       gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
       for (let i = startIdx; i < endIdx; i++) {
         const item = cat.items[i];
-        const btn = createButton(item.display || item.speak || 'Speak', '', () => onTileClick(item));
+        const btn = createButton(item.display || item.speak || 'Speak', '', () => onTileClick(item), 'phrase-board-card');
         // Store the speak text for scan selection to use
         btn.dataset.speakText = item.speak || item.display || '';
         if (item.image) {
@@ -2387,6 +2517,32 @@ function updateHeaderForCurrentView(){
         gridPositions.push({ type: 'next', button: createButton('Next', '▶', () => { state.page = (state.page + 1) % totalPages; renderCategory(); }, 'next-btn') });
       }
       gridPositions.forEach(pos => { if (pos.button) el.mainGrid.appendChild(pos.button); });
+      
+      // Add delete handlers to phrase cards when in edit mode
+      if (state.editMode) {
+        const phraseButtons = el.mainGrid.querySelectorAll('.phrase-board-card');
+        phraseButtons.forEach((btn, idx) => {
+          // Remove any existing delete handlers to prevent duplicates
+          const newBtn = btn.cloneNode(true);
+          btn.parentNode.replaceChild(newBtn, btn);
+          
+          const itemIndex = startIdx + idx;
+          const item = cat.items[itemIndex];
+          
+          // Add click handler to delete on the card itself
+          newBtn.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-icon') || e.detail === 2) {
+              // If clicking the pseudo-element area or double-clicking
+              e.stopPropagation();
+              deleteCardFromCategory(itemIndex);
+            } else {
+              // Single click still triggers the phrase
+              onTileClick(item);
+            }
+          });
+        });
+      }
+      
       updateScannable();
       applyPendingAddWordFromKeyboard();
     }
@@ -3464,8 +3620,11 @@ function updateHeaderForCurrentView(){
       const normalized = (categoryName || '').trim().toLowerCase();
       return normalized === 'people' ||
              normalized === 'pronouns' ||
+             normalized === 'actions' ||
              normalized === 'verbs' ||
-             normalized === 'helpers';
+             normalized === 'questions' ||
+             normalized === 'helpers' ||
+             normalized === 'places';
     }
     function isNarbePeopleCategory(categoryName) {
       return (categoryName || '').trim().toLowerCase() === 'people';
@@ -3473,17 +3632,17 @@ function updateHeaderForCurrentView(){
 
     function isNarbePronounsOrVerbsCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
-      return normalized === 'pronouns' || normalized === 'verbs';
+      return normalized === 'pronouns' || normalized === 'actions' || normalized === 'verbs' || normalized === 'questions';
     }
 
     function isNarbeCanTintCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
-      return normalized === 'pronouns' || normalized === 'verbs' || normalized === 'helpers';
+      return normalized === 'pronouns' || normalized === 'actions' || normalized === 'verbs' || normalized === 'questions' || normalized === 'helpers' || normalized === 'places';
     }
 
     function isNarbeBasicStyleCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
-      return normalized.includes('basic') || normalized.includes('needs');
+      return normalized.includes('core phrases') || normalized.includes('basic') || normalized.includes('needs');
     }
 
     function isNarbeTealAccentCategory(categoryName) {

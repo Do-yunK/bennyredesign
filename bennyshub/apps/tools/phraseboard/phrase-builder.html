@@ -357,7 +357,7 @@
         </div>
         <div>
           <label>Category name</label>
-          <input class="cat-name" type="text" placeholder="e.g., Basic" />
+          <input class="cat-name" type="text" placeholder="e.g., Core Phrases" />
         </div>
         <div>
           <label>Category image</label>
@@ -1739,7 +1739,7 @@
         clearBuilder();
         // add a couple of starter categories
         const c1 = categories.firstElementChild;
-        c1.querySelector('.cat-name').value = 'Basic';
+        c1.querySelector('.cat-name').value = 'Core Phrases';
         c1.querySelector('.cat-color').value = '#5bb0ff';
         const rows1 = c1.querySelector('.rows');
         rows1.querySelector('tr').remove();
@@ -1747,7 +1747,7 @@
         addRow(c1, { display: 'Thank you', speak: 'Thank you', image: '', tileOrder: 2 });
 
         const c2 = newCategory(2);
-        c2.querySelector('.cat-name').value = 'Needs';
+        c2.querySelector('.cat-name').value = 'Needs & Wants';
         c2.querySelector('.cat-color').value = '#ef4444';
         c2.querySelector('.rows').querySelector('tr').remove();
         addRow(c2, { display: 'I need help', speak: 'I need help, please.', image: '', tileOrder: 1 });
