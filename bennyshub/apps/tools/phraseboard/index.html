@@ -161,7 +161,7 @@
       width: 255px;
       height: 170px;
       aspect-ratio: 3/2;
-      transition: all 0.2s;
+      transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
       position: relative;
     }
 
@@ -190,7 +190,7 @@
       z-index: 0;
     }
 
-    .main-grid > .grid-button > :not(.page-indicator) {
+    .main-grid > .grid-button > :not(.page-indicator):not(.card-preview) {
       position: relative;
       z-index: 1;
     }
@@ -228,7 +228,7 @@
       background: rgba(0, 71, 241, 0.12);
       border-top: 3px solid #FFF;
       border-right: 3px solid #FFF;
-      border-bottom: 55px solid #FFF;
+      border-bottom: var(--footer-strip-height) solid #FFF;
       border-left: 3px solid #FFF;
     }
     
@@ -415,6 +415,85 @@
       line-height: var(--Typography-Line-height-2, 20px);
       letter-spacing: var(--Typography-Letter-spacing-2, 0);
     }
+
+    .card-preview {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 56%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+      color: rgba(17, 24, 39, 0.75);
+      display: none;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Radial menu */
+    #radialMenuOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      pointer-events: none;
+    }
+
+    .radial-anchor-highlight {
+      outline: 3px solid rgba(255, 255, 255, 0.9) !important;
+      outline-offset: 4px;
+    }
+
+    .radial-menu-item {
+      position: absolute;
+      pointer-events: all;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2.5px solid #d1d5db;
+      border-radius: 50%;
+      width: 76px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 600;
+      line-height: 1.2;
+      padding: 6px;
+      box-sizing: border-box;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      transition: background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .radial-menu-item.radial-open {
+      transform: translate(-50%, -50%);
+    }
+
+    .radial-menu-item.scan-highlight {
+      background: var(--scan-highlight-color, #FFD700);
+      border-color: var(--scan-highlight-border, #e6b800);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.30);
+      z-index: 2;
+    }
+
+    .radial-menu-item.radial-cancel {
+      background: rgba(254, 226, 226, 0.97);
+      border-color: #ef4444;
+      font-size: 18px;
+    }
+
+    .radial-menu-item.radial-cancel.scan-highlight {
+      background: #ef4444;
+      color: white;
+    }
     
     footer {
       text-align: center;
@@ -482,7 +561,10 @@
     /* Ensure scan highlights override all button colors */
     .grid-button.row-highlight,
     .grid-button.scan-highlight {
-      border: 2px solid #000000 !important;
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
       font-weight: 800 !important;
     }
     
@@ -490,10 +572,43 @@
       background: var(--rowHighlight) !important;
       color: #000 !important;
     }
+
+    body.column-selection-active .main-grid > .grid-button {
+      opacity: 0.35;
+      transition: opacity 0.12s ease;
+    }
+
+    body.column-selection-active .row-focus {
+      opacity: 1 !important;
+    }
+
+    body.column-selection-active .scan-highlight,
+    body.column-selection-active .row-highlight {
+      opacity: 1 !important;
+    }
     
     .grid-button.scan-highlight {
       background: var(--columnHighlight) !important;
       color: #000 !important;
+    }
+
+    .sentence-display.row-highlight {
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
+      background: var(--rowHighlight) !important;
+      color: #000 !important;
+    }
+
+    .sentence-display.scan-highlight {
+      border-top: 3px solid #FFF !important;
+      border-right: 3px solid #FFF !important;
+      border-bottom: 55px solid #FFF !important;
+      border-left: 3px solid #FFF !important;
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      font-weight: 800 !important;
     }
 
     /* Warning Modal Styles */
@@ -773,7 +888,12 @@
       isPlaylist: false,
       videoModalActive: false,
       userScanPreference: 'row', // 'row' or 'cell'
-      rowBackOptionActive: false
+      rowBackOptionActive: false,
+      radialMenuActive: false,
+      radialItems: [],
+      radialIndex: -1,
+      radialAnchor: null,
+      radialItemDefs: []
     };
 
     // Expose state globally for header title updater
@@ -1048,6 +1168,18 @@ function updateHeaderForCurrentView(){
       return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[←→↑↓▶◀⚙️📁🔊🎯🎨💬⌫🗑️🏠⊞🔄🐌🚶🏃🎤👦👧●]/gu, '').trim();
     }
 
+    function buildCategoryPreviewText(items, maxItems = 3) {
+      if (!Array.isArray(items) || items.length === 0) return '';
+      const parts = items
+        .map(item => (item.display || item.speak || '').trim())
+        .filter(Boolean)
+        .slice(0, maxItems);
+      if (parts.length === 0) return '';
+      if (parts.length === 1) return parts[0];
+      if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+      return `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}`;
+    }
+
     // Grid
     function setGridSize(rows, cols) {
       state.gridSize = { rows, cols };
@@ -1255,6 +1387,24 @@ function updateHeaderForCurrentView(){
         applyNarbePeopleCardBorder(btn, !isFeelingsCard && isNarbePeopleCategory(cat.name));
         applyNarbeTealCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && isTealCard);
         applyNarbeRedCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && !isTealCard && (isBasicStyleCard || isRedTone(cat.color)));
+
+        if (useWhiteBordersForCurrentBoard()) {
+          const radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
+          if (radialItems.length) {
+            btn.dataset.radialItems = JSON.stringify(radialItems);
+          }
+          const previewText = buildCategoryPreviewText(cat.items, 3);
+          if (previewText) {
+            const previewSpan = document.createElement('span');
+            previewSpan.className = 'card-preview';
+            previewSpan.textContent = previewText;
+            btn.appendChild(previewSpan);
+            btn.dataset.speakText = `${cat.name}. ${previewText}`;
+          } else {
+            btn.dataset.speakText = cat.name;
+          }
+        }
+
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
         const catTotalPages = Math.ceil(cat.items.length / itemsPerPage);
         if (catTotalPages > 1) {
@@ -1735,6 +1885,7 @@ function updateHeaderForCurrentView(){
       const isCellMode = state.userScanPreference === 'cell';
 
       hideRowBackOption();
+      document.body.classList.remove('column-selection-active');
       
       // If video modal is open, only scan its visible control buttons
       if (state.videoModalActive) {
@@ -1785,6 +1936,8 @@ function updateHeaderForCurrentView(){
     function clearScanHighlight() {
       document.querySelectorAll('.scan-highlight').forEach(el => el.classList.remove('scan-highlight'));
       document.querySelectorAll('.row-highlight').forEach(el => el.classList.remove('row-highlight'));
+      document.querySelectorAll('.row-focus').forEach(el => el.classList.remove('row-focus'));
+      closeRadialMenu();
     }
 
     function scrollGridToElement(element) {
@@ -1818,6 +1971,14 @@ function updateHeaderForCurrentView(){
       if (state.currentMenu !== 'categories' && state.currentMenu !== 'category') return;
       if (state.currentRow < 0 || !state.scannableRows[state.currentRow]) return;
 
+      const currentRowItems = state.scannableRows[state.currentRow];
+      const firstRowItem = currentRowItems[0];
+      const rowAlreadyStartsWithBack = firstRowItem && firstRowItem.classList && firstRowItem.classList.contains('back-btn');
+      if (rowAlreadyStartsWithBack) {
+        hideRowBackOption();
+        return;
+      }
+
       hideRowBackOption();
       state.scannableRows[state.currentRow].unshift(el.rowBackOptionBtn);
       state.rowBackOptionActive = true;
@@ -1841,8 +2002,13 @@ function updateHeaderForCurrentView(){
       if (state.currentRow >= 0 && state.scanIndex >= 0 && 
           state.scannableRows[state.currentRow] && 
           state.scannableRows[state.currentRow][state.scanIndex]) {
+        state.scannableRows[state.currentRow].forEach(rowEl => rowEl.classList.add('row-focus'));
         const element = state.scannableRows[state.currentRow][state.scanIndex];
         element.classList.add('scan-highlight');
+        if (element.dataset.radialItems) {
+          const items = JSON.parse(element.dataset.radialItems);
+          openRadialMenu(element, items);
+        }
         scrollGridToElement(element);
         if (state.ttsOnScan) {
           if (state.currentMenu === 'tts' && element.classList.contains('voice-btn')) {
@@ -1854,20 +2020,127 @@ function updateHeaderForCurrentView(){
           if (element === el.deleteWordBtn && state.sentenceMode) textToSpeak = 'Delete';
           else if (element === el.clearSentenceBtn && state.sentenceMode) textToSpeak = 'Clear all';
           else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
-            const pageIndicator = element.querySelector('.page-indicator');
-            const cleanText = cleanTextForTTS(element.textContent);
-            if (pageIndicator) {
-              const pageText = pageIndicator.textContent;
-              const categoryName = cleanText.replace(pageText, '').trim();
-              if (categoryName) textToSpeak = `${categoryName}, ${pageText}`;
-            } else if (cleanText) textToSpeak = cleanText;
+            const explicitSpeakText = cleanTextForTTS(element.dataset.speakText || '');
+            if (explicitSpeakText) {
+              textToSpeak = explicitSpeakText;
+            } else {
+              const pageIndicator = element.querySelector('.page-indicator');
+              const cleanText = cleanTextForTTS(element.textContent);
+              if (pageIndicator) {
+                const pageText = pageIndicator.textContent;
+                const categoryName = cleanText.replace(pageText, '').trim();
+                if (categoryName) textToSpeak = `${categoryName}, ${pageText}`;
+              } else if (cleanText) textToSpeak = cleanText;
+            }
           }
           if (textToSpeak) speak(textToSpeak);
         }
       }
     }
 
+    // --- Radial menu ---
+    function openRadialMenu(anchorEl, items) {
+      closeRadialMenu();
+      const MAX = 5;
+      const preview = items.slice(0, MAX);
+      const allItems = [{ display: '→ Page', speak: '', _openPage: true }, ...preview];
+      const count = allItems.length;
+      const rect = anchorEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const radius = Math.max(rect.width * 0.82, 90);
+
+      const overlay = document.createElement('div');
+      overlay.id = 'radialMenuOverlay';
+      overlay.style.pointerEvents = 'none';
+
+      const radialEls = [];
+      allItems.forEach((item, idx) => {
+        const angle = (2 * Math.PI * idx / count) - Math.PI / 2;
+        const x = cx + radius * Math.cos(angle);
+        const y = cy + radius * Math.sin(angle);
+
+        const btn = document.createElement('button');
+        btn.className = 'radial-menu-item' + (item._openPage ? ' radial-cancel' : '');
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+        btn.textContent = item.display || item.speak || '';
+        btn.dataset.speakText = item.speak || item.display || '';
+        btn.style.pointerEvents = 'none';
+        overlay.appendChild(btn);
+        radialEls.push(btn);
+      });
+
+      document.body.appendChild(overlay);
+      anchorEl.classList.add('radial-anchor-highlight');
+      // Preview mode — not yet scan-interactive
+      state.radialMenuActive = false;
+      state.radialAnchor = anchorEl;
+      state.radialItems = radialEls;
+      state.radialIndex = -1;
+      state.radialItemDefs = allItems;
+
+      // Animate open
+      requestAnimationFrame(() => radialEls.forEach(b => b.classList.add('radial-open')));
+    }
+
+    function activateRadialScan() {
+      state.radialMenuActive = true;
+      state.radialIndex = 0;
+      highlightRadialItem();
+    }
+
+    function closeRadialMenu() {
+      const existing = document.getElementById('radialMenuOverlay');
+      if (!existing && !state.radialAnchor) return;
+      if (existing) existing.remove();
+      if (state.radialAnchor) state.radialAnchor.classList.remove('radial-anchor-highlight');
+      state.radialMenuActive = false;
+      state.radialItems = [];
+      state.radialIndex = -1;
+      state.radialAnchor = null;
+      state.radialItemDefs = [];
+    }
+
+    function highlightRadialItem() {
+      state.radialItems.forEach((b, i) => b.classList.toggle('scan-highlight', i === state.radialIndex));
+      const cur = state.radialItems[state.radialIndex];
+      if (cur && state.ttsOnScan) {
+        const text = cleanTextForTTS(cur.dataset.speakText || cur.textContent);
+        if (text) speak(text);
+      }
+    }
+
+    function selectRadialItem() {
+      const cur = state.radialItems[state.radialIndex];
+      const def = state.radialItemDefs && state.radialItemDefs[state.radialIndex];
+      if (!cur || !def) return;
+      if (def._openPage) {
+        const anchor = state.radialAnchor;
+        closeRadialMenu();
+        if (anchor) anchor.click();
+      } else {
+        const text = (def.speak || def.display || '').trim();
+        if (text) {
+          if (state.sentenceMode) { state.sentence.push(text); updateSentenceDisplay(); }
+          else { const clean = cleanTextForTTS(text); if (clean) speak(clean); }
+        }
+        closeRadialMenu();
+      }
+    }
+
+    function radialScanForward() {
+      state.radialIndex = (state.radialIndex + 1) % state.radialItems.length;
+      highlightRadialItem();
+    }
+
+    function radialScanBackward() {
+      state.radialIndex = (state.radialIndex <= 0 ? state.radialItems.length - 1 : state.radialIndex - 1);
+      highlightRadialItem();
+    }
+
     function scanForward() {
+      if (state.radialMenuActive) { radialScanForward(); return; }
       if (!state.scannableRows || state.scannableRows.length === 0) return;
 
       if (state.userScanPreference === 'cell') {
@@ -1912,6 +2185,7 @@ function updateHeaderForCurrentView(){
     }
 
     function scanBackward() {
+      if (state.radialMenuActive) { radialScanBackward(); return; }
       if (!state.scannableRows || state.scannableRows.length === 0) return;
 
       if (state.userScanPreference === 'cell') {
@@ -1980,6 +2254,7 @@ function updateHeaderForCurrentView(){
     }
 
     function selectCurrent() {
+      if (state.radialMenuActive) { selectRadialItem(); return; }
       // If nothing is highlighted (currentRow is -1), start scanning
       if (state.currentRow === -1) {
         scanForward();
@@ -2006,6 +2281,7 @@ function updateHeaderForCurrentView(){
                   selectionText = 'Clearing all';
                   clearSentence();
                 } else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
+                  if (element.dataset.radialItems) { activateRadialScan(); return; }
                   // For phrase buttons (with data-speakText), onTileClick handles TTS, so don't double-speak
                   // For other buttons (settings, back, next, etc.), we need to speak
                   if (!element.dataset.speakText) {
@@ -2030,6 +2306,7 @@ function updateHeaderForCurrentView(){
       
       if (state.scanMode === 'row') {
         state.scanMode = 'column';
+        document.body.classList.add('column-selection-active');
         state.scanIndex = -1; // Start column scanning at -1
         showRowBackOptionForCurrentRow();
         scanForward(); // This will set scanIndex to 0 and highlight
@@ -2052,6 +2329,7 @@ function updateHeaderForCurrentView(){
               selectionText = 'Clearing all';
               clearSentence();
             } else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
+              if (element.dataset.radialItems) { activateRadialScan(); return; }
               // For phrase buttons (with data-speakText), onTileClick handles TTS, so don't double-speak
               // For other buttons (settings, back, next, etc.), we need to speak
               if (!element.dataset.speakText) {
@@ -2068,6 +2346,7 @@ function updateHeaderForCurrentView(){
           // Return to row mode, highlighting the same row we were in
           hideRowBackOption();
           state.scanMode = 'row';
+          document.body.classList.remove('column-selection-active');
           state.currentRow = selectedRow; // Stay on the same row
           state.scanIndex = -1; // Reset column index
           highlightCurrentRow(); // Highlight the row
@@ -2151,6 +2430,7 @@ function updateHeaderForCurrentView(){
             if (state.scanMode === 'column') {
               hideRowBackOption();
               state.scanMode = 'row';
+              document.body.classList.remove('column-selection-active');
               highlightCurrentRow();
             } else if (state.scanMode === 'row') {
               if (!state.videoModalActive) {
@@ -2594,7 +2874,7 @@ function updateHeaderForCurrentView(){
       button.style.borderRightColor = '#FFFFFF';
       button.style.borderLeftColor = '#FFFFFF';
       button.style.borderBottomColor = '#FFFFFF';
-      button.style.boxShadow = `0 6px 14px rgba(0, 0, 0, 0.12), 0 10px 22px -12px ${borderColor}, 0 0 20px -8px ${borderColor}`;
+      button.style.boxShadow = `0 4px 10px rgba(0, 0, 0, 0.10), 0 6px 14px -10px ${borderColor}, 0 0 10px -8px ${borderColor}`;
     }
 
     function applyNarbeRedCardBorder(button, isRedCard) {
@@ -3110,45 +3390,5 @@ function updateHeaderForCurrentView(){
     }
   </script>
 
-  <style>
-    .grid-button.row-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--rowHighlight) !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-    }
-    
-    .sentence-display.row-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--rowHighlight) !important;
-      color: #000 !important;
-    }
-
-    .sentence-display.scan-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-    }
-    
-    .grid-button.scan-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-    }
-  </style>
 </body>
 </html>
