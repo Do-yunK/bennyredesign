@@ -4,6 +4,8 @@
   const predictBar = $("#predictBar");
   const kb = $("#keyboard");
   const settingsMenu = $("#settingsMenu");
+  const launchParams = new URLSearchParams(window.location.search);
+  const returnToPhraseboard = launchParams.get("returnTo") === "phraseboard";
 
   const defaultSettings = {
     autocapI: true,
@@ -1119,10 +1121,28 @@
       return; 
     }
     if (key === "Exit")       { 
-      console.log("Exit button pressed - closing Chrome");
-      closeChrome();
+      console.log("Exit button pressed");
+      exitKeyboard();
       return; 
     }
+  }
+
+  function exitKeyboard() {
+      if (returnToPhraseboard) {
+          speak("returning to phrase board");
+          try {
+              if (window.history.length > 1) {
+                  window.history.back();
+                  return;
+              }
+          } catch (e) {
+              console.error("Failed to navigate back to phraseboard:", e);
+          }
+          window.location.href = "../phraseboard/index.html";
+          return;
+      }
+
+      closeChrome();
   }
 
   async function closeChrome() {

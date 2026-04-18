@@ -253,7 +253,8 @@
     }
 
     .main-grid > .grid-button.back-btn,
-    .main-grid > .grid-button.next-btn {
+    .main-grid > .grid-button.next-btn,
+    .main-grid > .grid-button.add-category-btn {
       background: #9ca3af !important;
       color: #ffffff !important;
       border: 1px solid #6b7280 !important;
@@ -266,12 +267,14 @@
     }
 
     .main-grid > .grid-button.back-btn::before,
-    .main-grid > .grid-button.next-btn::before {
+    .main-grid > .grid-button.next-btn::before,
+    .main-grid > .grid-button.add-category-btn::before {
       display: none;
     }
 
     .main-grid > .grid-button.back-btn .label,
-    .main-grid > .grid-button.next-btn .label {
+    .main-grid > .grid-button.next-btn .label,
+    .main-grid > .grid-button.add-category-btn .label {
       position: static !important;
       left: auto !important;
       top: auto !important;
@@ -283,15 +286,47 @@
 
     .main-grid > .grid-button.back-btn:hover,
     .main-grid > .grid-button.next-btn:hover,
+    .main-grid > .grid-button.add-category-btn:hover,
     .main-grid > .grid-button.back-btn.row-highlight,
     .main-grid > .grid-button.next-btn.row-highlight,
+    .main-grid > .grid-button.add-category-btn.row-highlight,
     .main-grid > .grid-button.back-btn.scan-highlight,
-    .main-grid > .grid-button.next-btn.scan-highlight {
+    .main-grid > .grid-button.next-btn.scan-highlight,
+    .main-grid > .grid-button.add-category-btn.scan-highlight {
       background: var(--columnHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
       border: 1px solid #fff !important;
       border-bottom: 1px solid #fff !important;
+    }
+
+    .main-grid > .grid-button.add-category-btn {
+      border: 2px dotted #e5e7eb !important;
+      border-bottom: 2px dotted #e5e7eb !important;
+      padding-top: 18px !important;
+      padding-bottom: 18px !important;
+      gap: 0 !important;
+    }
+
+    .main-grid > .grid-button.add-category-btn .icon {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -58%);
+      margin: 0 !important;
+      font-size: 64px !important;
+      line-height: 1;
+    }
+
+    .main-grid > .grid-button.add-category-btn .label {
+      position: absolute !important;
+      left: 50% !important;
+      bottom: 12px !important;
+      top: auto !important;
+      transform: translateX(-50%) !important;
+      margin: 0 !important;
+      font-size: 14px;
+      font-weight: 700;
     }
     
     .grid-button.settings-btn {
@@ -740,13 +775,14 @@
 
     .row-back-option {
       position: fixed;
-      right: 20px;
-      bottom: 70px;
+      left: 20px;
+      top: 50%;
       width: 170px;
       height: 90px;
       min-height: 90px;
       z-index: 1600;
       border-bottom: 3px solid #fff;
+      transform: translateY(-50%);
     }
 
     .top-quick-actions {
@@ -853,8 +889,7 @@
 
     @media (max-width: 768px) {
       .row-back-option {
-        right: 10px;
-        bottom: 55px;
+        left: 10px;
         width: 140px;
         height: 75px;
         min-height: 75px;
@@ -1112,7 +1147,7 @@
     };
 
     function openKeyboardTool() {
-      window.location.href = '../keyboard/index.html';
+      window.location.href = '../keyboard/index.html?returnTo=phraseboard';
     }
 
     function quickPhrase(text) {
@@ -1484,9 +1519,14 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'categories';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      const availableSlots = totalSlots - 1;
-      const categoriesPerPage = availableSlots - 1;
-      const totalPages = Math.ceil(state.categories.length / categoriesPerPage);
+      const showAddCategoryButton = useWhiteBordersForCurrentBoard();
+      const reservedBaseSlots = 1 + (showAddCategoryButton ? 1 : 0);
+      let categoriesPerPage = Math.max(1, totalSlots - reservedBaseSlots);
+      let totalPages = Math.ceil(state.categories.length / categoriesPerPage);
+      if (totalPages > 1) {
+        categoriesPerPage = Math.max(1, totalSlots - reservedBaseSlots - 1);
+        totalPages = Math.ceil(state.categories.length / categoriesPerPage);
+      }
       const startIdx = state.page * categoriesPerPage;
       const endIdx = Math.min(startIdx + categoriesPerPage, state.categories.length);
       const gridPositions = [];
@@ -1511,10 +1551,13 @@ function updateHeaderForCurrentView(){
         const isPeopleCard = (cat.name || '').trim().toLowerCase() === 'people';
         const isBasicStyleCard = isNarbeBasicStyleCategory(cat.name);
         const isTealCard = isNarbeTealAccentCategory(cat.name);
+        const isCanTintCard = useWhiteBordersForCurrentBoard() && isNarbeCanTintCategory(cat.name);
         btn.style.background = isFeelingsCard
           ? rgbaFromHex(cat.color || '#ff9c00', 0.2)
           : isPeopleCard
             ? rgbaFromHex(cat.color || '#5bb0ff', 0.2)
+          : isCanTintCard
+            ? rgbaFromHex('#3498db', 0.2)
           : isBasicStyleCard
             ? '#FF005216'
             : isTealCard
@@ -1553,6 +1596,12 @@ function updateHeaderForCurrentView(){
           btn.appendChild(indicator);
         }
         gridPositions.push({ type: 'category', button: btn });
+      }
+      if (showAddCategoryButton) {
+        gridPositions.push({
+          type: 'add-category',
+          button: createButton('Add Category', '＋', () => showWarningModal('create'), 'muted-green-btn add-category-btn')
+        });
       }
       // Add Next button if there are multiple pages (loops back to first page from last page)
       if (totalPages > 1) {
@@ -1991,8 +2040,14 @@ function updateHeaderForCurrentView(){
         const tileColor = item.tileColor || cat.color;
         if (tileColor) {
           const isBasicStyleCategory = isNarbeBasicStyleCategory(state.currentCategory);
+          const useCanCardTint = useWhiteBordersForCurrentBoard() && isNarbeCanTintCategory(state.currentCategory);
+          const useModifiersCardTint = useWhiteBordersForCurrentBoard() && isNarbeTealAccentCategory(state.currentCategory);
           if (isBasicStyleCategory) {
             btn.style.background = '#FF005216';
+          } else if (useCanCardTint) {
+            btn.style.background = rgbaFromHex('#3498db', 0.2);
+          } else if (useModifiersCardTint) {
+            btn.style.background = rgbaFromHex('#7ed957', 0.2);
           } else {
             const categoryTint = cat.color || tileColor;
             btn.style.background = useWhiteBordersForCurrentBoard() ? rgbaFromHex(categoryTint, 0.2) : '#0047F112';
@@ -2107,6 +2162,31 @@ function updateHeaderForCurrentView(){
       });
     }
 
+    function positionRowBackOptionForCurrentRow() {
+      if (!el.rowBackOptionBtn) return;
+      if (state.currentRow < 0 || !state.scannableRows[state.currentRow]) return;
+
+      const rowElements = state.scannableRows[state.currentRow].filter(element => element && element !== el.rowBackOptionBtn && el.mainGrid.contains(element));
+      if (rowElements.length === 0) return;
+
+      const rowRects = rowElements.map(element => element.getBoundingClientRect());
+      const top = Math.min(...rowRects.map(rect => rect.top));
+      const bottom = Math.max(...rowRects.map(rect => rect.bottom));
+      const left = Math.min(...rowRects.map(rect => rect.left));
+      const buttonRect = el.rowBackOptionBtn.getBoundingClientRect();
+      const gutter = 16;
+      const centeredTop = top + ((bottom - top) / 2) - (buttonRect.height / 2);
+      const minTop = 12;
+      const maxTop = Math.max(minTop, window.innerHeight - buttonRect.height - 12);
+      const clampedTop = Math.min(Math.max(centeredTop, minTop), maxTop);
+      const targetLeft = Math.max(12, left - buttonRect.width - gutter);
+
+      el.rowBackOptionBtn.style.top = `${clampedTop}px`;
+      el.rowBackOptionBtn.style.left = `${targetLeft}px`;
+      el.rowBackOptionBtn.style.right = 'auto';
+      el.rowBackOptionBtn.style.bottom = 'auto';
+    }
+
     function showRowBackOptionForCurrentRow() {
       if (!el.rowBackOptionBtn) return;
       if (state.userScanPreference === 'cell' || state.videoModalActive) return;
@@ -2117,6 +2197,7 @@ function updateHeaderForCurrentView(){
       state.scannableRows[state.currentRow].unshift(el.rowBackOptionBtn);
       state.rowBackOptionActive = true;
       el.rowBackOptionBtn.classList.remove('hidden');
+      positionRowBackOptionForCurrentRow();
     }
 
     function highlightCurrentRow() {
@@ -2127,6 +2208,7 @@ function updateHeaderForCurrentView(){
         state.scannableRows[state.currentRow].forEach(element => element.classList.add('row-highlight'));
         const rowAnchor = state.scannableRows[state.currentRow].find(element => el.mainGrid.contains(element));
         if (rowAnchor) scrollGridToElement(rowAnchor);
+        if (state.rowBackOptionActive) positionRowBackOptionForCurrentRow();
       }
     }
 
@@ -2144,6 +2226,7 @@ function updateHeaderForCurrentView(){
           openRadialMenu(element, items);
         }
         scrollGridToElement(element);
+        if (state.rowBackOptionActive) positionRowBackOptionForCurrentRow();
         if (state.ttsOnScan) {
           if (state.currentMenu === 'tts' && element.classList.contains('voice-btn')) {
             const idx = parseInt(element.dataset.voiceIndex, 10);
@@ -3037,6 +3120,16 @@ function updateHeaderForCurrentView(){
       return (categoryName || '').trim().toLowerCase() === 'people';
     }
 
+    function isNarbePronounsOrVerbsCategory(categoryName) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      return normalized === 'pronouns' || normalized === 'verbs';
+    }
+
+    function isNarbeCanTintCategory(categoryName) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      return normalized === 'pronouns' || normalized === 'verbs' || normalized === 'helpers';
+    }
+
     function isNarbeBasicStyleCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
       return normalized.includes('basic') || normalized.includes('needs');
@@ -3047,6 +3140,7 @@ function updateHeaderForCurrentView(){
       return normalized === 'modifiers' ||
              normalized === 'connectors' ||
              normalized === 'questions' ||
+             normalized === 'questions & time' ||
              normalized === 'time';
     }
 
@@ -3089,12 +3183,12 @@ function updateHeaderForCurrentView(){
       const lastRowButtons = buttons.slice(lastRowStart, lastRowStart + cols);
       const lastStylableIndex = lastRowButtons
         .map((btn, index) => ({ btn, index }))
-        .filter(({ btn }) => !btn.classList.contains('back-btn') && !btn.classList.contains('next-btn'))
+        .filter(({ btn }) => !btn.classList.contains('back-btn') && !btn.classList.contains('next-btn') && !btn.classList.contains('add-category-btn'))
         .map(({ index }) => index)
         .pop();
 
       lastRowButtons.forEach((btn, index) => {
-        if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
+        if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn') || btn.classList.contains('add-category-btn')) return;
         btn.style.background = rgbaFromHex('#7ed957', 0.2);
         const indicator = btn.querySelector('.page-indicator');
         if (indicator) {
