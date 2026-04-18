@@ -1170,21 +1170,9 @@
   }
 
   function returnToPhraseboardView() {
-      try {
-          if (window.history.length > 1) {
-              window.history.back();
-              return;
-          }
-      } catch (e) {
-          console.error("Failed to navigate back to phraseboard:", e);
-      }
-
-      if (isAddWordMode) {
-          const params = new URLSearchParams({ board: phraseboardBoard, category: phraseboardCategory });
-          window.location.href = `../phraseboard/index.html?${params.toString()}`;
-      } else {
-          window.location.href = "../phraseboard/index.html";
-      }
+      // Always navigate directly so phraseboard can restore the exact saved context
+      // (board/category/page) from session storage.
+      window.location.href = "../phraseboard/index.html";
   }
 
   function exitKeyboard() {

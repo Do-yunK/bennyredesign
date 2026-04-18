@@ -493,6 +493,36 @@
       letter-spacing: var(--Typography-Letter-spacing-2, 0);
     }
 
+    .page-indicator.badge-blue {
+      background: rgba(0, 71, 241, 0.12);
+      color: rgba(0, 43, 183, 0.92);
+    }
+
+    .page-indicator.badge-green {
+      background: rgba(126, 217, 87, 0.20);
+      color: rgba(0, 116, 145, 0.95);
+    }
+
+    .page-indicator.badge-teal {
+      background: rgba(0, 194, 209, 0.18);
+      color: rgba(0, 116, 145, 0.96);
+    }
+
+    .page-indicator.badge-purple {
+      background: rgba(128, 0, 128, 0.16);
+      color: rgba(90, 16, 122, 0.95);
+    }
+
+    .page-indicator.badge-yellow {
+      background: rgba(255, 196, 61, 0.22);
+      color: rgba(146, 94, 0, 0.95);
+    }
+
+    .page-indicator.badge-red {
+      background: rgba(196, 0, 79, 0.14);
+      color: rgba(150, 0, 57, 0.95);
+    }
+
     .card-preview {
       position: absolute;
       left: 14px;
@@ -788,19 +818,35 @@
     .top-quick-actions {
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: repeat(var(--grid-cols, 4), minmax(0, 1fr));
-      align-items: center;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-auto-rows: 90px;
+      align-items: stretch;
       column-gap: 15px;
       width: 100%;
       justify-self: stretch;
       margin-bottom: 0;
     }
 
+    /* Keep all top-row controls on the same sizing/alignment system */
+    .top-quick-actions > .grid-button,
+    .top-quick-actions .quick-right-actions > .grid-button {
+      width: 255px;
+      max-width: 255px;
+      min-width: 0;
+      height: 100%;
+      min-height: 0;
+      margin: 0;
+      align-self: stretch;
+      box-sizing: border-box;
+    }
+
     .quick-right-actions {
       grid-column: 3 / span 2;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: center;
+      grid-auto-rows: 90px;
+      align-items: stretch;
+      align-content: start;
       gap: 15px;
       width: 100%;
     }
@@ -808,18 +854,63 @@
     .keyboard-tool-option,
     .quick-word-option {
       width: 255px;
-      height: 90px;
-      min-height: 90px;
+      max-width: 255px;
+      min-width: 0;
+      height: 100%;
+      min-height: 0;
       border-bottom: 3px solid #fff;
+      margin: 0;
     }
 
     .keyboard-tool-option {
-      grid-column: 1 / span 1;
       justify-self: start;
     }
 
-    .quick-right-actions .quick-word-option {
+    .main-menu-tool-option {
       justify-self: start;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 !important;
+    }
+
+    .main-menu-tool-option .icon {
+      color: #fff !important;
+      font-size: 46px !important;
+      line-height: 1;
+      margin: 0 !important;
+    }
+
+    #keyboardToolBtn {
+      grid-column: 1 / span 1;
+      position: relative;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      gap: 0 !important;
+      justify-content: center;
+    }
+
+    #mainMenuQuickBtn {
+      grid-column: 2 / span 1;
+    }
+
+    #keyboardToolBtn .icon {
+      display: none;
+    }
+
+    #keyboardToolBtn .label {
+      position: static !important;
+      transform: none !important;
+      width: auto !important;
+      margin: 0 !important;
+      text-align: center !important;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .quick-right-actions .quick-word-option {
+      justify-self: stretch;
     }
 
     .quick-right-actions.single-action {
@@ -831,6 +922,7 @@
     }
 
     .keyboard-tool-option:hover,
+    .main-menu-tool-option:hover,
     .quick-word-option:hover {
       background: var(--muted-blue) !important;
       border-top: 3px solid #fff !important;
@@ -840,8 +932,10 @@
     }
 
     .keyboard-tool-option.row-highlight,
+    .main-menu-tool-option.row-highlight,
     .quick-word-option.row-highlight,
     .keyboard-tool-option.scan-highlight,
+    .main-menu-tool-option.scan-highlight,
     .quick-word-option.scan-highlight {
       border-top: 3px solid #fff !important;
       border-right: 3px solid #fff !important;
@@ -985,7 +1079,7 @@
       border: 2px dotted #fff !important;
     }
 
-    .edit-mode .grid-button.phrase-board-card::after {
+    .edit-mode .grid-button.editable-phrase-card::after {
       content: '✕';
       position: absolute;
       top: 8px;
@@ -1044,8 +1138,10 @@
 
       <div class="top-quick-actions hidden" id="topQuickActions">
         <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button">
-          <span class="icon">⌨️</span>
-          Keyboard
+          <span class="label">Keyboard</span>
+        </button>
+        <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn" type="button" aria-label="Main Menu" title="Main Menu">
+          <span class="icon">⌂</span>
         </button>
         <div class="quick-right-actions">
           <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button">
@@ -1368,12 +1464,26 @@
       noQuickBtn: document.getElementById('noQuickBtn'),
       addWordQuickBtn: document.getElementById('addWordQuickBtn'),
       editCategoryBtn: document.getElementById('editCategoryBtn'),
+      mainMenuQuickBtn: document.getElementById('mainMenuQuickBtn'),
       keyboardToolBtn: document.getElementById('keyboardToolBtn')
     };
 
     function openKeyboardTool() {
       saveReturnContext();
       window.location.href = '../keyboard/index.html?returnTo=phraseboard';
+    }
+
+    function openMainMenuQuick() {
+      state.editMode = false;
+      el.mainGrid.classList.remove('edit-mode');
+      if (el.editCategoryBtn) {
+        el.editCategoryBtn.classList.remove('active-green');
+        el.editCategoryBtn.dataset.speakText = 'Edit category';
+      }
+      state.navigationHistory = [];
+      openMenu('main');
+      updateHeaderForCurrentView();
+      speak('Main Menu');
     }
 
     function quickPhrase(text) {
@@ -1545,8 +1655,11 @@
 
       if (!restored) return false;
 
+      // Rebuild minimum navigation history so Back behaves naturally after returning from Keyboard.
+      state.navigationHistory = [];
       state.page = Math.max(0, Number.isFinite(context.page) ? context.page : 0);
       if (context.menu === 'category' && context.category && state.byCat.has(context.category)) {
+        state.navigationHistory.push({ menu: 'categories', category: null, page: 0 });
         state.currentCategory = context.category;
         renderCategory();
       } else {
@@ -1589,6 +1702,7 @@
       const onCategoryPage = onDefaultBoardView && state.currentMenu === 'category';
       el.topQuickActions.classList.toggle('hidden', !onDefaultBoardView);
       el.mainGrid.classList.toggle('has-top-quick-actions', onDefaultBoardView);
+      if (el.mainMenuQuickBtn) el.mainMenuQuickBtn.style.display = onDefaultBoardView ? 'flex' : 'none';
       if (el.yesQuickBtn) el.yesQuickBtn.style.display = onCategoryPage ? 'none' : '';
       if (el.noQuickBtn) el.noQuickBtn.style.display = onCategoryPage ? 'none' : '';
       if (el.addWordQuickBtn) el.addWordQuickBtn.style.display = onCategoryPage ? 'flex' : 'none';
@@ -1599,6 +1713,10 @@
     if (el.keyboardToolBtn) {
       el.keyboardToolBtn.dataset.speakText = 'Keyboard';
       el.keyboardToolBtn.addEventListener('click', openKeyboardTool);
+    }
+    if (el.mainMenuQuickBtn) {
+      el.mainMenuQuickBtn.dataset.speakText = 'Main Menu';
+      el.mainMenuQuickBtn.addEventListener('click', openMainMenuQuick);
     }
     if (el.yesQuickBtn) {
       el.yesQuickBtn.dataset.speakText = 'Yes';
@@ -1809,7 +1927,7 @@ function updateHeaderForCurrentView(){
     }
 
     function clearGrid() {
-      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)');
+      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)');
       buttons.forEach(btn => btn.remove());
     }
 
@@ -1974,7 +2092,8 @@ function updateHeaderForCurrentView(){
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
       const showAddCategoryButton = useWhiteBordersForCurrentBoard();
-      const reservedBaseSlots = 1 + (showAddCategoryButton ? 1 : 0);
+      const showLargeMainMenuTile = !useWhiteBordersForCurrentBoard();
+      const reservedBaseSlots = (showLargeMainMenuTile ? 1 : 0) + (showAddCategoryButton ? 1 : 0);
       let categoriesPerPage = Math.max(1, totalSlots - reservedBaseSlots);
       let totalPages = Math.ceil(state.categories.length / categoriesPerPage);
       if (totalPages > 1) {
@@ -1984,9 +2103,9 @@ function updateHeaderForCurrentView(){
       const startIdx = state.page * categoriesPerPage;
       const endIdx = Math.min(startIdx + categoriesPerPage, state.categories.length);
       const gridPositions = [];
-      if (state.page === 0) {
+      if (showLargeMainMenuTile && state.page === 0) {
         gridPositions.push({ type: 'mainmenu', button: createButton('Main Menu', '🏠', () => { state.csvLoaded = false; navigateTo('main'); }, 'back-btn') });
-      } else {
+      } else if (state.page > 0) {
         gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { state.page--; renderCategoryMenu(); }, 'back-btn') });
       }
       for (let i = startIdx; i < endIdx; i++) {
@@ -2046,7 +2165,13 @@ function updateHeaderForCurrentView(){
         const catTotalPages = Math.ceil(cat.items.length / itemsPerPage);
         if (catTotalPages > 1) {
           const indicator = document.createElement('div');
-          indicator.className = 'page-indicator';
+          let badgeThemeClass = 'badge-blue';
+          if (isPeopleCard) badgeThemeClass = 'badge-purple';
+          else if (isFeelingsCard) badgeThemeClass = 'badge-yellow';
+          else if (isTealCard) badgeThemeClass = 'badge-teal';
+          else if (isBasicStyleCard || isRedTone(cat.color)) badgeThemeClass = 'badge-red';
+          else if (isCanTintCard || isNarbeBlueAccentCategory(cat.name)) badgeThemeClass = 'badge-blue';
+          indicator.className = `page-indicator ${badgeThemeClass}`;
           indicator.textContent = `${catTotalPages} pages`;
           btn.appendChild(indicator);
         }
@@ -2483,7 +2608,18 @@ function updateHeaderForCurrentView(){
       gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
       for (let i = startIdx; i < endIdx; i++) {
         const item = cat.items[i];
-        const btn = createButton(item.display || item.speak || 'Speak', '', () => onTileClick(item));
+        const btn = createButton(
+          item.display || item.speak || 'Speak',
+          '',
+          () => {
+            if (state.editMode) {
+              deleteCardFromCategory(i);
+              return;
+            }
+            onTileClick(item);
+          },
+          'editable-phrase-card'
+        );
         // Store the speak text for scan selection to use
         btn.dataset.speakText = item.speak || item.display || '';
         if (item.image) {
@@ -2517,31 +2653,6 @@ function updateHeaderForCurrentView(){
         gridPositions.push({ type: 'next', button: createButton('Next', '▶', () => { state.page = (state.page + 1) % totalPages; renderCategory(); }, 'next-btn') });
       }
       gridPositions.forEach(pos => { if (pos.button) el.mainGrid.appendChild(pos.button); });
-      
-      // Add delete handlers to phrase cards when in edit mode
-      if (state.editMode) {
-        const phraseButtons = el.mainGrid.querySelectorAll('.phrase-board-card');
-        phraseButtons.forEach((btn, idx) => {
-          // Remove any existing delete handlers to prevent duplicates
-          const newBtn = btn.cloneNode(true);
-          btn.parentNode.replaceChild(newBtn, btn);
-          
-          const itemIndex = startIdx + idx;
-          const item = cat.items[itemIndex];
-          
-          // Add click handler to delete on the card itself
-          newBtn.addEventListener('click', (e) => {
-            if (e.target.closest('.delete-icon') || e.detail === 2) {
-              // If clicking the pseudo-element area or double-clicking
-              e.stopPropagation();
-              deleteCardFromCategory(itemIndex);
-            } else {
-              // Single click still triggers the phrase
-              onTileClick(item);
-            }
-          });
-        });
-      }
       
       updateScannable();
       applyPendingAddWordFromKeyboard();
@@ -2577,12 +2688,11 @@ function updateHeaderForCurrentView(){
         return;
       }
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)'));
-      buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        const quickRow = [el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn, el.addWordQuickBtn, el.editCategoryBtn].filter(isVisible);
+        const quickRow = [el.keyboardToolBtn, el.mainMenuQuickBtn, el.yesQuickBtn, el.noQuickBtn, el.addWordQuickBtn, el.editCategoryBtn].filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
@@ -3686,7 +3796,7 @@ function updateHeaderForCurrentView(){
     function applyNarbeDefaultBottomRowColors() {
       if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
       if (buttons.length === 0) return;
 
       const cols = state.gridSize.cols;
