@@ -1809,7 +1809,7 @@ function updateHeaderForCurrentView(){
     }
 
     function clearGrid() {
-      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)');
+      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)');
       buttons.forEach(btn => btn.remove());
     }
 
@@ -2483,7 +2483,7 @@ function updateHeaderForCurrentView(){
       gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
       for (let i = startIdx; i < endIdx; i++) {
         const item = cat.items[i];
-        const btn = createButton(item.display || item.speak || 'Speak', '', () => onTileClick(item), 'phrase-board-card');
+        const btn = createButton(item.display || item.speak || 'Speak', '', () => onTileClick(item));
         // Store the speak text for scan selection to use
         btn.dataset.speakText = item.speak || item.display || '';
         if (item.image) {
@@ -2578,10 +2578,11 @@ function updateHeaderForCurrentView(){
       }
 
       const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)'));
+      buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        const quickRow = [el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn, el.addWordQuickBtn].filter(isVisible);
+        const quickRow = [el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn, el.addWordQuickBtn, el.editCategoryBtn].filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
@@ -3685,7 +3686,7 @@ function updateHeaderForCurrentView(){
     function applyNarbeDefaultBottomRowColors() {
       if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
       if (buttons.length === 0) return;
 
       const cols = state.gridSize.cols;
