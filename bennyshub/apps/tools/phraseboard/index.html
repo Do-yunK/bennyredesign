@@ -22,6 +22,7 @@
       --muted-blue: #7fa3c7;
       --muted-green: #86b39a;
       --muted-yellow: #d4c896;
+      --hoverBorderYellow: #ffff00;
     }
     
     /* Dark theme */
@@ -225,20 +226,28 @@
     }
     
     .grid-button:hover {
-      background: rgba(0, 71, 241, 0.12);
-      border-top: 3px solid #FFF;
-      border-right: 3px solid #FFF;
-      border-bottom: var(--footer-strip-height) solid #FFF;
-      border-left: 3px solid #FFF;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
+    }
+
+    .main-grid > .grid-button.main-menu-card:hover,
+    .main-grid > .grid-button.phrase-board-card:hover {
+      border-bottom: 3px solid var(--hoverBorderYellow) !important;
+    }
+
+    .main-menu-spacer {
+      width: 255px;
+      height: 170px;
+      pointer-events: none;
     }
     
     .grid-button.scan-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
       font-weight: 800 !important;
     }
     
@@ -286,7 +295,14 @@
 
     .main-grid > .grid-button.back-btn:hover,
     .main-grid > .grid-button.next-btn:hover,
-    .main-grid > .grid-button.add-category-btn:hover,
+    .main-grid > .grid-button.add-category-btn:hover {
+      background: #9ca3af !important;
+      color: #ffffff !important;
+      font-weight: 600 !important;
+      border: 1px solid var(--hoverBorderYellow) !important;
+      border-bottom: 1px solid var(--hoverBorderYellow) !important;
+    }
+
     .main-grid > .grid-button.back-btn.row-highlight,
     .main-grid > .grid-button.next-btn.row-highlight,
     .main-grid > .grid-button.add-category-btn.row-highlight,
@@ -296,8 +312,8 @@
       background: var(--columnHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
-      border: 1px solid #fff !important;
-      border-bottom: 1px solid #fff !important;
+      border: 1px solid var(--hoverBorderYellow) !important;
+      border-bottom: 1px solid var(--hoverBorderYellow) !important;
     }
 
     .main-grid > .grid-button.add-category-btn {
@@ -370,7 +386,11 @@
     
     .grid-button.voice-toggle:hover {
       background: var(--brand);
-      opacity: 0.8;
+      opacity: 1;
+      border-top-color: var(--hoverBorderYellow);
+      border-right-color: var(--hoverBorderYellow);
+      border-bottom-color: var(--hoverBorderYellow);
+      border-left-color: var(--hoverBorderYellow);
     }
     
     /* Mobile Responsive Styles */
@@ -473,6 +493,14 @@
       transform: translate(-50%, -50%);
       margin: 0;
     }
+
+    .main-grid > .grid-button.priority-board-card .icon,
+    .main-grid > .grid-button.priority-board-card img {
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+    }
     
     .page-indicator {
       position: absolute;
@@ -504,8 +532,8 @@
     }
 
     .page-indicator.badge-teal {
-      background: rgba(0, 194, 209, 0.18);
-      color: rgba(0, 116, 145, 0.96);
+      background: rgba(126, 217, 87, 0.20);
+      color: rgba(79, 141, 47, 0.96);
     }
 
     .page-indicator.badge-purple {
@@ -574,21 +602,28 @@
       box-sizing: border-box;
       cursor: pointer;
       box-shadow: 0 4px 18px rgba(0,0,0,0.22);
-      transform: translate(-50%, -50%);
-      opacity: 1;
-      transition: background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      transform: translate(-50%, -50%) scale(0.92);
+      opacity: 0;
+      transition: opacity 0.14s ease, transform 0.14s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
     }
 
     .radial-menu-item.radial-open {
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
     }
 
     .radial-menu-item.scan-highlight {
-      background: var(--scan-highlight-color, #FFD700);
-      border-color: var(--scan-highlight-border, #e6b800);
+      background: var(--rowHighlight, #ffff00);
+      border-color: #d4af00;
       transform: translate(-50%, -50%);
       box-shadow: 0 6px 24px rgba(0,0,0,0.30);
       z-index: 2;
+    }
+
+    .radial-menu-item:hover {
+      background: var(--rowHighlight, #ffff00);
+      border-color: #d4af00;
+      color: #111827;
     }
 
     .radial-menu-item.radial-cancel {
@@ -599,9 +634,13 @@
     }
 
     .radial-menu-item.radial-cancel.scan-highlight {
-      background: #facc15;
+      background: var(--rowHighlight, #ffff00);
       color: #111827;
-      border-color: #ca8a04;
+      border-color: #eab308;
+    }
+
+    .radial-menu-item.radial-cancel:hover {
+      border-color: #eab308;
     }
 
     .radial-menu-item.radial-close {
@@ -612,9 +651,13 @@
     }
 
     .radial-menu-item.radial-close.scan-highlight {
-      background: #ef4444;
-      color: white;
-      border-color: #b91c1c;
+      background: var(--rowHighlight, #ffff00);
+      color: #111827;
+      border-color: #ef4444;
+    }
+
+    .radial-menu-item.radial-close:hover {
+      border-color: #ef4444;
     }
     
     footer {
@@ -683,16 +726,15 @@
     /* Ensure scan highlights override all button colors */
     .grid-button.row-highlight,
     .grid-button.scan-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
       font-weight: 800 !important;
     }
     
     .grid-button.row-highlight {
-      background: var(--rowHighlight) !important;
-      color: #000 !important;
+      color: inherit !important;
     }
 
     body.column-selection-active .main-grid > .grid-button {
@@ -710,8 +752,7 @@
     }
     
     .grid-button.scan-highlight {
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
+      color: inherit !important;
     }
 
     .sentence-display.row-highlight {
@@ -803,6 +844,125 @@
       transform: scale(1.05);
     }
 
+    .add-category-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2100;
+      padding: 20px;
+    }
+
+    .add-category-modal.active {
+      display: flex;
+    }
+
+    .add-category-content {
+      width: min(92vw, 680px);
+      background: #ffffff;
+      border-radius: 16px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .add-category-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+      text-align: center;
+    }
+
+    .add-category-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .add-category-input {
+      width: 100%;
+      border: 2px solid #d1d5db;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      outline: none;
+    }
+
+    .add-category-input:focus {
+      border-color: var(--brand);
+    }
+
+    .add-category-colors {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .add-category-color-btn {
+      border: 3px solid #d1d5db;
+      border-radius: 12px;
+      padding: 10px 8px;
+      background: #ffffff;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+    }
+
+    .add-category-color-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 2px solid rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+    }
+
+    .add-category-color-btn.active,
+    .add-category-color-btn:hover {
+      border-color: var(--hoverBorderYellow);
+    }
+
+    .add-category-input.modal-highlight,
+    .add-category-color-btn.modal-highlight,
+    .add-category-action-btn.modal-highlight {
+      border-color: var(--hoverBorderYellow) !important;
+      box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.28);
+    }
+
+    .add-category-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .add-category-action-btn {
+      border: 3px solid #ffffff;
+      border-radius: 12px;
+      padding: 12px 10px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #ffffff;
+    }
+
+    .add-category-cancel {
+      background: #6b7280;
+    }
+
+    .add-category-save {
+      background: #16a34a;
+    }
+
     .row-back-option {
       position: fixed;
       left: 20px;
@@ -811,8 +971,61 @@
       height: 90px;
       min-height: 90px;
       z-index: 1600;
+      --footer-strip-height: 3px;
+      border-top: 3px solid #fff;
+      border-right: 3px solid #fff;
       border-bottom: 3px solid #fff;
+      border-left: 3px solid #fff;
+      padding: 8px 10px;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       transform: translateY(-50%);
+    }
+
+    .row-back-option .icon {
+      margin: 0 !important;
+    }
+
+    .row-back-option:hover,
+    .row-back-option.row-highlight,
+    .row-back-option.scan-highlight {
+      background: var(--columnHighlight) !important;
+      color: inherit !important;
+      font-weight: inherit !important;
+      border-top-color: var(--hoverBorderYellow) !important;
+      border-right-color: var(--hoverBorderYellow) !important;
+      border-bottom-color: var(--hoverBorderYellow) !important;
+      border-left-color: var(--hoverBorderYellow) !important;
+    }
+
+    .phrase-preview-toast {
+      position: fixed;
+      left: 50%;
+      top: 74px;
+      transform: translateX(-50%) translateY(-6px);
+      z-index: 1700;
+      max-width: min(90vw, 980px);
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      background: rgba(17, 24, 39, 0.82);
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+      text-align: center;
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      white-space: normal;
+    }
+
+    .phrase-preview-toast.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     .top-quick-actions {
@@ -821,17 +1034,26 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       grid-auto-rows: 90px;
       align-items: stretch;
+      justify-items: stretch;
       column-gap: 15px;
       width: 100%;
       justify-self: stretch;
       margin-bottom: 0;
     }
 
+    .top-quick-actions.board-top-layout {
+      grid-template-areas: 'main keyboard yes no';
+    }
+
+    .top-quick-actions.category-top-layout {
+      grid-template-areas: 'keyboard yes no options';
+    }
+
     /* Keep all top-row controls on the same sizing/alignment system */
     .top-quick-actions > .grid-button,
     .top-quick-actions .quick-right-actions > .grid-button {
-      width: 255px;
-      max-width: 255px;
+      width: 100%;
+      max-width: none;
       min-width: 0;
       height: 100%;
       min-height: 0;
@@ -851,23 +1073,23 @@
       width: 100%;
     }
 
+    /* On board/category pages, flatten the right actions into the same 4-column grid as cards. */
+    .top-quick-actions.board-top-layout .quick-right-actions,
+    .top-quick-actions.category-top-layout .quick-right-actions {
+      display: contents;
+    }
+
     .keyboard-tool-option,
     .quick-word-option {
-      width: 255px;
-      max-width: 255px;
-      min-width: 0;
-      height: 100%;
-      min-height: 0;
       border-bottom: 3px solid #fff;
-      margin: 0;
     }
 
     .keyboard-tool-option {
-      justify-self: start;
+      justify-self: stretch;
     }
 
     .main-menu-tool-option {
-      justify-self: start;
+      justify-self: stretch;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -882,7 +1104,7 @@
     }
 
     #keyboardToolBtn {
-      grid-column: 1 / span 1;
+      grid-area: keyboard;
       position: relative;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
@@ -891,22 +1113,30 @@
     }
 
     #mainMenuQuickBtn {
-      grid-column: 2 / span 1;
+      grid-area: main;
+      position: relative;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      gap: 0 !important;
+    }
+
+    #yesQuickBtn {
+      grid-area: yes;
+    }
+
+    #noQuickBtn {
+      grid-area: no;
+    }
+
+    #categoryOptionsBtn {
+      grid-area: options;
     }
 
     #keyboardToolBtn .icon {
-      display: none;
-    }
-
-    #keyboardToolBtn .label {
-      position: static !important;
-      transform: none !important;
-      width: auto !important;
+      color: #fff !important;
+      font-size: 46px !important;
+      line-height: 1;
       margin: 0 !important;
-      text-align: center !important;
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 1.2;
     }
 
     .quick-right-actions .quick-word-option {
@@ -924,11 +1154,10 @@
     .keyboard-tool-option:hover,
     .main-menu-tool-option:hover,
     .quick-word-option:hover {
-      background: var(--muted-blue) !important;
-      border-top: 3px solid #fff !important;
-      border-right: 3px solid #fff !important;
-      border-bottom: 3px solid #fff !important;
-      border-left: 3px solid #fff !important;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: 3px solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
     }
 
     .keyboard-tool-option.row-highlight,
@@ -937,10 +1166,12 @@
     .keyboard-tool-option.scan-highlight,
     .main-menu-tool-option.scan-highlight,
     .quick-word-option.scan-highlight {
-      border-top: 3px solid #fff !important;
-      border-right: 3px solid #fff !important;
-      border-bottom: 3px solid #fff !important;
-      border-left: 3px solid #fff !important;
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: 3px solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
     }
 
     #yesQuickBtn,
@@ -952,112 +1183,62 @@
       border-bottom: 3px solid #fff !important;
       border-left: 3px solid #fff !important;
       position: relative;
-      padding-top: 34px;
+      padding-top: 0 !important;
     }
 
     #yesQuickBtn:hover,
+    #noQuickBtn:hover {
+      background: var(--muted-blue) !important;
+      color: #ffffff !important;
+      font-weight: 600 !important;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: 3px solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
+    }
+
     #yesQuickBtn.row-highlight,
     #yesQuickBtn.scan-highlight,
-    #noQuickBtn:hover,
     #noQuickBtn.row-highlight,
     #noQuickBtn.scan-highlight {
       background: var(--columnHighlight) !important;
       color: #000 !important;
       font-weight: 800 !important;
-      border-top: 3px solid #fff !important;
-      border-right: 3px solid #fff !important;
-      border-bottom: 3px solid #fff !important;
-      border-left: 3px solid #fff !important;
+      border-top: 3px solid var(--hoverBorderYellow) !important;
+      border-right: 3px solid var(--hoverBorderYellow) !important;
+      border-bottom: 3px solid var(--hoverBorderYellow) !important;
+      border-left: 3px solid var(--hoverBorderYellow) !important;
     }
 
     #yesQuickBtn::before,
     #noQuickBtn::before {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1;
+      content: none;
     }
 
-    #yesQuickBtn::before {
-      content: '✓';
-    }
-
-    #noQuickBtn::before {
-      content: '✕';
-    }
-
-    #addWordQuickBtn {
-      display: none;
-      width: 100%;
-      justify-self: stretch;
-      background: #9ca3af !important;
-      color: #ffffff !important;
-      border: 2px dotted #e5e7eb !important;
-      position: relative;
-      padding-top: 18px !important;
-      padding-bottom: 18px !important;
-      gap: 0 !important;
-    }
-
-    #addWordQuickBtn .icon {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -58%);
-      margin: 0 !important;
-      font-size: 52px !important;
-      line-height: 1;
-    }
-
-    #addWordQuickBtn .label {
-      position: absolute !important;
-      left: 50% !important;
-      bottom: 10px !important;
-      transform: translateX(-50%) !important;
-      width: calc(100% - 20px) !important;
-      margin: 0 !important;
-      text-align: center !important;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    #addWordQuickBtn:hover,
-    #addWordQuickBtn.row-highlight,
-    #addWordQuickBtn.scan-highlight {
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-      border: 2px dotted #fff !important;
-    }
-
-    #editCategoryBtn {
+    #categoryOptionsBtn {
       display: none;
       width: 100%;
       justify-self: stretch;
       background: #f59e0b !important;
       color: #ffffff !important;
-      border: 2px dotted #e5e7eb !important;
+      border: 2px solid #e5e7eb !important;
       position: relative;
       padding-top: 18px !important;
       padding-bottom: 18px !important;
       gap: 0 !important;
     }
 
-    #editCategoryBtn .icon {
+    #categoryOptionsBtn .icon {
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -58%);
       margin: 0 !important;
-      font-size: 52px !important;
+      font-size: 44px !important;
       line-height: 1;
     }
 
-    #editCategoryBtn .label {
+    #categoryOptionsBtn .label {
       position: absolute !important;
       left: 50% !important;
       bottom: 10px !important;
@@ -1070,13 +1251,99 @@
       line-height: 1.1;
     }
 
-    #editCategoryBtn:hover,
-    #editCategoryBtn.row-highlight,
-    #editCategoryBtn.scan-highlight {
+    #categoryOptionsBtn:hover {
+      background: #d97706 !important;
+      color: #ffffff !important;
+      border-color: var(--hoverBorderYellow) !important;
+    }
+
+    #categoryOptionsBtn.row-highlight,
+    #categoryOptionsBtn.scan-highlight {
       background: var(--columnHighlight) !important;
       color: #000 !important;
-      font-weight: 800 !important;
-      border: 2px dotted #fff !important;
+      border-color: var(--hoverBorderYellow) !important;
+    }
+
+    #categoryOptionsBtn.modal-highlight {
+      background: var(--columnHighlight) !important;
+      color: #000 !important;
+      border-color: var(--hoverBorderYellow) !important;
+    }
+
+    /* Options popup panel */
+    .category-options-panel {
+      display: none;
+      position: fixed;
+      z-index: 2200;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 3px solid #e5e7eb;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+      padding: 14px;
+      gap: 12px;
+      flex-direction: column;
+      min-width: 260px;
+    }
+
+    .category-options-panel.active {
+      display: flex;
+    }
+
+    .category-options-panel-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #374151;
+      text-align: center;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 2px;
+    }
+
+    .category-options-panel-btn {
+      width: 100%;
+      padding: 16px 14px;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      color: #111827;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .category-options-panel-btn:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .category-options-panel-btn.danger {
+      color: #dc2626;
+      border-color: #fca5a5;
+      background: #fff5f5;
+    }
+
+    .category-options-panel-btn.danger:hover {
+      background: #fee2e2;
+    }
+
+    .category-options-panel-btn.modal-highlight {
+      border-color: var(--hoverBorderYellow) !important;
+      box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.28);
+    }
+
+    .category-options-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2190;
+    }
+
+    .category-options-overlay.active {
+      display: block;
     }
 
     .edit-mode .grid-button.editable-phrase-card::after {
@@ -1110,6 +1377,12 @@
       .quick-right-actions {
         gap: 10px;
       }
+
+      .phrase-preview-toast {
+        top: 64px;
+        font-size: 16px;
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
@@ -1122,6 +1395,8 @@
     <div class="header-right"></div>
   </div>
 </header>
+
+  <div class="phrase-preview-toast hidden" id="phrasePreviewToast" aria-live="polite" aria-atomic="true"></div>
 
     <main class="main-grid" id="mainGrid">
       <div class="sentence-row" id="sentenceRow">
@@ -1137,8 +1412,8 @@
       </div>
 
       <div class="top-quick-actions hidden" id="topQuickActions">
-        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button">
-          <span class="label">Keyboard</span>
+        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button" aria-label="Keyboard" title="Keyboard">
+          <span class="icon">⌨</span>
         </button>
         <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn" type="button" aria-label="Main Menu" title="Main Menu">
           <span class="icon">⌂</span>
@@ -1150,13 +1425,9 @@
           <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button">
             No
           </button>
-          <button class="grid-button quick-word-option add-category-btn" id="addWordQuickBtn" type="button">
-            <span class="icon">＋</span>
-            <span class="label">Add Word to Category</span>
-          </button>
-          <button class="grid-button quick-word-option edit-category-btn" id="editCategoryBtn" type="button">
-            <span class="icon">✎</span>
-            <span class="label">Edit Category</span>
+          <button class="grid-button" id="categoryOptionsBtn" type="button">
+            <span class="icon">⚙</span>
+            <span class="label">Options</span>
           </button>
         </div>
       </div>
@@ -1211,6 +1482,30 @@
       <div class="warning-buttons">
         <button class="warning-button back" id="loadBoardBack">GO BACK</button>
         <button class="warning-button proceed" id="loadBoardProceed">PROCEED</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="category-options-overlay" id="categoryOptionsOverlay"></div>
+  <div id="categoryOptionsPanel" class="category-options-panel" role="dialog" aria-label="Category Options">
+    <div class="category-options-panel-title">Options</div>
+    <button class="category-options-panel-btn" id="optionAddWordBtn" type="button">＋ &nbsp;Add Word</button>
+    <button class="category-options-panel-btn" id="optionEditWordsBtn" type="button">✎ &nbsp;Edit Words</button>
+    <button class="category-options-panel-btn danger" id="optionRemoveCategoryBtn" type="button">🗑 &nbsp;Remove from Default Page</button>
+  </div>
+
+  <div id="addCategoryModal" class="add-category-modal" role="dialog" aria-modal="true" aria-labelledby="addCategoryTitle">
+    <div class="add-category-content">
+      <h2 class="add-category-title" id="addCategoryTitle">Add Category Card</h2>
+      <label class="add-category-label" for="addCategoryNameInput">Category Text</label>
+      <input id="addCategoryNameInput" class="add-category-input" type="text" maxlength="36" placeholder="Type card name" />
+
+      <div class="add-category-label">Card Color</div>
+      <div class="add-category-colors" id="addCategoryColorChoices"></div>
+
+      <div class="add-category-actions">
+        <button class="add-category-action-btn add-category-cancel" id="addCategoryCancelBtn" type="button">Cancel</button>
+        <button class="add-category-action-btn add-category-save" id="addCategorySaveBtn" type="button">Add Card</button>
       </div>
     </div>
   </div>
@@ -1273,7 +1568,10 @@
       radialIndex: -1,
       radialAnchor: null,
       radialItemDefs: [],
-      editMode: false
+      editMode: false,
+      phrasePreviewHistory: [],
+      phrasePreviewTimer: null,
+      addCategoryColor: '#3498db'
     };
 
     // Expose state globally for header title updater
@@ -1282,8 +1580,11 @@
     // ---- Settings Persistence ----
     const STORAGE_KEY = 'phraseboard_settings';
     const ADD_WORD_RETURN_KEY = 'phraseboard_pending_add_word';
+    const ADD_CATEGORY_TITLE_RETURN_KEY = 'phraseboard_pending_add_category_title';
+    const ADD_CATEGORY_DRAFT_KEY = 'phraseboard_add_category_draft';
     const RETURN_CONTEXT_KEY = 'phraseboard_return_context';
     const ADDED_WORDS_KEY = 'phraseboard_added_words';
+    const ADDED_CATEGORIES_KEY = 'phraseboard_added_categories';
     
     function saveSettings() {
       try {
@@ -1424,6 +1725,106 @@
       }
     }
 
+    // ---- Added Categories Persistence ----
+    function saveAddedCategoryToPersistence(boardName, categoryName, categoryColor) {
+      try {
+        let addedCategories = {};
+        const raw = localStorage.getItem(ADDED_CATEGORIES_KEY);
+        if (raw) addedCategories = JSON.parse(raw);
+        
+        const boardKey = (boardName || '').trim();
+        if (!boardKey || !categoryName) return false;
+        
+        if (!addedCategories[boardKey]) {
+          addedCategories[boardKey] = [];
+        }
+        
+        // Add category if not already present
+        const catExists = addedCategories[boardKey].some(c => (c.name || '').trim().toLowerCase() === categoryName.trim().toLowerCase());
+        if (!catExists) {
+          addedCategories[boardKey].push({ 
+            name: categoryName.trim(), 
+            color: categoryColor || '#3498db',
+            ts: Date.now()
+          });
+        }
+        
+        localStorage.setItem(ADDED_CATEGORIES_KEY, JSON.stringify(addedCategories));
+        return true;
+      } catch (e) {
+        console.error('Failed to save added category to persistence:', e);
+        return false;
+      }
+    }
+
+    function loadAddedCategoriesForBoard(boardName) {
+      try {
+        const raw = localStorage.getItem(ADDED_CATEGORIES_KEY);
+        if (!raw) return [];
+        
+        const addedCategories = JSON.parse(raw);
+        const boardKey = (boardName || '').trim();
+        
+        return addedCategories[boardKey] || [];
+      } catch (e) {
+        console.error('Failed to load added categories:', e);
+        return [];
+      }
+    }
+
+    function reapplyAddedCategoriesForBoard(boardName) {
+      try {
+        const added = loadAddedCategoriesForBoard(boardName);
+        if (!added || added.length === 0) return;
+        
+        added.forEach(addedCat => {
+          const catName = (addedCat.name || '').trim();
+          if (!catName) return;
+          
+          // Check if category already exists
+          const exists = state.categories.some(c => (c.name || '').trim().toLowerCase() === catName.toLowerCase());
+          if (!exists) {
+            // Add the category to state.categories and state.raw
+            const nextOrder = state.categories.reduce((maxOrder, category) => {
+              const order = Number.isFinite(category.order) ? category.order : 0;
+              return Math.max(maxOrder, order);
+            }, 0) + 1;
+            
+            const newCategory = {
+              name: catName,
+              color: addedCat.color || '#3498db',
+              order: nextOrder,
+              image: '',
+              items: []
+            };
+            
+            state.categories = [...state.categories, newCategory].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+            state.byCat.set(catName, newCategory);
+            
+            // Add category metadata to state.raw
+            const boardRow = state.raw[0] || {};
+            const categoryRow = {
+              category: catName,
+              categoryOrder: nextOrder,
+              display: '',
+              speak: '',
+              image: '',
+              categoryColor: addedCat.color || '#3498db',
+              tileColor: '',
+              tileOrder: 0,
+              categoryImage: '',
+              boardName: boardRow.boardName || state.currentBoardTitle || '',
+              boardColor: boardRow.boardColor || '',
+              boardImage: boardRow.boardImage || ''
+            };
+            state.raw = [...state.raw, categoryRow];
+          }
+        });
+      } catch (e) {
+        console.error('Failed to reapply added categories:', e);
+      }
+    }
+
     const SCAN_SPEEDS = { slow: 2000, medium: 1200, fast: 600 };
 
     const HIGHLIGHT_COLORS = {
@@ -1462,11 +1863,92 @@
       quickRightActions: document.querySelector('#topQuickActions .quick-right-actions'),
       yesQuickBtn: document.getElementById('yesQuickBtn'),
       noQuickBtn: document.getElementById('noQuickBtn'),
-      addWordQuickBtn: document.getElementById('addWordQuickBtn'),
-      editCategoryBtn: document.getElementById('editCategoryBtn'),
+      categoryOptionsBtn: document.getElementById('categoryOptionsBtn'),
+      categoryOptionsPanel: document.getElementById('categoryOptionsPanel'),
+      categoryOptionsOverlay: document.getElementById('categoryOptionsOverlay'),
+      optionAddWordBtn: document.getElementById('optionAddWordBtn'),
+      optionEditWordsBtn: document.getElementById('optionEditWordsBtn'),
+      optionRemoveCategoryBtn: document.getElementById('optionRemoveCategoryBtn'),
       mainMenuQuickBtn: document.getElementById('mainMenuQuickBtn'),
-      keyboardToolBtn: document.getElementById('keyboardToolBtn')
+      keyboardToolBtn: document.getElementById('keyboardToolBtn'),
+      addCategoryModal: document.getElementById('addCategoryModal'),
+      addCategoryNameInput: document.getElementById('addCategoryNameInput'),
+      addCategoryColorChoices: document.getElementById('addCategoryColorChoices'),
+      addCategoryCancelBtn: document.getElementById('addCategoryCancelBtn'),
+      addCategorySaveBtn: document.getElementById('addCategorySaveBtn')
+      ,
+      phrasePreviewToast: document.getElementById('phrasePreviewToast')
     };
+
+    const ADD_CATEGORY_COLOR_CHOICES = [
+      { key: 'red', label: 'Red', value: '#ff0052' },
+      { key: 'blue', label: 'Blue', value: '#3498db' },
+      { key: 'purple', label: 'Purple', value: '#6a1b9a' },
+      { key: 'yellow', label: 'Yellow', value: '#ff9c00' },
+      { key: 'green', label: 'Green', value: '#7ed957' }
+    ];
+
+    function getMainMenuCardPriority(item) {
+      const normalized = (item.text || '')
+        .toLowerCase()
+        .replace(/['’]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (normalized === 'default' || normalized === 'narbe default' || normalized === 'narbe house default') return 0;
+      if (normalized === 'narbe words') return 1;
+      if (normalized === 'settings' || normalized === 'exit' || normalized === 'create board' || normalized === 'load board') return 99;
+      return 2;
+    }
+
+    function sortMainMenuItems(items) {
+      return items
+        .map((item, index) => ({ item, index }))
+        .sort((a, b) => {
+          const ap = getMainMenuCardPriority(a.item);
+          const bp = getMainMenuCardPriority(b.item);
+          if (ap !== bp) return ap - bp;
+          return a.index - b.index;
+        })
+        .map(entry => entry.item);
+    }
+
+    function getRadialBorderColorForCategory(categoryName, fallbackColor) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      if (normalized === 'feelings') return '#ff9c00';
+      if (normalized === 'people') return '#7b61ff';
+      if (isNarbeBasicStyleCategory(categoryName) || isRedTone(fallbackColor)) return '#ff0052';
+      if (isNarbeTealAccentCategory(categoryName)) return '#7ed957';
+      if (isNarbeCanTintCategory(categoryName) || isNarbeBlueAccentCategory(categoryName)) return '#3498db';
+      return fallbackColor || '#5bb0ff';
+    }
+
+    function updatePhrasePreview(word) {
+      if (!el.phrasePreviewToast) return;
+      const cleanWord = (word || '').trim();
+      if (!cleanWord) return;
+
+      state.phrasePreviewHistory.push(cleanWord);
+      if (state.phrasePreviewHistory.length > 10) {
+        state.phrasePreviewHistory = state.phrasePreviewHistory.slice(-10);
+      }
+
+      el.phrasePreviewToast.textContent = state.phrasePreviewHistory.join(' ');
+      el.phrasePreviewToast.classList.remove('hidden');
+      el.phrasePreviewToast.classList.add('active');
+
+      if (state.phrasePreviewTimer) clearTimeout(state.phrasePreviewTimer);
+      state.phrasePreviewTimer = setTimeout(() => {
+        el.phrasePreviewToast.classList.remove('active');
+        setTimeout(() => {
+          if (!el.phrasePreviewToast.classList.contains('active')) {
+            el.phrasePreviewToast.classList.add('hidden');
+            state.phrasePreviewHistory = [];
+            el.phrasePreviewToast.textContent = '';
+          }
+        }, 280);
+      }, 15000);
+    }
 
     function openKeyboardTool() {
       saveReturnContext();
@@ -1476,10 +1958,9 @@
     function openMainMenuQuick() {
       state.editMode = false;
       el.mainGrid.classList.remove('edit-mode');
-      if (el.editCategoryBtn) {
-        el.editCategoryBtn.classList.remove('active-green');
-        el.editCategoryBtn.dataset.speakText = 'Edit category';
-      }
+      if (el.categoryOptionsBtn) el.categoryOptionsBtn.classList.remove('active-green');
+      closeCategoryOptionsPanel();
+      hideAddCategoryModal();
       state.navigationHistory = [];
       openMenu('main');
       updateHeaderForCurrentView();
@@ -1502,19 +1983,296 @@
       window.location.href = `../keyboard/index.html?${params.toString()}`;
     }
 
+    function renderAddCategoryColorChoices() {
+      if (!el.addCategoryColorChoices) return;
+      el.addCategoryColorChoices.innerHTML = '';
+      ADD_CATEGORY_COLOR_CHOICES.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'add-category-color-btn';
+        if (state.addCategoryColor === choice.value) btn.classList.add('active');
+        btn.dataset.color = choice.value;
+        btn.dataset.speakText = `${choice.label} color`;
+
+        const swatch = document.createElement('span');
+        swatch.className = 'add-category-color-swatch';
+        swatch.style.background = choice.value;
+
+        const label = document.createElement('span');
+        label.textContent = choice.label;
+
+        btn.appendChild(swatch);
+        btn.appendChild(label);
+        btn.addEventListener('click', () => {
+          state.addCategoryColor = choice.value;
+          renderAddCategoryColorChoices();
+          refreshAddCategoryModalButtons();
+          saveAddCategoryDraft();
+        });
+
+        el.addCategoryColorChoices.appendChild(btn);
+      });
+    }
+
+    function refreshAddCategoryModalButtons() {
+      const colorButtons = el.addCategoryColorChoices
+        ? Array.from(el.addCategoryColorChoices.querySelectorAll('.add-category-color-btn'))
+        : [];
+      state.modalButtons = [
+        el.addCategoryNameInput,
+        ...colorButtons,
+        el.addCategoryCancelBtn,
+        el.addCategorySaveBtn
+      ].filter(Boolean);
+      if (state.modalButtons.length === 0) {
+        state.modalScanIndex = -1;
+      } else if (state.modalScanIndex >= state.modalButtons.length) {
+        state.modalScanIndex = 0;
+      }
+    }
+
+    function saveAddCategoryDraft() {
+      try {
+        const title = el.addCategoryNameInput ? el.addCategoryNameInput.value : '';
+        const draft = {
+          open: !!(el.addCategoryModal && el.addCategoryModal.classList.contains('active')),
+          title: (title || '').trim(),
+          color: state.addCategoryColor || '#3498db',
+          board: state.currentBoardTitle || '',
+          ts: Date.now()
+        };
+        sessionStorage.setItem(ADD_CATEGORY_DRAFT_KEY, JSON.stringify(draft));
+      } catch (error) {
+        console.error('Failed to save add-category draft:', error);
+      }
+    }
+
+    function clearAddCategoryDraft() {
+      try {
+        sessionStorage.removeItem(ADD_CATEGORY_DRAFT_KEY);
+      } catch (error) {
+        console.error('Failed to clear add-category draft:', error);
+      }
+    }
+
+    function hasPendingAddCategoryModalState() {
+      try {
+        const pendingTitle = sessionStorage.getItem(ADD_CATEGORY_TITLE_RETURN_KEY);
+        if (pendingTitle) return true;
+
+        const rawDraft = sessionStorage.getItem(ADD_CATEGORY_DRAFT_KEY);
+        if (!rawDraft) return false;
+
+        const draft = JSON.parse(rawDraft);
+        return !!(draft && draft.open);
+      } catch (error) {
+        console.error('Failed to inspect add-category modal state:', error);
+        return false;
+      }
+    }
+
+    function restoreAddCategoryDraft() {
+      try {
+        const raw = sessionStorage.getItem(ADD_CATEGORY_DRAFT_KEY);
+        if (!raw) return false;
+        const draft = JSON.parse(raw);
+        if (!draft || !draft.open) return false;
+
+        showAddCategoryModal();
+        if (el.addCategoryNameInput && draft.title) {
+          el.addCategoryNameInput.value = draft.title;
+        }
+        if (draft.color) {
+          state.addCategoryColor = draft.color;
+          renderAddCategoryColorChoices();
+          refreshAddCategoryModalButtons();
+        }
+        return true;
+      } catch (error) {
+        console.error('Failed to restore add-category draft:', error);
+        return false;
+      }
+    }
+
+    function hideAddCategoryModal() {
+      if (!el.addCategoryModal) return;
+      el.addCategoryModal.classList.remove('active');
+      state.modalActive = false;
+      state.modalButtons.forEach(btn => btn.classList.remove('modal-highlight'));
+      state.modalButtons = [];
+      state.pendingAction = null;
+      state.modalScanIndex = -1;
+      if (el.addCategoryNameInput) el.addCategoryNameInput.value = '';
+      clearAddCategoryDraft();
+      try { sessionStorage.removeItem(ADD_CATEGORY_TITLE_RETURN_KEY); } catch (error) { console.error('Failed to clear add-category title payload:', error); }
+    }
+
+    function addCategoryCard() {
+      const name = (el.addCategoryNameInput ? el.addCategoryNameInput.value : '').trim();
+      if (!name) {
+        el.statusFooter.textContent = 'Enter a category name first';
+        speak('Enter a category name first');
+        return false;
+      }
+
+      const existing = state.categories.some(c => (c.name || '').trim().toLowerCase() === name.toLowerCase());
+      if (existing) {
+        el.statusFooter.textContent = `Category ${name} already exists`;
+        speak(`Category ${cleanTextForTTS(name)} already exists`);
+        return false;
+      }
+
+      const nextOrder = state.categories.reduce((maxOrder, category) => {
+        const order = Number.isFinite(category.order) ? category.order : 0;
+        return Math.max(maxOrder, order);
+      }, 0) + 1;
+
+      const selectedColor = state.addCategoryColor || '#3498db';
+      const newCategory = {
+        name,
+        color: selectedColor,
+        order: nextOrder,
+        image: '',
+        items: []
+      };
+
+      state.categories = [...state.categories, newCategory]
+        .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+      state.byCat = new Map(state.categories.map(category => [category.name, category]));
+
+      // Add category metadata to state.raw so it persists
+      const boardRow = state.raw[0] || {};
+      const categoryRow = {
+        category: name,
+        categoryOrder: nextOrder,
+        display: '',
+        speak: '',
+        image: '',
+        categoryColor: selectedColor,
+        tileColor: '',
+        tileOrder: 0,
+        categoryImage: '',
+        boardName: boardRow.boardName || state.currentBoardTitle || '',
+        boardColor: boardRow.boardColor || '',
+        boardImage: boardRow.boardImage || ''
+      };
+      state.raw = [...state.raw, categoryRow];
+
+      // Save the new category to persistence so it survives page reload
+      saveAddedCategoryToPersistence(state.currentBoardTitle, name, selectedColor);
+
+      hideAddCategoryModal();
+      
+      // Show the new category in the categories menu
+      state.currentCategory = null;
+      state.page = 0;
+      state.scanMode = 'row';
+      state.currentRow = 0;
+      state.scanIndex = 0;
+      
+      renderCategoryMenu();
+      updateHeaderForCurrentView();
+      updateScannable();
+      el.statusFooter.textContent = `Added category: ${name}`;
+      speak(`${cleanTextForTTS(name)} category added`);
+      return true;
+    }
+
+    function showAddCategoryModal() {
+      if (!el.addCategoryModal) return;
+      if (state.scanning || state.autoScan) { stopScanning(); state.autoScan = false; }
+      state.addCategoryColor = '#3498db';
+      renderAddCategoryColorChoices();
+      el.addCategoryModal.classList.add('active');
+      state.modalActive = true;
+      refreshAddCategoryModalButtons();
+      state.modalScanIndex = -1;
+      state.pendingAction = null;
+      if (el.addCategoryNameInput) {
+        el.addCategoryNameInput.value = '';
+        setTimeout(() => el.addCategoryNameInput.focus(), 0);
+      }
+      saveAddCategoryDraft();
+    }
+
+    function openAddCategoryTitleKeyboard() {
+      saveReturnContext();
+      const currentTitle = (el.addCategoryNameInput ? el.addCategoryNameInput.value : '').trim();
+      saveAddCategoryDraft();
+      const params = new URLSearchParams({
+        returnTo: 'phraseboard',
+        mode: 'add-category-title',
+        board: state.currentBoardTitle || '',
+        color: state.addCategoryColor || '#3498db',
+        title: currentTitle
+      });
+      window.location.href = `../keyboard/index.html?${params.toString()}`;
+    }
+
     function toggleEditMode() {
       state.editMode = !state.editMode;
       if (state.editMode) {
         el.mainGrid.classList.add('edit-mode');
-        el.editCategoryBtn.classList.add('active-green');
-        el.editCategoryBtn.dataset.speakText = 'Exit edit mode';
-        speak('Edit mode enabled. Click delete icons to remove cards.');
+        if (el.categoryOptionsBtn) el.categoryOptionsBtn.classList.add('active-green');
+        const msg = state.currentMenu === 'categories'
+          ? 'Edit mode enabled. Tap a category to delete it.'
+          : 'Edit mode enabled. Tap a card to delete it.';
+        speak(msg);
       } else {
         el.mainGrid.classList.remove('edit-mode');
-        el.editCategoryBtn.classList.remove('active-green');
-        el.editCategoryBtn.dataset.speakText = 'Edit category';
+        if (el.categoryOptionsBtn) el.categoryOptionsBtn.classList.remove('active-green');
         speak('Edit mode disabled.');
       }
+    }
+
+    function disableEditModeSilently() {
+      state.editMode = false;
+      el.mainGrid.classList.remove('edit-mode');
+      if (el.categoryOptionsBtn) {
+        el.categoryOptionsBtn.classList.remove('active-green');
+      }
+    }
+
+    function deleteCategory(categoryName) {
+      const exists = state.byCat.has(categoryName);
+      if (!exists) return false;
+      if (!confirm(`Delete category "${categoryName}" and all its words?`)) return false;
+
+      // Remove from state.raw
+      state.raw = state.raw.filter(r => r.category !== categoryName);
+      // Remove from categories list and map
+      state.categories = state.categories.filter(c => c.name !== categoryName);
+      state.byCat.delete(categoryName);
+
+      // Remove from localStorage persistence
+      try {
+        const raw = localStorage.getItem(ADDED_CATEGORIES_KEY);
+        if (raw) {
+          const addedCategories = JSON.parse(raw);
+          const boardKey = (state.currentBoardTitle || '').trim();
+          if (addedCategories[boardKey]) {
+            addedCategories[boardKey] = addedCategories[boardKey].filter(c => (c.name || '').trim().toLowerCase() !== categoryName.trim().toLowerCase());
+            localStorage.setItem(ADDED_CATEGORIES_KEY, JSON.stringify(addedCategories));
+          }
+        }
+        const rawWords = localStorage.getItem(ADDED_WORDS_KEY);
+        if (rawWords) {
+          const addedWords = JSON.parse(rawWords);
+          const boardKey = (state.currentBoardTitle || '').trim();
+          if (addedWords[boardKey] && addedWords[boardKey][categoryName]) {
+            delete addedWords[boardKey][categoryName];
+            localStorage.setItem(ADDED_WORDS_KEY, JSON.stringify(addedWords));
+          }
+        }
+      } catch (e) { console.error('Failed to remove category from persistence:', e); }
+
+      speak(`${cleanTextForTTS(categoryName)} deleted`);
+      el.statusFooter.textContent = `Deleted category: ${categoryName}`;
+      state.page = 0;
+      renderCategoryMenu();
+      updateHeaderForCurrentView();
+      updateScannable();
+      return true;
     }
 
     function deleteCardFromCategory(index) {
@@ -1696,18 +2454,67 @@
       }
     }
 
+    function applyPendingAddCategoryTitleFromKeyboard() {
+      let rawPayload = null;
+      try {
+        rawPayload = sessionStorage.getItem(ADD_CATEGORY_TITLE_RETURN_KEY);
+        if (!rawPayload) return false;
+        const payload = JSON.parse(rawPayload);
+        const title = (payload.title || '').trim();
+        if (!title) {
+          sessionStorage.removeItem(ADD_CATEGORY_TITLE_RETURN_KEY);
+          return false;
+        }
+
+        if (
+          el.addCategoryModal &&
+          el.addCategoryModal.classList.contains('active') &&
+          el.addCategoryNameInput &&
+          (el.addCategoryNameInput.value || '').trim().toLowerCase() === title.toLowerCase()
+        ) {
+          return true;
+        }
+
+        showAddCategoryModal();
+        if (el.addCategoryNameInput) {
+          el.addCategoryNameInput.value = title;
+        }
+        if (payload.color) {
+          state.addCategoryColor = payload.color;
+          renderAddCategoryColorChoices();
+          refreshAddCategoryModalButtons();
+        }
+        // After setting title, next step should be color choice.
+        if (state.modalButtons && state.modalButtons.length > 1) {
+          state.modalScanIndex = 1;
+          highlightModalButton();
+        }
+        saveAddCategoryDraft();
+        el.statusFooter.textContent = 'Category title received from keyboard';
+        speak('Choose a color');
+        return true;
+      } catch (error) {
+        console.error('Failed to apply pending category-title payload:', error);
+        if (rawPayload) sessionStorage.removeItem(ADD_CATEGORY_TITLE_RETURN_KEY);
+        return false;
+      }
+    }
+
     function updateKeyboardToolButtonVisibility() {
       if (!el.topQuickActions) return;
       const onDefaultBoardView = useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category');
+      const onCategoriesPage = onDefaultBoardView && state.currentMenu === 'categories';
       const onCategoryPage = onDefaultBoardView && state.currentMenu === 'category';
       el.topQuickActions.classList.toggle('hidden', !onDefaultBoardView);
+      el.topQuickActions.classList.toggle('board-top-layout', onCategoriesPage);
+      el.topQuickActions.classList.toggle('category-top-layout', onCategoryPage);
       el.mainGrid.classList.toggle('has-top-quick-actions', onDefaultBoardView);
-      if (el.mainMenuQuickBtn) el.mainMenuQuickBtn.style.display = onDefaultBoardView ? 'flex' : 'none';
-      if (el.yesQuickBtn) el.yesQuickBtn.style.display = onCategoryPage ? 'none' : '';
-      if (el.noQuickBtn) el.noQuickBtn.style.display = onCategoryPage ? 'none' : '';
-      if (el.addWordQuickBtn) el.addWordQuickBtn.style.display = onCategoryPage ? 'flex' : 'none';
-      if (el.editCategoryBtn) el.editCategoryBtn.style.display = onCategoryPage ? 'flex' : 'none';
+      if (el.mainMenuQuickBtn) el.mainMenuQuickBtn.style.display = onCategoryPage ? 'none' : (onDefaultBoardView ? 'flex' : 'none');
+      if (el.yesQuickBtn) el.yesQuickBtn.style.display = onDefaultBoardView ? 'flex' : '';
+      if (el.noQuickBtn) el.noQuickBtn.style.display = onDefaultBoardView ? 'flex' : '';
+      if (el.categoryOptionsBtn) el.categoryOptionsBtn.style.display = onCategoryPage ? 'flex' : 'none';
       if (el.quickRightActions) el.quickRightActions.classList.toggle('single-action', false);
+      if (!onCategoryPage) closeCategoryOptionsPanel();
     }
 
     if (el.keyboardToolBtn) {
@@ -1726,13 +2533,91 @@
       el.noQuickBtn.dataset.speakText = 'No';
       el.noQuickBtn.addEventListener('click', () => quickPhrase('No'));
     }
-    if (el.addWordQuickBtn) {
-      el.addWordQuickBtn.dataset.speakText = 'Add word to category';
-      el.addWordQuickBtn.addEventListener('click', openAddWordTool);
+
+    // ---- Category Options Panel ----
+    function openCategoryOptionsPanel() {
+      if (!el.categoryOptionsPanel) return;
+      if (el.categoryOptionsPanel.classList.contains('active')) {
+        closeCategoryOptionsPanel();
+        if (state.editMode) {
+          toggleEditMode();
+        }
+        return;
+      }
+      const onCategoryPage = state.currentMenu === 'category';
+      if (!onCategoryPage) return;
+      // Show/hide options based on context
+      if (el.optionAddWordBtn) el.optionAddWordBtn.style.display = onCategoryPage ? 'flex' : 'none';
+      if (el.optionEditWordsBtn) el.optionEditWordsBtn.style.display = onCategoryPage ? 'flex' : 'none';
+      if (el.optionRemoveCategoryBtn) {
+        el.optionRemoveCategoryBtn.style.display = onCategoryPage ? 'flex' : 'none';
+      }
+      // Position panel near the options button
+      if (el.categoryOptionsBtn) {
+        const rect = el.categoryOptionsBtn.getBoundingClientRect();
+        el.categoryOptionsPanel.style.top = (rect.bottom + 8) + 'px';
+        el.categoryOptionsPanel.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+        el.categoryOptionsPanel.style.left = 'auto';
+      }
+      el.categoryOptionsPanel.classList.add('active');
+      if (el.categoryOptionsOverlay) el.categoryOptionsOverlay.classList.add('active');
+      if (el.categoryOptionsBtn) el.categoryOptionsBtn.dataset.speakText = 'Close options';
+      state.modalActive = true;
+      state.modalButtons = [el.categoryOptionsBtn, el.optionAddWordBtn, el.optionEditWordsBtn, el.optionRemoveCategoryBtn].filter(button => isVisible(button));
+      state.modalScanIndex = 0;
+      state.pendingAction = null;
+      highlightModalButton();
+      speak('Options');
     }
-    if (el.editCategoryBtn) {
-      el.editCategoryBtn.dataset.speakText = 'Edit category';
-      el.editCategoryBtn.addEventListener('click', toggleEditMode);
+
+    function closeCategoryOptionsPanel() {
+      if (el.categoryOptionsPanel) el.categoryOptionsPanel.classList.remove('active');
+      if (el.categoryOptionsOverlay) el.categoryOptionsOverlay.classList.remove('active');
+      if (el.categoryOptionsBtn) el.categoryOptionsBtn.dataset.speakText = 'Options';
+      if (state.modalButtons && state.modalButtons.length) {
+        state.modalButtons.forEach(btn => btn.classList.remove('modal-highlight'));
+      }
+      state.modalActive = false;
+      state.modalButtons = [];
+      state.modalScanIndex = -1;
+      state.pendingAction = null;
+    }
+
+    if (el.categoryOptionsBtn) {
+      el.categoryOptionsBtn.dataset.speakText = 'Options';
+      el.categoryOptionsBtn.addEventListener('click', openCategoryOptionsPanel);
+    }
+    if (el.categoryOptionsOverlay) {
+      el.categoryOptionsOverlay.addEventListener('click', closeCategoryOptionsPanel);
+    }
+    if (el.optionAddWordBtn) {
+      el.optionAddWordBtn.dataset.speakText = 'Add word';
+      el.optionAddWordBtn.addEventListener('click', () => {
+        closeCategoryOptionsPanel();
+        openAddWordTool();
+      });
+    }
+    if (el.optionEditWordsBtn) {
+      el.optionEditWordsBtn.dataset.speakText = 'Edit words';
+      el.optionEditWordsBtn.addEventListener('click', () => {
+        closeCategoryOptionsPanel();
+        toggleEditMode();
+      });
+    }
+    if (el.optionRemoveCategoryBtn) {
+      el.optionRemoveCategoryBtn.dataset.speakText = 'Remove category from default page';
+      el.optionRemoveCategoryBtn.addEventListener('click', () => {
+        closeCategoryOptionsPanel();
+        if (state.currentMenu === 'category' && state.currentCategory) {
+          const isCustom = loadAddedCategoriesForBoard(state.currentBoardTitle).some(c => (c.name || '').trim().toLowerCase() === (state.currentCategory || '').trim().toLowerCase());
+          if (isCustom) {
+            deleteCategory(state.currentCategory);
+          } else {
+            el.statusFooter.textContent = 'Only custom categories can be removed from default page';
+            speak('Only custom categories can be removed from default page');
+          }
+        }
+      });
     }
 
     
@@ -1828,7 +2713,13 @@ function updateHeaderForCurrentView(){
       state.modalButtons.forEach(btn => btn.classList.remove('modal-highlight'));
       if (state.modalScanIndex >= 0 && state.modalButtons[state.modalScanIndex]) {
         state.modalButtons[state.modalScanIndex].classList.add('modal-highlight');
-        if (window.NarbeVoiceManager.getSettings().ttsEnabled && state.ttsOnScan) { speak(state.modalButtons[state.modalScanIndex].textContent); }
+        if (window.NarbeVoiceManager.getSettings().ttsEnabled && state.ttsOnScan) {
+          const current = state.modalButtons[state.modalScanIndex];
+          const spoken = (current.dataset && current.dataset.speakText)
+            ? current.dataset.speakText
+            : (current.textContent || current.placeholder || 'Option');
+          speak(spoken);
+        }
       }
     }
 
@@ -1844,6 +2735,16 @@ function updateHeaderForCurrentView(){
       const selectedButton = state.modalButtons[state.modalScanIndex];
       if (selectedButton.textContent === 'GO BACK') { hideWarningModal(); if (window.NarbeVoiceManager.getSettings().ttsEnabled) speak('Returning to menu'); }
       else if (selectedButton.textContent === 'PROCEED') { hideWarningModal(); if (state.pendingAction) state.pendingAction(); }
+      else if (selectedButton === el.addCategoryNameInput) {
+        openAddCategoryTitleKeyboard();
+      }
+      else if (selectedButton === el.addCategorySaveBtn) {
+        addCategoryCard();
+      }
+      else if (selectedButton === el.addCategoryCancelBtn) {
+        hideAddCategoryModal();
+      }
+      else { selectedButton.click(); }
     }
 
     // TTS using unified voice manager
@@ -1927,8 +2828,10 @@ function updateHeaderForCurrentView(){
     }
 
     function clearGrid() {
-      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)');
+      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#categoryOptionsBtn)');
       buttons.forEach(btn => btn.remove());
+      const spacers = el.mainGrid.querySelectorAll('.main-menu-spacer');
+      spacers.forEach(spacer => spacer.remove());
     }
 
     function createButton(text, icon = '', clickHandler = null, className = '') {
@@ -1952,8 +2855,12 @@ function updateHeaderForCurrentView(){
     function renderMainMenu() {
       clearGrid();
       state.currentMenu = 'main';
-      // Don't subtract sentence row space - it's now in its own dedicated row
-      const totalSlots = state.gridSize.rows * state.gridSize.cols;
+      // Main menu is always two rows with priority boards in the top row.
+      const mainMenuRows = 2;
+      const mainMenuCols = state.gridSize.cols;
+      el.mainGrid.style.setProperty('--grid-rows', mainMenuRows);
+      el.mainGrid.style.setProperty('--grid-cols', mainMenuCols);
+      const totalSlots = mainMenuRows * mainMenuCols;
       
       const coreItems = [
         { text: 'Settings', icon: '⚙️', action: () => navigateTo('settings'), className: 'muted-blue-btn' },
@@ -2012,6 +2919,17 @@ function updateHeaderForCurrentView(){
           }
         });
       });
+
+      allMainItems = sortMainMenuItems(allMainItems);
+
+      const defaultLikeNames = new Set(['default', 'narbe default', 'narbe house default', 'narbe words']);
+      const bottomActionNames = new Set(['settings', 'exit', 'create board', 'load board']);
+      const topPriorityItems = allMainItems.filter(item => defaultLikeNames.has((item.text || '').toLowerCase().trim()));
+      const bottomActionItems = allMainItems.filter(item => bottomActionNames.has((item.text || '').toLowerCase().trim()));
+      const remainingItems = allMainItems.filter(item => !topPriorityItems.includes(item) && !bottomActionItems.includes(item));
+      const spacerCount = Math.max(0, mainMenuCols - topPriorityItems.length);
+      const topRowSpacers = Array.from({ length: spacerCount }, () => ({ isSpacer: true }));
+      allMainItems = [...topPriorityItems, ...topRowSpacers, ...bottomActionItems, ...remainingItems];
       
       // Calculate pagination - reserve 1 slot for Next button if needed
       let itemsPerPage = totalSlots;
@@ -2029,8 +2947,16 @@ function updateHeaderForCurrentView(){
         // Add items for current page
         for (let i = startIdx; i < endIdx; i++) {
           const item = allMainItems[i];
+          if (item.isSpacer) {
+            const spacer = document.createElement('div');
+            spacer.className = 'main-menu-spacer';
+            el.mainGrid.appendChild(spacer);
+            continue;
+          }
           const btn = createButton(item.text, item.icon, item.action, item.className || '');
           btn.classList.add('main-menu-card');
+          const priority = getMainMenuCardPriority(item);
+          if (priority <= 1) btn.classList.add('priority-board-card');
           
           // Apply board color and image if available
           if (item.boardData) {
@@ -2061,8 +2987,16 @@ function updateHeaderForCurrentView(){
       } else {
         // Single page - add all items
         allMainItems.forEach(item => {
+          if (item.isSpacer) {
+            const spacer = document.createElement('div');
+            spacer.className = 'main-menu-spacer';
+            el.mainGrid.appendChild(spacer);
+            return;
+          }
           const btn = createButton(item.text, item.icon, item.action, item.className || '');
           btn.classList.add('main-menu-card');
+          const priority = getMainMenuCardPriority(item);
+          if (priority <= 1) btn.classList.add('priority-board-card');
           
           // Apply board color and image if available
           if (item.boardData) {
@@ -2089,6 +3023,8 @@ function updateHeaderForCurrentView(){
     function renderCategoryMenu() {
       clearGrid();
       state.currentMenu = 'categories';
+      el.mainGrid.style.setProperty('--grid-rows', state.gridSize.rows);
+      el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
       const showAddCategoryButton = useWhiteBordersForCurrentBoard();
@@ -2111,7 +3047,15 @@ function updateHeaderForCurrentView(){
       for (let i = startIdx; i < endIdx; i++) {
         const cat = state.categories[i];
         const displayName = getDisplayCategoryName(cat.name);
-        const btn = createButton(displayName, '', () => openCategory(cat.name));
+        // Check if this is a user-added (custom) category
+        const isCustomCategory = loadAddedCategoriesForBoard(state.currentBoardTitle).some(c => (c.name || '').trim().toLowerCase() === (cat.name || '').trim().toLowerCase());
+        const btn = createButton(displayName, '', () => {
+          if (state.editMode && isCustomCategory) {
+            deleteCategory(cat.name);
+            return;
+          }
+          openCategory(cat.name);
+        });
         
         // Add category image if available
         if (cat.image) {
@@ -2126,28 +3070,36 @@ function updateHeaderForCurrentView(){
         const isBasicStyleCard = isNarbeBasicStyleCategory(cat.name);
         const isTealCard = isNarbeTealAccentCategory(cat.name);
         const isCanTintCard = useWhiteBordersForCurrentBoard() && isNarbeCanTintCategory(cat.name);
-        btn.style.background = isFeelingsCard
+        // For custom categories, detect card type from color
+        const catColor = (cat.color || '').toLowerCase();
+        const isCustomRedCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && isRedTone(cat.color);
+        const isCustomPurpleCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && catColor === '#6a1b9a';
+        const isCustomYellowCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && catColor === '#ff9c00';
+        const isCustomTealCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && catColor === '#7ed957';
+        const isCustomBlueCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && catColor === '#3498db';
+        btn.style.background = isFeelingsCard || isCustomYellowCard
           ? rgbaFromHex(cat.color || '#ff9c00', 0.2)
-          : isPeopleCard
-            ? rgbaFromHex(cat.color || '#5bb0ff', 0.2)
-          : isCanTintCard
+          : isPeopleCard || isCustomPurpleCard
+            ? rgbaFromHex(cat.color || '#6a1b9a', 0.2)
+          : isCanTintCard || isCustomBlueCard
             ? rgbaFromHex('#3498db', 0.2)
-          : isBasicStyleCard
+          : isBasicStyleCard || isCustomRedCard
             ? '#FF005216'
-            : isTealCard
+          : isTealCard || isCustomTealCard
               ? rgbaFromHex('#7ed957', 0.2)
-              : '#0047F112';
+              : rgbaFromHex(cat.color || '#5bb0ff', 0.2);
         btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
-        applyNarbeFeelingsCardBorder(btn, isFeelingsCard);
-        applyNarbeBlueCardBorder(btn, !isFeelingsCard && isNarbeBlueAccentCategory(cat.name));
-        applyNarbePeopleCardBorder(btn, !isFeelingsCard && isNarbePeopleCategory(cat.name));
-        applyNarbeTealCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && isTealCard);
-        applyNarbeRedCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && !isTealCard && (isBasicStyleCard || isRedTone(cat.color)));
+        applyNarbeFeelingsCardBorder(btn, isFeelingsCard || isCustomYellowCard);
+        applyNarbeBlueCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && (isNarbeBlueAccentCategory(cat.name) || isCustomBlueCard));
+        applyNarbePeopleCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && (isNarbePeopleCategory(cat.name) || isCustomPurpleCard));
+        applyNarbeTealCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && !isNarbeBlueAccentCategory(cat.name) && !isCustomBlueCard && (isTealCard || isCustomTealCard));
+        applyNarbeRedCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && !isNarbeBlueAccentCategory(cat.name) && !isCustomBlueCard && !isTealCard && !isCustomTealCard && !isCustomPurpleCard && (isBasicStyleCard || isCustomRedCard));
 
         if (useWhiteBordersForCurrentBoard()) {
           const radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
           if (radialItems.length) {
             btn.dataset.radialItems = JSON.stringify(radialItems);
+            btn.dataset.radialBorderColor = getRadialBorderColorForCategory(cat.name, cat.color);
           }
           const previewText = buildCategoryPreviewText(cat.items, 3);
           if (previewText) {
@@ -2180,7 +3132,7 @@ function updateHeaderForCurrentView(){
       if (showAddCategoryButton) {
         gridPositions.push({
           type: 'add-category',
-          button: createButton('Add Category', '＋', () => showWarningModal('create'), 'muted-green-btn add-category-btn')
+          button: createButton('Add Category', '＋', () => showAddCategoryModal(), 'muted-green-btn add-category-btn')
         });
       }
       // Add Next button if there are multiple pages (loops back to first page from last page)
@@ -2595,6 +3547,8 @@ function updateHeaderForCurrentView(){
       if (!state.currentCategory) return;
       clearGrid();
       state.currentMenu = 'category';
+      el.mainGrid.style.setProperty('--grid-rows', state.gridSize.rows);
+      el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
       const cat = state.byCat.get(state.currentCategory);
       if (!cat) return;
       // Don't subtract sentence row space - it's now in its own dedicated row
@@ -2605,7 +3559,8 @@ function updateHeaderForCurrentView(){
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, cat.items.length);
       const gridPositions = [];
-      gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
+      const backLabel = (state.page === 0 && useWhiteBordersForCurrentBoard()) ? 'Back to Categories' : 'Back';
+      gridPositions.push({ type: 'back', button: createButton(backLabel, '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
       for (let i = startIdx; i < endIdx; i++) {
         const item = cat.items[i];
         const btn = createButton(
@@ -2631,9 +3586,10 @@ function updateHeaderForCurrentView(){
         const tileColor = item.tileColor || cat.color;
         if (tileColor) {
           const isBasicStyleCategory = isNarbeBasicStyleCategory(state.currentCategory);
+          const useCustomRedCardTint = useWhiteBordersForCurrentBoard() && !isBasicStyleCategory && isRedTone(cat.color || tileColor);
           const useCanCardTint = useWhiteBordersForCurrentBoard() && isNarbeCanTintCategory(state.currentCategory);
           const useModifiersCardTint = useWhiteBordersForCurrentBoard() && isNarbeTealAccentCategory(state.currentCategory);
-          if (isBasicStyleCategory) {
+          if (isBasicStyleCategory || useCustomRedCardTint) {
             btn.style.background = '#FF005216';
           } else if (useCanCardTint) {
             btn.style.background = rgbaFromHex('#3498db', 0.2);
@@ -2688,19 +3644,32 @@ function updateHeaderForCurrentView(){
         return;
       }
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#categoryOptionsBtn)'));
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        const quickRow = [el.keyboardToolBtn, el.mainMenuQuickBtn, el.yesQuickBtn, el.noQuickBtn, el.addWordQuickBtn, el.editCategoryBtn].filter(isVisible);
+        const quickRow = [el.mainMenuQuickBtn, el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn, el.categoryOptionsBtn].filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
         rows.push([el.sentenceDisplay, el.deleteWordBtn, el.clearSentenceBtn]);
       }
-      for (let i = 0; i < buttons.length; i += cols) {
-        const row = buttons.slice(i, i + cols);
-        if (row.length > 0) rows.push(row);
+      if (state.currentMenu === 'main') {
+        const topRow = buttons.slice(0, 2);
+        if (topRow.length > 0) rows.push(topRow);
+
+        const secondRow = buttons.slice(2, 6);
+        if (secondRow.length > 0) rows.push(secondRow);
+
+        for (let i = 6; i < buttons.length; i += cols) {
+          const row = buttons.slice(i, i + cols);
+          if (row.length > 0) rows.push(row);
+        }
+      } else {
+        for (let i = 0; i < buttons.length; i += cols) {
+          const row = buttons.slice(i, i + cols);
+          if (row.length > 0) rows.push(row);
+        }
       }
       state.scannableRows = rows;
       
@@ -2858,6 +3827,7 @@ function updateHeaderForCurrentView(){
         { display: '✕', speak: 'Close menu', _closeMenu: true },
         ...preview
       ];
+      const radialBorderColor = anchorEl.dataset.radialBorderColor || getComputedStyle(anchorEl).borderTopColor || '#d1d5db';
       const count = allItems.length;
       const rect = anchorEl.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
@@ -2878,6 +3848,9 @@ function updateHeaderForCurrentView(){
         btn.className = 'radial-menu-item' + (item._openPage ? ' radial-cancel' : '') + (item._closeMenu ? ' radial-close' : '');
         btn.style.left = x + 'px';
         btn.style.top = y + 'px';
+        if (item._openPage) btn.style.borderColor = '#eab308';
+        else if (item._closeMenu) btn.style.borderColor = '#ef4444';
+        else btn.style.borderColor = radialBorderColor;
         btn.textContent = item.display || item.speak || '';
         btn.dataset.speakText = item.speak || item.display || '';
         btn.style.pointerEvents = 'none';
@@ -3369,6 +4342,33 @@ function updateHeaderForCurrentView(){
     });
     el.loadBoardBack.addEventListener('click', hideWarningModal);
 
+    if (el.addCategoryCancelBtn) {
+      el.addCategoryCancelBtn.addEventListener('click', hideAddCategoryModal);
+    }
+    if (el.addCategorySaveBtn) {
+      el.addCategorySaveBtn.addEventListener('click', addCategoryCard);
+    }
+    if (el.addCategoryNameInput) {
+      el.addCategoryNameInput.dataset.speakText = 'Set category title';
+      el.addCategoryNameInput.addEventListener('click', () => {
+        openAddCategoryTitleKeyboard();
+      });
+      el.addCategoryNameInput.addEventListener('input', () => {
+        saveAddCategoryDraft();
+      });
+      el.addCategoryNameInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          addCategoryCard();
+        }
+      });
+    }
+    if (el.addCategoryModal) {
+      el.addCategoryModal.addEventListener('click', event => {
+        if (event.target === el.addCategoryModal) hideAddCategoryModal();
+      });
+    }
+
     el.rowBackOptionBtn.addEventListener('click', () => {
       hideRowBackOption();
       state.scanMode = 'row';
@@ -3429,6 +4429,42 @@ function updateHeaderForCurrentView(){
       const urlParams = new URLSearchParams(window.location.search);
       const boardParam = urlParams.get('board');
       const categoryParam = urlParams.get('category');
+      const addCategoryTitleParam = (urlParams.get('addCategoryTitle') || '').trim();
+      const addCategoryColorParam = (urlParams.get('addCategoryColor') || '').trim();
+
+      if (addCategoryTitleParam) {
+        try {
+          sessionStorage.setItem(ADD_CATEGORY_TITLE_RETURN_KEY, JSON.stringify({
+            title: addCategoryTitleParam,
+            color: addCategoryColorParam || state.addCategoryColor || '#3498db',
+            board: state.currentBoardTitle || '',
+            ts: Date.now()
+          }));
+          const cleanedParams = new URLSearchParams(window.location.search);
+          cleanedParams.delete('addCategoryTitle');
+          cleanedParams.delete('addCategoryColor');
+          const cleanedQuery = cleanedParams.toString();
+          const cleanedUrl = cleanedQuery ? `${window.location.pathname}?${cleanedQuery}` : window.location.pathname;
+          window.history.replaceState({}, '', cleanedUrl);
+        } catch (error) {
+          console.error('Failed to set add-category payload from URL params:', error);
+        }
+
+        let restored = false;
+        if (savedReturnContext) {
+          restored = await restoreReturnContext(savedReturnContext);
+        }
+        if (!restored) {
+          renderMainMenu();
+        }
+
+        restoreAddCategoryDraft();
+        applyPendingAddCategoryTitleFromKeyboard();
+        updateScannable();
+        state.currentRow = 0;
+        state.scanIndex = 0;
+        return;
+      }
 
       if (boardParam) {
         // Find the board in availableBoards (check filename or name)
@@ -3460,12 +4496,15 @@ function updateHeaderForCurrentView(){
         const restored = await restoreReturnContext(savedReturnContext);
         if (restored) {
           applyPendingAddWordFromKeyboard();
+          applyPendingAddCategoryTitleFromKeyboard();
           return;
         }
       }
 
       // Always start at main menu instead of auto-loading saved board
       renderMainMenu();
+      restoreAddCategoryDraft();
+      applyPendingAddCategoryTitleFromKeyboard();
       
       if (saved && saved.csv) {
         el.statusFooter.textContent = `You have a saved board: ${saved.name}`;
@@ -3477,11 +4516,21 @@ function updateHeaderForCurrentView(){
     });
 
     window.addEventListener('pageshow', () => {
+      restoreAddCategoryDraft();
       applyPendingAddWordFromKeyboard();
+      applyPendingAddCategoryTitleFromKeyboard();
+      if (el.addCategoryModal && el.addCategoryModal.classList.contains('active')) {
+        saveAddCategoryDraft();
+      }
     });
 
     window.addEventListener('focus', () => {
+      restoreAddCategoryDraft();
       applyPendingAddWordFromKeyboard();
+      applyPendingAddCategoryTitleFromKeyboard();
+      if (el.addCategoryModal && el.addCategoryModal.classList.contains('active')) {
+        saveAddCategoryDraft();
+      }
     });
 
     // Theme
@@ -3515,6 +4564,9 @@ function updateHeaderForCurrentView(){
       }
       
       // Handle regular phrases (non-URLs) - keep same TTS function
+      if (state.currentMenu === 'category') {
+        updatePhrasePreview(display || speakText);
+      }
       if (state.sentenceMode) { 
         state.sentence.push(text); 
         updateSentenceDisplay(); 
@@ -3542,6 +4594,7 @@ function updateHeaderForCurrentView(){
       let backMessage = '';
       if (state.navigationHistory.length > 0) {
         const prevState = state.navigationHistory.pop();
+        if (prevState.menu !== 'category') disableEditModeSilently();
         
         // Determine what we're going back to for TTS
         switch (prevState.menu) {
@@ -3585,6 +4638,10 @@ function updateHeaderForCurrentView(){
     }
 
     function openMenu(menuName) {
+      if (!hasPendingAddCategoryModalState()) {
+        hideAddCategoryModal();
+      }
+      if (menuName !== 'category') disableEditModeSilently();
       state.page = 0; state.scanMode = 'row'; state.currentRow = 0; state.scanIndex = 0;
       
       // Speak the menu name when entering
@@ -3776,7 +4833,7 @@ function updateHeaderForCurrentView(){
 
     function applyNarbeTealCardBorder(button, isTealCard) {
       if (!isTealCard) return;
-      applyNarbeAccentCardBorder(button, '#007491EF');
+      applyNarbeAccentCardBorder(button, '#5FAE3DE8');
     }
 
     function applyNarbeDefaultFirstRowCenterColors() {
@@ -3796,7 +4853,7 @@ function updateHeaderForCurrentView(){
     function applyNarbeDefaultBottomRowColors() {
       if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#addWordQuickBtn):not(#editCategoryBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#mainMenuQuickBtn):not(#yesQuickBtn):not(#noQuickBtn):not(#categoryOptionsBtn)'));
       if (buttons.length === 0) return;
 
       const cols = state.gridSize.cols;
@@ -3810,18 +4867,23 @@ function updateHeaderForCurrentView(){
 
       lastRowButtons.forEach((btn, index) => {
         if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn') || btn.classList.contains('add-category-btn')) return;
-        btn.style.background = rgbaFromHex('#7ed957', 0.2);
-        const indicator = btn.querySelector('.page-indicator');
-        if (indicator) {
-          indicator.style.color = '#007491EF';
-          indicator.style.background = '#00C2D121';
-        }
         const labelEl = btn.querySelector('.label');
         const categoryName = (labelEl ? labelEl.textContent : btn.textContent).trim();
         const isBlueCard = isNarbeBlueAccentCategory(categoryName);
-        const isTealCard = isNarbeTealAccentCategory(categoryName) || index === lastStylableIndex;
+        const isTealCard = isNarbeTealAccentCategory(categoryName);
+        const isPeopleCard = isNarbePeopleCategory(categoryName);
+        const isDefaultRedCard = isNarbeBasicStyleCategory(categoryName);
+        const isBuiltInStyledCard = isBlueCard || isTealCard || isPeopleCard || isDefaultRedCard;
+        if (!isBuiltInStyledCard) return;
+
+        btn.style.background = rgbaFromHex('#7ed957', 0.2);
+        const indicator = btn.querySelector('.page-indicator');
+        if (indicator) {
+          indicator.style.color = '#4f8d2f';
+          indicator.style.background = '#7ed95733';
+        }
         applyNarbeBlueCardBorder(btn, isBlueCard);
-        applyNarbePeopleCardBorder(btn, isNarbePeopleCategory(categoryName));
+        applyNarbePeopleCardBorder(btn, isPeopleCard);
         applyNarbeTealCardBorder(btn, !isBlueCard && isTealCard);
       });
     }
@@ -3930,6 +4992,9 @@ function updateHeaderForCurrentView(){
       state.categories = cats;
       state.byCat = new Map(cats.map(c => [c.name, c]));
       state.csvLoaded = true;
+      
+      // Reapply any previously added categories for this board
+      reapplyAddedCategoriesForBoard(state.currentBoardTitle);
       
       // Reapply any previously added words for this board
       reapplyAddedWordsForBoard(state.currentBoardTitle);

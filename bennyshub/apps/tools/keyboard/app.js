@@ -3,14 +3,19 @@
   const textBar = $("#textBar");
   const predictBar = $("#predictBar");
   const kb = $("#keyboard");
+  const rowBackOption = $("#rowBackOption");
   const settingsMenu = $("#settingsMenu");
   const launchParams = new URLSearchParams(window.location.search);
   const returnToPhraseboard = launchParams.get("returnTo") === "phraseboard";
   const phraseboardMode = launchParams.get("mode") || "";
   const phraseboardCategory = launchParams.get("category") || "";
   const phraseboardBoard = launchParams.get("board") || "";
+  const phraseboardCategoryTitle = launchParams.get("title") || "";
+  const phraseboardCategoryColor = launchParams.get("color") || "";
   const PHRASEBOARD_ADD_WORD_RETURN_KEY = "phraseboard_pending_add_word";
+  const PHRASEBOARD_ADD_CATEGORY_TITLE_RETURN_KEY = "phraseboard_pending_add_category_title";
   const isAddWordMode = returnToPhraseboard && phraseboardMode === "add-word";
+  const isAddCategoryTitleMode = returnToPhraseboard && phraseboardMode === "add-category-title";
 
   const defaultSettings = {
     autocapI: true,
@@ -125,6 +130,9 @@
 
   // Scanning state
   let inRowSelectionMode = true;
+  let inSectionRowSelectionMode = false;
+  let currentSection = null; // "letters" | "numbers"
+  let currentSectionRowIndex = -1;
   let currentRowIndex = 0;
   let currentButtonIndex = 0;
   let spacebarPressed = false;
@@ -134,6 +142,15 @@
   let longPressTriggered = false;
   let backwardScanInterval = null;
   let backwardScanningOccurred = false; // Track if backward scanning actually happened
+  let lastEnterReleaseAt = 0;
+
+  const ROW_RESELECT_HOLD_MS = 1200;
+  const ROW_RESELECT_DOUBLE_TAP_MS = 500;
+  const MAX_PREDICTIONS = 6;
+  const DEFAULT_PREDICTIONS = [
+    "I", "YOU", "IT", "IS", "THE", "TO", "AND", "MY", "ME", "WE",
+    "WANT", "NEED", "HELP", "PLEASE", "CAN", "GO", "LIKE", "NOT", "YES", "NO"
+  ];
 
   // Text state
   let buffer = "";
@@ -170,17 +187,34 @@
   }
 
   // Keyboard layout with symbols for control buttons
+  // Left side: Letters in rows of 4 | Right side: Numbers in rows of 2
   const rows = [
+    // Control row (6 columns wide)
     isAddWordMode
-      ? ["Space", "Del Letter", "Del Word", "Clear", "Settings", "Add Word", "Exit"]
+      ? ["Space", "Del Letter", "Del Word", "Clear", "Add Word", "Exit"]
+      : isAddCategoryTitleMode
+      ? ["Space", "Del Letter", "Del Word", "Clear", "Set Title", "Exit"]
       : ["Space", "Del Letter", "Del Word", "Clear", "Settings", "Exit"],
-    ["A","B","C","D","E","F"],
-    ["G","H","I","J","K","L"],
-    ["M","N","O","P","Q","R"],
-    ["S","T","U","V","W","X"],
-    ["Y","Z","0","1","2","3"],
-    ["4","5","6","7","8","9"]
+    // Letter rows: 4 letters on left (cols 0-3) | 2 numbers on right (cols 4-5)
+    ["A","B","C","D","0","1"],
+    ["E","F","G","H","2","3"],
+    ["I","J","K","L","4","5"],
+    ["M","N","O","P","6","7"],
+    ["Q","R","S","T","8","9"],
+    ["U","V","W","X","",""],
+    ["Y","Z","","","",""]
   ];
+
+  const TOP_LEVEL_ROWS = {
+    TEXT: 0,
+    CONTROLS: 1,
+    LETTERS_SECTION: 2,
+    NUMBERS_SECTION: 3,
+    PREDICTIVE: 4
+  };
+  const TOP_LEVEL_ROW_COUNT = 5;
+  const LETTER_ROW_MAP = [1, 2, 3, 4, 5, 6, 7]; // keyboard physical rows
+  const NUMBER_ROW_MAP = [1, 2, 3, 4, 5]; // keyboard physical rows containing 0-9
 
   // Control button symbols
   const controlSymbols = {
@@ -190,20 +224,23 @@
     "Clear": "✕",        // Clear/X symbol
     "Settings": "⚙",     // Gear symbol
     "Add Word": "＋",    // Confirm/save symbol
+    "Set Title": "＋",   // Confirm/save symbol
     "Exit": "⏻"          // Power/Exit symbol
   };
 
   function renderKeyboard() {
     kb.innerHTML = "";
-    kb.classList.toggle("add-word-mode", isAddWordMode);
+    kb.classList.toggle("add-word-mode", isAddWordMode || isAddCategoryTitleMode);
     rows.forEach((row, rIdx) => {
       row.forEach((key) => {
         const btn = document.createElement("button");
         btn.className = "key" + (rIdx === 0 ? " ctrl" : "");
         
-        if (key === "Settings") {
+        if (key === "Space" || key === "Del Letter" || key === "Del Word" || key === "Clear") {
+          btn.classList.add("white-key");
+        } else if (key === "Settings") {
           btn.classList.add("settings");
-        } else if (key === "Add Word") {
+        } else if (key === "Add Word" || key === "Set Title") {
           btn.classList.add("confirm");
         } else if (key === "Exit") {
           btn.classList.add("exit");
@@ -230,6 +267,139 @@
       });
     });
     highlightTextBox();
+  }
+
+  function highlightTopLevelRow() {
+    clearAllHighlights();
+    hideRowBackOption();
+    if (currentRowIndex === TOP_LEVEL_ROWS.TEXT) {
+      highlightTextBox();
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) {
+      highlightPhysicalRow(0, 0, 5);
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION) {
+      highlightSectionGroup("letters");
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION) {
+      highlightSectionGroup("numbers");
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+      highlightPredictiveRow();
+    }
+  }
+
+  function speakTopLevelRowTitle() {
+    if (currentRowIndex === TOP_LEVEL_ROWS.TEXT) {
+      speak("text box");
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) {
+      speak("controls");
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION) {
+      speak("letters section");
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION) {
+      speak("numbers section");
+      return;
+    }
+    if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+      speakPredictions();
+    }
+  }
+
+  function getSectionRowMap(section = currentSection) {
+    return section === "numbers" ? NUMBER_ROW_MAP : LETTER_ROW_MAP;
+  }
+
+  function getSectionRowKeys(section = currentSection, sectionRowIndex = currentSectionRowIndex) {
+    if (sectionRowIndex < 0) return [];
+    const rowMap = getSectionRowMap(section);
+    const physicalRow = rowMap[sectionRowIndex];
+    const row = rows[physicalRow] || [];
+    if (section === "numbers") return row.slice(4, 6).filter(k => (k || "").trim());
+    return row.slice(0, 4).filter(k => (k || "").trim());
+  }
+
+  function getSectionRowCount(section = currentSection) {
+    const rowMap = getSectionRowMap(section);
+    return rowMap.length;
+  }
+
+  function getCurrentButtonKeys() {
+    if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) return rows[0].filter(k => (k || "").trim());
+    if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+      return Array.from(predictBar.querySelectorAll(".chip")).map(ch => (ch.textContent || "").trim()).filter(Boolean);
+    }
+    if (inSectionRowSelectionMode && (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION || currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION)) {
+      return getSectionRowKeys();
+    }
+    return [];
+  }
+
+  function getButtonDomIndex(buttonIndex) {
+    if (buttonIndex < 0) return null;
+    if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) return buttonIndex;
+    if (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION || currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION) {
+      if (currentSectionRowIndex < 0) return null;
+      const rowMap = getSectionRowMap();
+      const physicalRow = rowMap[currentSectionRowIndex];
+      const base = physicalRow * 6;
+      if (currentSection === "numbers") return base + 4 + buttonIndex;
+      return base + buttonIndex;
+    }
+    return null;
+  }
+
+  function highlightPhysicalRow(physicalRowIndex, startCol, endCol) {
+    const allKeys = kb.querySelectorAll(".key");
+    const rowStart = physicalRowIndex * 6;
+    for (let col = startCol; col <= endCol; col++) {
+      const key = allKeys[rowStart + col];
+      if (key) key.classList.add("highlighted");
+    }
+  }
+
+  function highlightSectionGroup(section) {
+    const rowMap = getSectionRowMap(section);
+    rowMap.forEach(physicalRow => {
+      if (section === "numbers") highlightPhysicalRow(physicalRow, 4, 5);
+      else highlightPhysicalRow(physicalRow, 0, 3);
+    });
+  }
+
+  function highlightSectionRow(section = currentSection, sectionRowIndex = currentSectionRowIndex) {
+    clearAllHighlights();
+    showRowBackOption();
+    if (sectionRowIndex < 0) {
+      highlightRowBackOption();
+      return;
+    }
+    const rowMap = getSectionRowMap(section);
+    const physicalRow = rowMap[sectionRowIndex];
+    if (section === "numbers") highlightPhysicalRow(physicalRow, 4, 5);
+    else highlightPhysicalRow(physicalRow, 0, 3);
+  }
+
+  function speakSectionRowTitle(section = currentSection, sectionRowIndex = currentSectionRowIndex) {
+    if (sectionRowIndex < 0) {
+      speak("back to section selection");
+      return;
+    }
+    const keys = getSectionRowKeys(section, sectionRowIndex);
+    if (!keys.length) {
+      speak("empty row");
+      return;
+    }
+    const label = keys.join(" ").toLowerCase();
+    speak(section === "numbers" ? `numbers ${label}` : label);
   }
 
   document.addEventListener("keydown", (e) => {
@@ -320,10 +490,10 @@
       console.log("Return pressed");
       
       setTimeout(() => {
-        if (returnPressed && (Date.now() - returnPressTime) >= 3000) {
+        if (returnPressed && (Date.now() - returnPressTime) >= ROW_RESELECT_HOLD_MS) {
           handleLongPress();
         }
-      }, 3000);
+      }, ROW_RESELECT_HOLD_MS);
     }
   }
 
@@ -337,6 +507,22 @@
         console.log("Short press - selecting");
         selectButton();
       }
+
+      if (inRowSelectionMode === false && !longPressTriggered) {
+        const now = Date.now();
+        if ((now - lastEnterReleaseAt) <= ROW_RESELECT_DOUBLE_TAP_MS) {
+          inRowSelectionMode = true;
+          inSectionRowSelectionMode = false;
+          currentSection = null;
+          clearAllHighlights();
+          highlightTopLevelRow();
+          speakTopLevelRowTitle();
+          speak("row selection");
+        }
+        lastEnterReleaseAt = now;
+      } else {
+        lastEnterReleaseAt = Date.now();
+      }
       
       returnPressTime = null;
       longPressTriggered = false;
@@ -348,24 +534,35 @@
     clearAllHighlights();
     
     if (inRowSelectionMode) {
-      // Jump to predictive text row (now at the bottom - last row)
-      currentRowIndex = rows.length + 1; // Last row index (textbar=0, keyboard=1-7, predictive=8)
-      inRowSelectionMode = true;
-      highlightPredictiveRow();
-      console.log("Long press: Jumped to predictive text row (bottom)");
-
-      // Read all predictive text words when entering predictive mode
-      speakPredictions();
-    } else {
-      inRowSelectionMode = true;
-      if (currentRowIndex === 0) {
-        highlightTextBox();
-      } else if (currentRowIndex === rows.length + 1) {
-        highlightPredictiveRow();
-        speakPredictions(); // Read all predictions instead of row title
+      if (inSectionRowSelectionMode) {
+        inSectionRowSelectionMode = false;
+        currentSection = null;
+        clearAllHighlights();
+        highlightTopLevelRow();
+        speakTopLevelRowTitle();
+        speak("section selection");
       } else {
-        highlightRow(currentRowIndex - 1); // Adjust for keyboard rows (1-7)
-        speakRowTitle(currentRowIndex - 1);
+        // Jump to predictive row from top-level row selection.
+        currentRowIndex = TOP_LEVEL_ROWS.PREDICTIVE;
+        inRowSelectionMode = true;
+        inSectionRowSelectionMode = false;
+        currentSection = null;
+        highlightPredictiveRow();
+        console.log("Long press: Jumped to predictive text row");
+        speakPredictions();
+      }
+    } else {
+      // Exit button mode to the current row-selection level.
+      inRowSelectionMode = true;
+      if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+        highlightPredictiveRow();
+        speakPredictions();
+      } else if (inSectionRowSelectionMode) {
+        highlightSectionRow();
+        speakSectionRowTitle();
+      } else {
+        highlightTopLevelRow();
+        speakTopLevelRowTitle();
       }
       console.log("Long press: Returned to row selection mode");
     }
@@ -373,34 +570,43 @@
 
   function scanForward() {
     if (inRowSelectionMode) {
-      const prevRow = currentRowIndex;
-      // Navigation: textbar(0) -> keyboard(1-7) -> predictive(8)
-      currentRowIndex = (currentRowIndex + 1) % (rows.length + 2);
-      console.log(`Scanning forward to row ${currentRowIndex}`);
-      
-      clearAllHighlights();
-      if (currentRowIndex === 0) {
-        highlightTextBox();
-      } else if (currentRowIndex === rows.length + 1) {
-        highlightPredictiveRow();
-        speakPredictions(); // Read all predictions instead of row title
+      if (inSectionRowSelectionMode) {
+        const optionCount = getSectionRowCount() + 1; // include Back option as -1
+        const normalized = currentSectionRowIndex + 1;
+        const next = (normalized + 1) % optionCount;
+        currentSectionRowIndex = next - 1;
+        highlightSectionRow();
+        speakSectionRowTitle();
       } else {
-        highlightRow(currentRowIndex - 1); // Keyboard rows (adjust index)
-        speakRowTitle(currentRowIndex - 1);
+        currentRowIndex = (currentRowIndex + 1) % TOP_LEVEL_ROW_COUNT;
+        console.log(`Scanning forward to top-level row ${currentRowIndex}`);
+        highlightTopLevelRow();
+        speakTopLevelRowTitle();
       }
     } else {
       const prevButton = currentButtonIndex;
-      if (currentRowIndex === 0) {
+      if (currentRowIndex === TOP_LEVEL_ROWS.TEXT) {
         return; // Can't navigate buttons in textbar
-      } else if (currentRowIndex === rows.length + 1) {
+      } else if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
         // Predictive row navigation
         const chips = predictBar.querySelectorAll(".chip");
-        currentButtonIndex = (currentButtonIndex + 1) % chips.length;
-        highlightPredictiveButton(currentButtonIndex, prevButton);
-        speakPredictiveButtonLabel(currentButtonIndex);
+        const optionCount = chips.length + 1;
+        const normalized = currentButtonIndex + 1;
+        const next = (normalized + 1) % optionCount;
+        currentButtonIndex = next - 1;
+        if (currentButtonIndex < 0) {
+          highlightRowBackOption();
+          speak("back to row selection");
+        } else {
+          highlightPredictiveButton(currentButtonIndex, prevButton);
+          speakPredictiveButtonLabel(currentButtonIndex);
+        }
       } else {
-        // Keyboard row navigation
-        currentButtonIndex = (currentButtonIndex + 1) % rows[currentRowIndex - 1].length;
+        // Controls/section row navigation
+        const optionCount = getCurrentButtonKeys().length + 1;
+        const normalized = currentButtonIndex + 1;
+        const next = (normalized + 1) % optionCount;
+        currentButtonIndex = next - 1;
         highlightButton(currentButtonIndex, prevButton);
         speakButtonLabel(currentButtonIndex);
       }
@@ -409,33 +615,43 @@
 
   function scanBackward() {
     if (inRowSelectionMode) {
-      const prevRow = currentRowIndex;
-      currentRowIndex = (currentRowIndex - 1 + (rows.length + 2)) % (rows.length + 2);
-      console.log(`Scanning backward to row ${currentRowIndex}`);
-      
-      clearAllHighlights();
-      if (currentRowIndex === 0) {
-        highlightTextBox();
-      } else if (currentRowIndex === rows.length + 1) {
-        highlightPredictiveRow();
-        speakPredictions(); // Read all predictions instead of row title
+      if (inSectionRowSelectionMode) {
+        const optionCount = getSectionRowCount() + 1; // include Back option as -1
+        const normalized = currentSectionRowIndex + 1;
+        const prev = (normalized - 1 + optionCount) % optionCount;
+        currentSectionRowIndex = prev - 1;
+        highlightSectionRow();
+        speakSectionRowTitle();
       } else {
-        highlightRow(currentRowIndex - 1);
-        speakRowTitle(currentRowIndex - 1);
+        currentRowIndex = (currentRowIndex - 1 + TOP_LEVEL_ROW_COUNT) % TOP_LEVEL_ROW_COUNT;
+        console.log(`Scanning backward to top-level row ${currentRowIndex}`);
+        highlightTopLevelRow();
+        speakTopLevelRowTitle();
       }
     } else {
       const prevButton = currentButtonIndex;
-      if (currentRowIndex === 0) {
+      if (currentRowIndex === TOP_LEVEL_ROWS.TEXT) {
         return;
-      } else if (currentRowIndex === rows.length + 1) {
+      } else if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
         // Predictive row navigation
         const chips = predictBar.querySelectorAll(".chip");
-        currentButtonIndex = (currentButtonIndex - 1 + chips.length) % chips.length;
-        highlightPredictiveButton(currentButtonIndex, prevButton);
-        speakPredictiveButtonLabel(currentButtonIndex);
+        const optionCount = chips.length + 1;
+        const normalized = currentButtonIndex + 1;
+        const prev = (normalized - 1 + optionCount) % optionCount;
+        currentButtonIndex = prev - 1;
+        if (currentButtonIndex < 0) {
+          highlightRowBackOption();
+          speak("back to row selection");
+        } else {
+          highlightPredictiveButton(currentButtonIndex, prevButton);
+          speakPredictiveButtonLabel(currentButtonIndex);
+        }
       } else {
-        // Keyboard row navigation
-        currentButtonIndex = (currentButtonIndex - 1 + rows[currentRowIndex - 1].length) % rows[currentRowIndex - 1].length;
+        // Controls/section row navigation
+        const optionCount = getCurrentButtonKeys().length + 1;
+        const normalized = currentButtonIndex + 1;
+        const prev = (normalized - 1 + optionCount) % optionCount;
+        currentButtonIndex = prev - 1;
         highlightButton(currentButtonIndex, prevButton);
         speakButtonLabel(currentButtonIndex);
       }
@@ -453,7 +669,26 @@
     }
     
     if (inRowSelectionMode) {
-      if (currentRowIndex === 0) {
+      if (inSectionRowSelectionMode && (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION || currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION)) {
+        if (currentSectionRowIndex < 0) {
+          inSectionRowSelectionMode = false;
+          currentSection = null;
+          hideRowBackOption();
+          clearAllHighlights();
+          highlightTopLevelRow();
+          speakTopLevelRowTitle();
+          return;
+        }
+        inRowSelectionMode = false;
+        currentButtonIndex = -1;
+        clearAllHighlights();
+        showRowBackOption();
+        highlightRowBackOption();
+        speak("back to row selection");
+        return;
+      }
+
+      if (currentRowIndex === TOP_LEVEL_ROWS.TEXT) {
         // Textbar selection
         const text = buffer.replace(/\|/g, "").trim();
         if (text) {
@@ -467,28 +702,45 @@
             ttsUseCount = 0;
           }
         }
-      } else if (currentRowIndex === rows.length + 1) {
+      } else if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
         // Predictive row selection - enter button mode
         inRowSelectionMode = false;
-        currentButtonIndex = 0;
+        currentButtonIndex = -1;
         clearAllHighlights();
-        const chips = predictBar.querySelectorAll(".chip");
-        if (chips.length > 0) {
-          highlightPredictiveButton(0);
-          speakPredictiveButtonLabel(0);
-        }
+        showRowBackOption();
+        highlightRowBackOption();
+        speak("back to row selection");
+      } else if (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION || currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION) {
+        // Section selected: now scan rows inside that section.
+        inSectionRowSelectionMode = true;
+        currentSection = currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION ? "letters" : "numbers";
+        currentSectionRowIndex = -1;
+        clearAllHighlights();
+        highlightSectionRow();
+        speakSectionRowTitle();
       } else {
-        // Keyboard row selection - enter button mode
-        inRowSelectionMode = false;
-        currentButtonIndex = 0;
-        clearAllHighlights();
-        highlightButton(0);
-        speakButtonLabel(0);
+        // Controls row selection.
+        if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) {
+          inRowSelectionMode = false;
+          currentButtonIndex = -1;
+          clearAllHighlights();
+          showRowBackOption();
+          highlightRowBackOption();
+          speak("back to row selection");
+        }
       }
     } else {
-      if (currentRowIndex === 0) {
+      if (currentRowIndex === TOP_LEVEL_ROWS.TEXT) {
         return;
-      } else if (currentRowIndex === rows.length + 1) {
+      } else if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+        if (currentButtonIndex < 0) {
+          inRowSelectionMode = true;
+          hideRowBackOption();
+          clearAllHighlights();
+          highlightPredictiveRow();
+          speakPredictions();
+          return;
+        }
         // Predictive button selection
         const chips = predictBar.querySelectorAll(".chip");
         if (chips[currentButtonIndex] && chips[currentButtonIndex].textContent.trim()) {
@@ -531,31 +783,64 @@
         return;
 
       } else {
+        if (currentButtonIndex < 0) {
+          inRowSelectionMode = true;
+          hideRowBackOption();
+          clearAllHighlights();
+          if (inSectionRowSelectionMode && currentSection) {
+            highlightSectionRow();
+            speakSectionRowTitle();
+          } else {
+            highlightTopLevelRow();
+            speakTopLevelRowTitle();
+          }
+          return;
+        }
         // Keyboard button selection
-        const key = rows[currentRowIndex - 1][currentButtonIndex];
-        if (currentRowIndex - 1 === 0) {
+        let stayInButtonMode = false;
+        const rowKeys = getCurrentButtonKeys();
+        const key = rowKeys[currentButtonIndex];
+        if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) {
           handleControl(key);
+          // Keep scanning this same controls row after non-navigation controls.
+          if (!["Settings", "Exit", "Add Word", "Set Title"].includes(key)) {
+            stayInButtonMode = true;
+          }
         } else {
           insertKey(key);
+          updatePredictiveButtons();
+          // Keep scanning this same key row after typing.
+          stayInButtonMode = true;
+        }
+
+        if (stayInButtonMode) {
+          inRowSelectionMode = false;
+          clearAllHighlights();
+          showRowBackOption();
+          highlightButton(currentButtonIndex);
+          speakButtonLabel(currentButtonIndex);
+          return;
         }
       }
       
       // Return to row selection mode for Keyboard Rows
       inRowSelectionMode = true;
+      hideRowBackOption();
       clearAllHighlights();
-      if (currentRowIndex === 0) {
-        highlightTextBox();
+      if (inSectionRowSelectionMode && currentSection) {
+        highlightSectionRow();
+        speakSectionRowTitle();
       } else {
-        highlightRow(currentRowIndex - 1);
-        speakRowTitle(currentRowIndex - 1);
+        highlightTopLevelRow();
+        speakTopLevelRowTitle();
       }
     }
   }
 
   async function renderPredictions() {
     try {
-      const wasPredictiveRowHighlighted = (currentRowIndex === rows.length + 1 && inRowSelectionMode);
-      const wasInButtonMode = (currentRowIndex === rows.length + 1 && !inRowSelectionMode);
+      const wasPredictiveRowHighlighted = (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE && inRowSelectionMode);
+      const wasInButtonMode = (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE && !inRowSelectionMode);
       const savedButtonIndex = currentButtonIndex;
       
       let predictions = ["YES", "NO", "HELP", "THE", "I", "YOU"]; // Default fallback
@@ -567,11 +852,22 @@
           console.error('Error getting predictions:', e);
         }
       }
+
+      if (!Array.isArray(predictions)) predictions = [];
+      const mergedPredictions = [];
+      [...predictions, ...DEFAULT_PREDICTIONS].forEach(word => {
+        const clean = (word || '').toString().trim();
+        if (!clean) return;
+        if (!mergedPredictions.some(existing => existing.toLowerCase() === clean.toLowerCase())) {
+          mergedPredictions.push(clean);
+        }
+      });
+      predictions = mergedPredictions;
       
       console.log("Final predictions to render:", predictions);
 
       predictBar.innerHTML = "";
-      predictions.slice(0, 6).forEach(w => {
+      predictions.slice(0, MAX_PREDICTIONS).forEach(w => {
         const chip = document.createElement("button");
         chip.className = "chip";
         chip.textContent = w;
@@ -602,7 +898,7 @@
         predictBar.appendChild(chip);
       });
 
-      while (predictBar.children.length < 6) {
+      while (predictBar.children.length < MAX_PREDICTIONS) {
         const chip = document.createElement("button");
         chip.className = "chip";
         chip.textContent = "";
@@ -632,10 +928,74 @@
 
   function clearAllHighlights() {
     textBar.classList.remove("highlighted");
+    if (rowBackOption) rowBackOption.classList.remove("highlighted");
     const allKeys = kb.querySelectorAll(".key");
     allKeys.forEach(key => key.classList.remove("highlighted"));
     const allChips = predictBar.querySelectorAll(".chip");
     allChips.forEach(chip => chip.classList.remove("highlighted"));
+  }
+
+  function alignRowBackOptionToCurrentRow() {
+    if (!rowBackOption) return;
+
+    let targetRect = null;
+
+    if (currentRowIndex === TOP_LEVEL_ROWS.CONTROLS) {
+      const allKeys = kb.querySelectorAll(".key");
+      const rowStart = 0;
+      const rowFirstKey = allKeys[rowStart];
+      if (rowFirstKey) targetRect = rowFirstKey.getBoundingClientRect();
+    } else if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+      const firstChip = predictBar.querySelector(".chip");
+      if (firstChip) targetRect = firstChip.getBoundingClientRect();
+    } else if (currentRowIndex === TOP_LEVEL_ROWS.LETTERS_SECTION || currentRowIndex === TOP_LEVEL_ROWS.NUMBERS_SECTION) {
+      if (inSectionRowSelectionMode && currentSectionRowIndex < 0) {
+        const sectionAnchor = kb.querySelector(".key");
+        if (sectionAnchor) targetRect = sectionAnchor.getBoundingClientRect();
+      }
+      const allKeys = kb.querySelectorAll(".key");
+      const rowMap = getSectionRowMap();
+      if (!targetRect) {
+        const physicalRow = rowMap[currentSectionRowIndex] ?? rowMap[0];
+        const rowStart = physicalRow * 6;
+        const colOffset = currentSection === "numbers" ? 4 : 0;
+        const rowFirstKey = allKeys[rowStart + colOffset];
+        if (rowFirstKey) targetRect = rowFirstKey.getBoundingClientRect();
+      }
+    }
+
+    if (!targetRect) {
+      rowBackOption.style.top = "50%";
+      rowBackOption.style.transform = "translateY(-50%)";
+      return;
+    }
+
+    const optionHeight = rowBackOption.offsetHeight || 72;
+    const rowCenterY = targetRect.top + (targetRect.height / 2);
+    const top = Math.max(8, Math.round(rowCenterY - (optionHeight / 2)));
+    rowBackOption.style.top = `${top}px`;
+    rowBackOption.style.transform = "none";
+  }
+
+  function showRowBackOption() {
+    if (!rowBackOption) return;
+    rowBackOption.classList.remove("hidden");
+    alignRowBackOptionToCurrentRow();
+  }
+
+  function hideRowBackOption() {
+    if (!rowBackOption) return;
+    rowBackOption.classList.add("hidden");
+    rowBackOption.classList.remove("highlighted");
+    rowBackOption.style.top = "50%";
+    rowBackOption.style.transform = "translateY(-50%)";
+  }
+
+  function highlightRowBackOption() {
+    if (!rowBackOption) return;
+    clearAllHighlights();
+    showRowBackOption();
+    rowBackOption.classList.add("highlighted");
   }
 
   function highlightTextBox() {
@@ -645,26 +1005,24 @@
 
   function highlightRow(rowIndex) {
     clearAllHighlights();
-    const rowStart = rowIndex * 6;
-    const allKeys = kb.querySelectorAll(".key");
-    
-    for (let i = 0; i < 6; i++) {
-      if (allKeys[rowStart + i]) {
-        allKeys[rowStart + i].classList.add("highlighted");
-      }
-    }
+    highlightPhysicalRow(rowIndex, 0, 5);
   }
 
   function highlightButton(buttonIndex, prevButtonIndex = null) {
-    const rowStart = (currentRowIndex - 1) * 6; // Adjust for keyboard rows starting at index 1
+    if (buttonIndex < 0) {
+      highlightRowBackOption();
+      return;
+    }
     const allKeys = kb.querySelectorAll(".key");
+    const currentDomIndex = getButtonDomIndex(buttonIndex);
+    const prevDomIndex = prevButtonIndex !== null ? getButtonDomIndex(prevButtonIndex) : null;
     
-    if (prevButtonIndex !== null && allKeys[rowStart + prevButtonIndex]) {
-      allKeys[rowStart + prevButtonIndex].classList.remove("highlighted");
+    if (prevDomIndex !== null && allKeys[prevDomIndex]) {
+      allKeys[prevDomIndex].classList.remove("highlighted");
     }
     
-    if (allKeys[rowStart + buttonIndex]) {
-      allKeys[rowStart + buttonIndex].classList.add("highlighted");
+    if (currentDomIndex !== null && allKeys[currentDomIndex]) {
+      allKeys[currentDomIndex].classList.add("highlighted");
     }
   }
 
@@ -675,6 +1033,10 @@
   }
 
   function highlightPredictiveButton(buttonIndex, prevButtonIndex = null) {
+    if (buttonIndex < 0) {
+      highlightRowBackOption();
+      return;
+    }
     const chips = predictBar.querySelectorAll(".chip");
     
     if (prevButtonIndex !== null && chips[prevButtonIndex]) {
@@ -687,30 +1049,26 @@
   }
 
   function speakRowTitle(rowIndex) {
-    const rowTitles = [
-      "controls", 
-      "a b c d e f", 
-      "g h i j k l", 
-      "m n o p q r", 
-      "s t u v w x", 
-      "y z 0 1 2 3", 
-      "4 5 6 7 8 9", 
-      "predictive text"
-    ];
-    
-    // Check if it's the predictive text row (index 7)
-    if (rowIndex === 7) {
+    const rowTitles = ["controls", "letters section", "numbers section", "predictive text"];
+    if (rowIndex === 3) {
       speakPredictions();
       return;
     }
-    
-    if (rowIndex < rowTitles.length) {
+    if (rowIndex >= 0 && rowIndex < rowTitles.length) {
       speak(rowTitles[rowIndex]);
     }
   }
 
   function speakButtonLabel(buttonIndex) {
-    const label = rows[currentRowIndex - 1][buttonIndex];
+    if (buttonIndex < 0) {
+      speak("back to row selection");
+      return;
+    }
+    const keys = getCurrentButtonKeys();
+    const label = keys[buttonIndex];
+    if (!label || !label.trim()) {
+      return;
+    }
     let spokenLabel = label.toLowerCase();
     
     if (spokenLabel === "del letter") spokenLabel = "delete letter";
@@ -722,6 +1080,10 @@
   }
 
   function speakPredictiveButtonLabel(buttonIndex) {
+    if (buttonIndex < 0) {
+      speak("back to row selection");
+      return;
+    }
     const chips = predictBar.querySelectorAll(".chip");
     if (chips[buttonIndex] && chips[buttonIndex].textContent.trim()) {
       const word = chips[buttonIndex].textContent.trim();
@@ -778,6 +1140,7 @@
     kb.style.display = "none";
     predictBar.style.display = "none";
     textBar.style.display = "none"; // Hide text bar too
+    hideRowBackOption();
     
     settingsItems = Array.from(settingsMenu.querySelectorAll(".settings-item"));
     settingsRowIndex = 0;
@@ -836,6 +1199,7 @@
     
     inRowSelectionMode = true;
     currentRowIndex = 0;
+    hideRowBackOption();
     highlightTextBox();
   }
 
@@ -1099,6 +1463,7 @@
       Selection controls:
       Return key short press will select the highlighted item.
       Return key long press in button mode will return you to row selection mode.
+      You can also quickly double tap Return in button mode to return to row selection mode.
       Return key long hold in row selection mode will jump directly to predictive text.
       
       The keyboard has several rows:
@@ -1135,6 +1500,10 @@
       confirmAddWord();
       return;
     }
+    if (key === "Set Title")   {
+      confirmSetCategoryTitle();
+      return;
+    }
     if (key === "Exit")       { 
       console.log("Exit button pressed");
       exitKeyboard();
@@ -1169,14 +1538,58 @@
       returnToPhraseboardView();
   }
 
+      function saveCategoryTitleToPhraseboard() {
+        const text = buffer.replace(/\|/g, "").trim();
+        if (!text) return false;
+        sessionStorage.setItem(PHRASEBOARD_ADD_CATEGORY_TITLE_RETURN_KEY, JSON.stringify({
+        title: text,
+        color: phraseboardCategoryColor,
+        board: phraseboardBoard,
+        ts: Date.now()
+        }));
+        return true;
+      }
+
+      function confirmSetCategoryTitle() {
+        if (!isAddCategoryTitleMode) {
+          exitKeyboard();
+          return;
+        }
+
+        if (!saveCategoryTitleToPhraseboard()) {
+          speak("type a title first");
+          return;
+        }
+
+        speak("category title set");
+        returnToPhraseboardView();
+      }
+
   function returnToPhraseboardView() {
       // Always navigate directly so phraseboard can restore the exact saved context
       // (board/category/page) from session storage.
+      if (isAddCategoryTitleMode) {
+        const title = (buffer || "").replace(/\|/g, "").trim();
+        const params = new URLSearchParams();
+        if (title) params.set("addCategoryTitle", title);
+        if (phraseboardCategoryColor) params.set("addCategoryColor", phraseboardCategoryColor);
+        const query = params.toString();
+        window.location.href = query
+        ? `../phraseboard/index.html?${query}`
+        : "../phraseboard/index.html";
+        return;
+      }
       window.location.href = "../phraseboard/index.html";
   }
 
   function exitKeyboard() {
       if (returnToPhraseboard) {
+        if (isAddCategoryTitleMode) {
+          const hasTypedTitle = (buffer || '').replace(/\|/g, '').trim().length > 0;
+          if (hasTypedTitle) {
+            saveCategoryTitleToPhraseboard();
+          }
+        }
           speak("returning to phrase board");
           returnToPhraseboardView();
           return;
@@ -1291,7 +1704,7 @@
 
   const originalSetBuffer = setBuffer;
   setBuffer = function(newBuffer) {
-    const wasPredictiveRowHighlighted = (currentRowIndex === rows.length + 1 && inRowSelectionMode);
+    const wasPredictiveRowHighlighted = (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE && inRowSelectionMode);
     
     originalSetBuffer(newBuffer);
     updatePredictiveButtons().then(() => {
@@ -1346,7 +1759,11 @@
     renderKeyboard();
     
     console.log('Setting initial buffer...');
-    setBuffer("");
+    if (isAddCategoryTitleMode && phraseboardCategoryTitle) {
+      setBuffer(phraseboardCategoryTitle);
+    } else {
+      setBuffer("");
+    }
     
     // Wait for prediction system to initialize
     const initPredictions = () => {
@@ -1363,6 +1780,30 @@
     
     // Initialize settings click handlers (event delegation)
     initSettingsClickHandlers();
+
+    if (rowBackOption) {
+      rowBackOption.addEventListener("click", () => {
+        inRowSelectionMode = true;
+        hideRowBackOption();
+        clearAllHighlights();
+        if (currentRowIndex === TOP_LEVEL_ROWS.PREDICTIVE) {
+          highlightPredictiveRow();
+          speakPredictions();
+        } else if (inSectionRowSelectionMode && currentSection) {
+          highlightSectionRow();
+          speakSectionRowTitle();
+        } else {
+          highlightTopLevelRow();
+          speakTopLevelRowTitle();
+        }
+      });
+    }
+
+    window.addEventListener("resize", () => {
+      if (rowBackOption && !rowBackOption.classList.contains("hidden")) {
+        alignRowBackOptionToCurrentRow();
+      }
+    });
     
     if (settings.autoScan) {
       isAutoScanning = true;
