@@ -79,9 +79,17 @@
       grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
       grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
       align-items: center;
+      align-content: start;
       justify-content: center;
       width: 1440px;
       margin: 0 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .main-grid.has-top-quick-actions {
+      padding-top: 28px;
     }
     
     /* Only use auto row sizing when sentence mode is active */
@@ -557,6 +565,61 @@
       color: #000 !important;
       transform: scale(1.05);
     }
+
+    .row-back-option {
+      position: fixed;
+      right: 20px;
+      bottom: 70px;
+      width: 170px;
+      height: 90px;
+      min-height: 90px;
+      z-index: 1600;
+      border-bottom: 3px solid #fff;
+    }
+
+    .top-quick-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .quick-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .keyboard-tool-option,
+    .quick-word-option {
+      width: 255px;
+      height: 90px;
+      min-height: 90px;
+      border-bottom: 3px solid #fff;
+    }
+
+    @media (max-width: 768px) {
+      .row-back-option {
+        right: 10px;
+        bottom: 55px;
+        width: 140px;
+        height: 75px;
+        min-height: 75px;
+      }
+
+      .keyboard-tool-option,
+      .quick-word-option {
+        width: 200px;
+        height: 75px;
+        min-height: 75px;
+      }
+
+      .quick-right-actions {
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -581,10 +644,30 @@
           Clear All
         </button>
       </div>
+
+      <div class="top-quick-actions hidden" id="topQuickActions">
+        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button">
+          <span class="icon">⌨️</span>
+          Keyboard
+        </button>
+        <div class="quick-right-actions">
+          <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button">
+            Yes
+          </button>
+          <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button">
+            No
+          </button>
+        </div>
+      </div>
     </main>
 
     <footer id="statusFooter">Ready - Load CSV to begin</footer>
   </div>
+
+  <button class="grid-button back-btn row-back-option hidden" id="rowBackOptionBtn" type="button">
+    <span class="icon">↩</span>
+    Back
+  </button>
 
   <div id="iframeModal" role="dialog" aria-modal="true">
     <div id="iframeCard">
@@ -682,7 +765,8 @@
       playerKind: 'unknown',
       isPlaylist: false,
       videoModalActive: false,
-      userScanPreference: 'row' // 'row' or 'cell'
+      userScanPreference: 'row', // 'row' or 'cell'
+      rowBackOptionActive: false
     };
 
     // Expose state globally for header title updater
@@ -770,8 +854,40 @@
       createBoardBack: document.getElementById('createBoardBack'),
       loadBoardBack: document.getElementById('loadBoardBack'),
       createBoardProceed: document.getElementById('createBoardProceed'),
-      loadBoardProceed: document.getElementById('loadBoardProceed')
+      loadBoardProceed: document.getElementById('loadBoardProceed'),
+      rowBackOptionBtn: document.getElementById('rowBackOptionBtn'),
+      topQuickActions: document.getElementById('topQuickActions'),
+      yesQuickBtn: document.getElementById('yesQuickBtn'),
+      noQuickBtn: document.getElementById('noQuickBtn'),
+      keyboardToolBtn: document.getElementById('keyboardToolBtn')
     };
+
+    function openKeyboardTool() {
+      window.location.href = '../keyboard/index.html';
+    }
+
+    function quickPhrase(text) {
+      onTileClick({ display: text, speak: text });
+    }
+
+    function updateKeyboardToolButtonVisibility() {
+      if (!el.topQuickActions) return;
+      const onDefaultBoardView = useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category');
+      el.topQuickActions.classList.toggle('hidden', !onDefaultBoardView);
+      el.mainGrid.classList.toggle('has-top-quick-actions', onDefaultBoardView);
+    }
+
+    if (el.keyboardToolBtn) {
+      el.keyboardToolBtn.addEventListener('click', openKeyboardTool);
+    }
+    if (el.yesQuickBtn) {
+      el.yesQuickBtn.dataset.speakText = 'Yes';
+      el.yesQuickBtn.addEventListener('click', () => quickPhrase('Yes'));
+    }
+    if (el.noQuickBtn) {
+      el.noQuickBtn.dataset.speakText = 'No';
+      el.noQuickBtn.addEventListener('click', () => quickPhrase('No'));
+    }
 
     
 // ---- Dynamic header title ----
@@ -791,6 +907,7 @@ function updateHeaderForCurrentView(){
     case 'category': title = state.currentCategory || 'Category'; break;
   }
   t.textContent = title;
+  updateKeyboardToolButtonVisibility();
 }
 // Modal Functions
     function showWarningModal(type) {
@@ -934,7 +1051,7 @@ function updateHeaderForCurrentView(){
     }
 
     function clearGrid() {
-      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn)');
+      const buttons = el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn)');
       buttons.forEach(btn => btn.remove());
     }
 
@@ -1113,8 +1230,20 @@ function updateHeaderForCurrentView(){
         }
         
         const isFeelingsCard = (cat.name || '').trim().toLowerCase() === 'feelings';
-        btn.style.background = isFeelingsCard ? '#FF9C0029' : '#0047F112';
+        const isBasicStyleCard = isNarbeBasicStyleCategory(cat.name);
+        const isTealCard = isNarbeTealAccentCategory(cat.name);
+        btn.style.background = isFeelingsCard
+          ? '#FF9C0029'
+          : isBasicStyleCard
+            ? '#FF005216'
+            : isTealCard
+              ? '#00C2D121'
+              : '#0047F112';
         btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
+        applyNarbeFeelingsCardBorder(btn, isFeelingsCard);
+        applyNarbeBlueCardBorder(btn, !isFeelingsCard && isNarbeBlueAccentCategory(cat.name));
+        applyNarbeTealCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && isTealCard);
+        applyNarbeRedCardBorder(btn, !isFeelingsCard && !isNarbeBlueAccentCategory(cat.name) && !isTealCard && (isBasicStyleCard || isRedTone(cat.color)));
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
         const catTotalPages = Math.ceil(cat.items.length / itemsPerPage);
         if (catTotalPages > 1) {
@@ -1561,8 +1690,15 @@ function updateHeaderForCurrentView(){
         }
         const tileColor = item.tileColor || cat.color;
         if (tileColor) {
-          btn.style.background = '#0047F112';
+          const isBasicStyleCategory = isNarbeBasicStyleCategory(state.currentCategory);
+          if (isBasicStyleCategory) {
+            btn.style.background = '#FF005216';
+          } else {
+            const categoryTint = cat.color || tileColor;
+            btn.style.background = useWhiteBordersForCurrentBoard() ? rgbaFromHex(categoryTint, 0.2) : '#0047F112';
+          }
           btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : '#000000';
+          applyNarbeRedCardBorder(btn, isBasicStyleCategory || isRedTone(tileColor) || isRedTone(cat.color));
         }
         gridPositions.push({ type: 'phrase', button: btn });
       }
@@ -1586,6 +1722,8 @@ function updateHeaderForCurrentView(){
       const savedRow = state.currentRow;
       const savedIndex = state.scanIndex;
       const isCellMode = state.userScanPreference === 'cell';
+
+      hideRowBackOption();
       
       // If video modal is open, only scan its visible control buttons
       if (state.videoModalActive) {
@@ -1598,9 +1736,13 @@ function updateHeaderForCurrentView(){
         return;
       }
 
-      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn)'));
+      const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn):not(#keyboardToolBtn):not(#yesQuickBtn):not(#noQuickBtn)'));
       const rows = [];
       const cols = state.gridSize.cols;
+      if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
+        const quickRow = [el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn].filter(isVisible);
+        if (quickRow.length > 0) rows.push(quickRow);
+      }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
         rows.push([el.sentenceDisplay, el.deleteWordBtn, el.clearSentenceBtn]);
       }
@@ -1634,12 +1776,51 @@ function updateHeaderForCurrentView(){
       document.querySelectorAll('.row-highlight').forEach(el => el.classList.remove('row-highlight'));
     }
 
+    function scrollGridToElement(element) {
+      if (!element || !el.mainGrid || !el.mainGrid.contains(element)) return;
+      const containerRect = el.mainGrid.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+      const padding = 12;
+
+      if (elementRect.top < containerRect.top + padding) {
+        el.mainGrid.scrollTop -= (containerRect.top + padding) - elementRect.top;
+      } else if (elementRect.bottom > containerRect.bottom - padding) {
+        el.mainGrid.scrollTop += elementRect.bottom - (containerRect.bottom - padding);
+      }
+    }
+
+    function hideRowBackOption() {
+      if (el.rowBackOptionBtn) {
+        el.rowBackOptionBtn.classList.add('hidden');
+      }
+      state.rowBackOptionActive = false;
+      if (!state.scannableRows || state.scannableRows.length === 0 || !el.rowBackOptionBtn) return;
+      state.scannableRows.forEach(row => {
+        const backIdx = row.indexOf(el.rowBackOptionBtn);
+        if (backIdx >= 0) row.splice(backIdx, 1);
+      });
+    }
+
+    function showRowBackOptionForCurrentRow() {
+      if (!el.rowBackOptionBtn) return;
+      if (state.userScanPreference === 'cell' || state.videoModalActive) return;
+      if (state.currentMenu !== 'categories' && state.currentMenu !== 'category') return;
+      if (state.currentRow < 0 || !state.scannableRows[state.currentRow]) return;
+
+      hideRowBackOption();
+      state.scannableRows[state.currentRow].unshift(el.rowBackOptionBtn);
+      state.rowBackOptionActive = true;
+      el.rowBackOptionBtn.classList.remove('hidden');
+    }
+
     function highlightCurrentRow() {
       if (state.userScanPreference === 'cell') return;
       clearScanHighlight();
       // Only highlight if currentRow is valid (not -1)
       if (state.currentRow >= 0 && state.scannableRows[state.currentRow]) {
         state.scannableRows[state.currentRow].forEach(element => element.classList.add('row-highlight'));
+        const rowAnchor = state.scannableRows[state.currentRow].find(element => el.mainGrid.contains(element));
+        if (rowAnchor) scrollGridToElement(rowAnchor);
       }
     }
 
@@ -1651,6 +1832,7 @@ function updateHeaderForCurrentView(){
           state.scannableRows[state.currentRow][state.scanIndex]) {
         const element = state.scannableRows[state.currentRow][state.scanIndex];
         element.classList.add('scan-highlight');
+        scrollGridToElement(element);
         if (state.ttsOnScan) {
           if (state.currentMenu === 'tts' && element.classList.contains('voice-btn')) {
             const idx = parseInt(element.dataset.voiceIndex, 10);
@@ -1838,6 +2020,7 @@ function updateHeaderForCurrentView(){
       if (state.scanMode === 'row') {
         state.scanMode = 'column';
         state.scanIndex = -1; // Start column scanning at -1
+        showRowBackOptionForCurrentRow();
         scanForward(); // This will set scanIndex to 0 and highlight
       } else if (state.scanMode === 'column') {
         if (state.currentRow >= 0 && state.scanIndex >= 0 && 
@@ -1872,6 +2055,7 @@ function updateHeaderForCurrentView(){
           if (selectionText && window.NarbeVoiceManager.getSettings().ttsEnabled && element !== el.sentenceDisplay) { setTimeout(() => speak(selectionText), 100); }
           
           // Return to row mode, highlighting the same row we were in
+          hideRowBackOption();
           state.scanMode = 'row';
           state.currentRow = selectedRow; // Stay on the same row
           state.scanIndex = -1; // Reset column index
@@ -1954,6 +2138,7 @@ function updateHeaderForCurrentView(){
           if (state.returnPressed) {
             state.returnActionExecuted = true;
             if (state.scanMode === 'column') {
+              hideRowBackOption();
               state.scanMode = 'row';
               highlightCurrentRow();
             } else if (state.scanMode === 'row') {
@@ -2077,6 +2262,14 @@ function updateHeaderForCurrentView(){
       setTimeout(() => window.focus(), 0);
     });
     el.loadBoardBack.addEventListener('click', hideWarningModal);
+
+    el.rowBackOptionBtn.addEventListener('click', () => {
+      hideRowBackOption();
+      state.scanMode = 'row';
+      state.scanIndex = -1;
+      if (state.currentRow < 0) state.currentRow = 0;
+      highlightCurrentRow();
+    });
     el.loadBoardProceed.addEventListener('click', () => { hideWarningModal(); el.csvFile.click(); });
 
     // Init
@@ -2360,18 +2553,91 @@ function updateHeaderForCurrentView(){
       return boardTitle.includes('narbe default') || boardTitle.includes('narbe house default');
     }
 
+    function normalizeHexColor(value) {
+      if (!value) return '';
+      const hex = value.trim().toLowerCase();
+      if (!hex.startsWith('#')) return '';
+      if (hex.length === 4) {
+        return `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+      }
+      if (hex.length === 5) {
+        return `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}${hex[4]}${hex[4]}`;
+      }
+      if (hex.length === 7 || hex.length === 9) return hex;
+      return '';
+    }
+
+    function isRedTone(colorValue) {
+      const hex = normalizeHexColor(colorValue);
+      if (!hex) return false;
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return r >= 140 && r > g * 1.2 && r > b * 1.2;
+    }
+
+    function applyNarbeAccentCardBorder(button, borderColor) {
+      if (!button || !useWhiteBordersForCurrentBoard() || !borderColor) return;
+      // Keep the thick white bottom strip for label readability, and add a full ring around the card.
+      button.style.borderTopColor = '#FFFFFF';
+      button.style.borderRightColor = '#FFFFFF';
+      button.style.borderLeftColor = '#FFFFFF';
+      button.style.borderBottomColor = '#FFFFFF';
+      button.style.boxShadow = `0 4px 10.9px 0 rgba(0, 0, 0, 0.10), 0 0 0 3px ${borderColor}`;
+    }
+
+    function applyNarbeRedCardBorder(button, isRedCard) {
+      if (!isRedCard) return;
+      applyNarbeAccentCardBorder(button, '#C4004FE2');
+    }
+
+    function applyNarbeFeelingsCardBorder(button, isFeelingsCard) {
+      if (!isFeelingsCard) return;
+      applyNarbeAccentCardBorder(button, '#CC4E00C5');
+    }
+
+    function isNarbeBlueAccentCategory(categoryName) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      return normalized === 'people' ||
+             normalized === 'pronouns' ||
+             normalized === 'verbs' ||
+             normalized === 'helpers';
+    }
+
+    function isNarbeBasicStyleCategory(categoryName) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      return normalized.includes('basic') || normalized.includes('needs');
+    }
+
+    function isNarbeTealAccentCategory(categoryName) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      return normalized === 'modifiers' ||
+             normalized === 'connectors' ||
+             normalized === 'questions' ||
+             normalized === 'time';
+    }
+
+    function applyNarbeBlueCardBorder(button, isBlueCard) {
+      if (!isBlueCard) return;
+      applyNarbeAccentCardBorder(button, '#1C49DDC5');
+    }
+
+    function applyNarbeTealCardBorder(button, isTealCard) {
+      if (!isTealCard) return;
+      applyNarbeAccentCardBorder(button, '#007491EF');
+    }
+
     function applyNarbeDefaultFirstRowCenterColors() {
       if (!useWhiteBordersForCurrentBoard() || state.currentMenu !== 'categories') return;
-      if (state.gridSize.cols < 4) return;
 
       const buttons = Array.from(el.mainGrid.querySelectorAll('.grid-button:not(#deleteWordBtn):not(#clearSentenceBtn)'));
-      const centerIndices = [1, 2];
-
-      centerIndices.forEach(index => {
-        const btn = buttons[index];
+      buttons.forEach(btn => {
         if (!btn) return;
         if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
+        const categoryName = btn.textContent.trim();
+        if (!isNarbeBasicStyleCategory(categoryName)) return;
         btn.style.background = '#FF005216';
+        applyNarbeRedCardBorder(btn, true);
       });
     }
 
@@ -2384,10 +2650,20 @@ function updateHeaderForCurrentView(){
       const cols = state.gridSize.cols;
       const lastRowStart = Math.floor((buttons.length - 1) / cols) * cols;
       const lastRowButtons = buttons.slice(lastRowStart, lastRowStart + cols);
+      const lastStylableIndex = lastRowButtons
+        .map((btn, index) => ({ btn, index }))
+        .filter(({ btn }) => !btn.classList.contains('back-btn') && !btn.classList.contains('next-btn'))
+        .map(({ index }) => index)
+        .pop();
 
-      lastRowButtons.forEach(btn => {
+      lastRowButtons.forEach((btn, index) => {
         if (btn.classList.contains('back-btn') || btn.classList.contains('next-btn')) return;
         btn.style.background = '#00C2D121';
+        const categoryName = btn.textContent.trim();
+        const isBlueCard = isNarbeBlueAccentCategory(categoryName);
+        const isTealCard = isNarbeTealAccentCategory(categoryName) || index === lastStylableIndex;
+        applyNarbeBlueCardBorder(btn, isBlueCard);
+        applyNarbeTealCardBorder(btn, !isBlueCard && isTealCard);
       });
     }
 
