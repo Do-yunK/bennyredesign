@@ -14,6 +14,8 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const { spawn, exec } = require('child_process');
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
 
 // Paths
 const APP_DIR = __dirname;
@@ -501,6 +503,7 @@ app.whenReady().then(async () => {
   
   // Start navigation signal watcher for control bar communication
   startNavSignalWatcher();
+    startArduino();
   
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -1275,6 +1278,54 @@ ipcMain.handle('system:shutdown', async () => {
 });
 
 // Close app
+// ============ ARDUINO SWITCH SUPPORT ============
+let arduinoPort = null;
+
+function startArduino() {
+  try {
+    arduinoPort = new SerialPort({ path: 'COM3', baudRate: 9600 });
+    const parser = arduinoPort.pipe(new ReadlineParser({ delimiter: '\n' }));
+
+    let lastRight = 1;
+    let lastLeft = 1;
+
+    parser.on('data', (line) => {
+      const parts = line.trim().split(',');
+      if (parts.length < 2) return;
+
+      const right = parseInt(parts[0]);
+      const left  = parseInt(parts[1]);
+
+
+      // Right switch = spacebar (scan)
+      if (right === 0 && lastRight === 1) {
+        if (mainWindow) {
+          mainWindow.webContents.sendInputEvent({ type: 'keyDown', keyCode: 'Space', code: 'Space' });
+          mainWindow.webContents.sendInputEvent({ type: 'keyUp',   keyCode: 'Space', code: 'Space' });
+        }
+      }
+
+      // Left switch = enter (select)
+      if (left === 0 && lastLeft === 1) {
+        if (mainWindow) {
+          mainWindow.webContents.sendInputEvent({ type: 'keyDown', keyCode: 'Return', code: 'Enter' });
+          mainWindow.webContents.sendInputEvent({ type: 'keyUp',   keyCode: 'Return', code: 'Enter' });
+        }
+      }
+
+      lastRight = right;
+      lastLeft  = left;
+    });
+
+    arduinoPort.on('error', (err) => {
+      console.error('[ARDUINO] Error:', err.message);
+    });
+
+    console.log('[ARDUINO] Connected on COM3');
+  } catch (e) {
+    console.error('[ARDUINO] Failed to connect:', e.message);
+  }
+}
 ipcMain.handle('system:closeApp', async () => {
   // Kill tracked Python processes
   if (dmListenerProcess) {
