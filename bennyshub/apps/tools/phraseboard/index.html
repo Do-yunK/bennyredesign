@@ -3856,10 +3856,15 @@ function updateHeaderForCurrentView(){
           if (element === el.deleteWordBtn && state.sentenceMode) textToSpeak = 'Delete';
           else if (element === el.clearSentenceBtn && state.sentenceMode) textToSpeak = 'Clear all';
           else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
-            const explicitSpeakText = cleanTextForTTS(element.dataset.speakText || '');
-            if (explicitSpeakText) {
-              textToSpeak = explicitSpeakText;
+            if (element.dataset.radialItems) {
+              // Radial menu is open: only speak the card name, not the full preview items
+              const labelEl = element.querySelector('.label');
+              textToSpeak = cleanTextForTTS(labelEl ? labelEl.textContent : element.textContent);
             } else {
+              const explicitSpeakText = cleanTextForTTS(element.dataset.speakText || '');
+              if (explicitSpeakText) {
+                textToSpeak = explicitSpeakText;
+              } else {
               const pageIndicator = element.querySelector('.page-indicator');
               const cleanText = cleanTextForTTS(element.textContent);
               if (pageIndicator) {
@@ -3867,6 +3872,7 @@ function updateHeaderForCurrentView(){
                 const categoryName = cleanText.replace(pageText, '').trim();
                 if (categoryName) textToSpeak = `${categoryName}, ${pageText}`;
               } else if (cleanText) textToSpeak = cleanText;
+            }
             }
           }
           if (textToSpeak) speak(textToSpeak);
@@ -3910,7 +3916,12 @@ function updateHeaderForCurrentView(){
         else btn.style.borderColor = radialBorderColor;
         btn.textContent = item.display || item.speak || '';
         btn.dataset.speakText = item.speak || item.display || '';
-        btn.style.pointerEvents = 'none';
+        btn.style.pointerEvents = 'all';
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          state.radialIndex = idx;
+          selectRadialItem();
+        });
         overlay.appendChild(btn);
         radialEls.push(btn);
       });
