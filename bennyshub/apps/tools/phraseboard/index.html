@@ -2283,7 +2283,8 @@
     function deleteCategory(categoryName) {
       const exists = state.byCat.has(categoryName);
       if (!exists) return false;
-      if (!confirm(`Delete category "${categoryName}" and all its words?`)) return false;
+      const displayCategoryName = getDisplayCategoryName(categoryName);
+      if (!confirm(`Delete category "${displayCategoryName}" and all its words?`)) return false;
 
       // Remove from state.raw
       state.raw = state.raw.filter(r => r.category !== categoryName);
@@ -2313,8 +2314,8 @@
         }
       } catch (e) { console.error('Failed to remove category from persistence:', e); }
 
-      speak(`${cleanTextForTTS(categoryName)} deleted`);
-      el.statusFooter.textContent = `Deleted category: ${categoryName}`;
+      speak(`${cleanTextForTTS(displayCategoryName)} deleted`);
+      el.statusFooter.textContent = `Deleted category: ${displayCategoryName}`;
       state.page = 0;
       renderCategoryMenu();
       updateHeaderForCurrentView();
@@ -4669,7 +4670,7 @@ function updateHeaderForCurrentView(){
           case 'main': backMessage = 'Main Menu'; break;
           case 'settings': backMessage = 'Settings Menu'; break;
           case 'categories': backMessage = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories'; break;
-          case 'category': backMessage = prevState.category || 'Category'; break;
+          case 'category': backMessage = getDisplayCategoryName(prevState.category) || 'Category'; break;
         }
         
         state.currentMenu = prevState.menu;
