@@ -4761,7 +4761,8 @@ function updateHeaderForCurrentView(){
 
     function openCategory(categoryName) {
       // Speak the category name when selected
-      const cleanCategoryName = cleanTextForTTS(categoryName);
+      const spokenCategoryName = getDisplayCategoryName(categoryName);
+      const cleanCategoryName = cleanTextForTTS(spokenCategoryName);
       if (cleanCategoryName) speak(cleanCategoryName);
       
       saveNavigationState();
