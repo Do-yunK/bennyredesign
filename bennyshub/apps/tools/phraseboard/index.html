@@ -3240,36 +3240,92 @@ function updateHeaderForCurrentView(){
         applyNarbeRedCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && !isNarbeBlueAccentCategory(cat.name) && !isCustomBlueCard && !isTealCard && !isCustomTealCard && !isCustomPurpleCard && (isBasicStyleCard || isCustomRedCard));
 
         if (useWhiteBordersForCurrentBoard()) {
-          // For main menu, preview category words as before
-          let radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
-          // If on a category page, preview the actual words in the category
-          if (state.currentMenu === 'category' && state.currentCategory === cat.name) {
-            // Special handling for Actions and Body (verbs) to show correct words
-            if (cat.name.trim().toLowerCase() === 'actions' || cat.name.trim().toLowerCase() === 'pronouns') {
-              const desiredOrder = [
-                'Stop', 'Want', 'Come', 'Close', 'Pull', 'Push', 'Wait', 'Listen', 'Leave', 'Call', 'Read'
-              ];
-              radialItems = desiredOrder.map(word => {
-                const found = cat.items.find(item => (item.display || '').trim().toLowerCase() === word.toLowerCase());
-                return found ? { display: found.display, speak: found.speak || found.display } : { display: word, speak: word };
-              }).slice(0, 5);
-            } else if (cat.name.trim().toLowerCase() === 'verbs' || cat.name.trim().toLowerCase() === 'body') {
-              const bodyWords = [
-                'Head', 'Eyes', 'Ears', 'Nose', 'Mouth', 'Teeth', 'Tongue', 'Neck', 'Shoulders', 'Arms', 'Hands', 'Fingers', 'Chest', 'Stomach', 'Back', 'Legs', 'Knees', 'Feet', 'Toes'
-              ];
-              radialItems = bodyWords.map(word => {
-                const found = cat.items.find(item => (item.display || '').trim().toLowerCase() === word.toLowerCase());
-                return found ? { display: found.display, speak: found.speak || found.display } : { display: word, speak: word };
-              }).slice(0, 5);
-            } else {
-              radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
+          // Ensure 'Body' and 'Actions' categories have the correct items before preview
+          let normalizedName = (cat.name || '').trim().toLowerCase();
+          if (normalizedName === 'verbs' || getDisplayCategoryName(cat.name).toLowerCase() === 'body') {
+            // Set hardcoded body words
+            const narbeBodyWords = [
+              { display: 'Head', speak: 'Head', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/head.png.varianted-skin.png' },
+              { display: 'Eye', speak: 'Eye', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/eye.png.varianted-skin.png' },
+              { display: 'Ear', speak: 'Ear', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/ear.png.varianted-skin.png' },
+              { display: 'Nose', speak: 'Nose', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/nose.png.varianted-skin.png' },
+              { display: 'Mouth', speak: 'Mouth', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/mouth.png.varianted-skin.png' },
+              { display: 'Tooth', speak: 'Tooth', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/tooth.png.varianted-skin.png' },
+              { display: 'Neck', speak: 'Neck', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/neck.png.varianted-skin.png' },
+              { display: 'Shoulder', speak: 'Shoulder', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/shoulder.png.varianted-skin.png' },
+              { display: 'Arm', speak: 'Arm', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/arm.png.varianted-skin.png' },
+              { display: 'Hand', speak: 'Hand', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/hand.png.varianted-skin.png' },
+              { display: 'Finger', speak: 'Finger', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/finger.png.varianted-skin.png' },
+              { display: 'Chest', speak: 'Chest', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/chest.png.varianted-skin.png' },
+              { display: 'Back', speak: 'Back', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/back.png.varianted-skin.png' },
+              { display: 'Stomach', speak: 'Stomach', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/stomach.png' },
+              { display: 'Hip', speak: 'Hip', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/hip.png.varianted-skin.png' },
+              { display: 'Leg', speak: 'Leg', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/leg.svg.varianted-skin.svg' },
+              { display: 'Knee', speak: 'Knee', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/knee.png' },
+              { display: 'Foot', speak: 'Foot', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/feet_2.png.varianted-skin.png' },
+              { display: 'Toe', speak: 'Toe', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/toe.png' }
+            ];
+            let nextTileOrder = 1;
+            cat.items = narbeBodyWords.map(word => ({
+              ...word,
+              category: cat.name,
+              categoryOrder: cat.order,
+              tileOrder: nextTileOrder++,
+              categoryColor: cat.color || '#5bb0ff',
+              tileColor: cat.color || '#5bb0ff',
+              categoryImage: cat.image || '',
+              boardName: state.currentBoardTitle || '',
+              boardColor: '',
+              boardImage: ''
+            }));
+          } else if (normalizedName === 'actions' || normalizedName === 'pronouns' || getDisplayCategoryName(cat.name).toLowerCase() === 'actions') {
+            // Set hardcoded actions words
+            const desiredOrder = [
+              'Stop', 'Want', 'Come', 'Close', 'Pull', 'Push', 'Wait', 'Listen', 'Leave', 'Call', 'Read'
+            ];
+            function findCardByDisplay(display) {
+              const lower = display.trim().toLowerCase();
+              for (const category of state.categories) {
+                const found = category.items.find(item => (item.display || '').trim().toLowerCase() === lower);
+                if (found) return found;
+              }
+              return null;
             }
+            let nextTileOrder = 1;
+            cat.items = desiredOrder.map(word => {
+              const found = findCardByDisplay(word);
+              if (found) {
+                return {
+                  ...found,
+                  category: cat.name,
+                  categoryOrder: cat.order,
+                  tileOrder: nextTileOrder++
+                };
+              } else {
+                return {
+                  category: cat.name,
+                  categoryOrder: cat.order,
+                  display: word,
+                  speak: word,
+                  image: '',
+                  categoryColor: cat.color || '#5bb0ff',
+                  tileColor: cat.color || '#5bb0ff',
+                  tileOrder: nextTileOrder++,
+                  categoryImage: cat.image || '',
+                  boardName: state.currentBoardTitle || '',
+                  boardColor: '',
+                  boardImage: ''
+                };
+              }
+            });
           }
+          let previewItems = cat.items;
+          let radialItems = previewItems.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
           if (radialItems.length) {
             btn.dataset.radialItems = JSON.stringify(radialItems);
             btn.dataset.radialBorderColor = getRadialBorderColorForCategory(cat.name, cat.color);
           }
-          const previewText = buildCategoryPreviewText(cat.items, 3);
+          const previewText = buildCategoryPreviewText(previewItems, 3);
           if (previewText) {
             const previewSpan = document.createElement('span');
             previewSpan.className = 'card-preview';
