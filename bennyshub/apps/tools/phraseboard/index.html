@@ -1056,7 +1056,7 @@
     }
 
     .top-quick-actions.category-top-layout {
-      grid-template-areas: 'keyboard yes no options';
+      grid-template-areas: 'keyboard options yes no';
     }
 
     /* Keep all top-row controls on the same sizing/alignment system */
@@ -1473,24 +1473,22 @@
       </div>
 
       <div class="top-quick-actions hidden" id="topQuickActions">
-        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button" aria-label="Keyboard" title="Keyboard">
+        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button" aria-label="Keyboard" title="Keyboard" style="grid-area: keyboard;">
           <span class="icon">⌨</span>
         </button>
-        <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn" type="button" aria-label="Main Menu" title="Main Menu">
+        <button class="grid-button" id="categoryOptionsBtn" type="button" style="grid-area: options;">
+          <span class="icon">⚙</span>
+          <span class="label">Options</span>
+        </button>
+        <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn" type="button" aria-label="Main Menu" title="Main Menu" style="grid-area: main;">
           <span class="icon">⌂</span>
         </button>
-        <div class="quick-right-actions">
-          <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button">
-            Yes
-          </button>
-          <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button">
-            No
-          </button>
-          <button class="grid-button" id="categoryOptionsBtn" type="button">
-            <span class="icon">⚙</span>
-            <span class="label">Options</span>
-          </button>
-        </div>
+        <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button" style="grid-area: yes;">
+          Yes
+        </button>
+        <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button" style="grid-area: no;">
+          No
+        </button>
       </div>
     </main>
 
@@ -3663,6 +3661,47 @@ function updateHeaderForCurrentView(){
       el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
       const cat = state.byCat.get(state.currentCategory);
       if (!cat) return;
+      // Only show the specified cards in Questions & Time category, in the given order, reusing existing cards if present
+      if ((cat.name || '').trim().toLowerCase() === 'questions & time') {
+        const desiredOrder = [
+          'Who?', 'What?', 'Where?', 'When?', 'Why?', 'How?', 'Now?', 'Today', 'Tomorrow', 'Yesterday'
+        ];
+        function findCardByDisplay(display) {
+          const lower = display.trim().toLowerCase();
+          for (const category of state.categories) {
+            const found = category.items.find(item => (item.display || '').trim().toLowerCase() === lower);
+            if (found) return found;
+          }
+          return null;
+        }
+        let nextTileOrder = 1;
+        cat.items = desiredOrder.map(word => {
+          const found = findCardByDisplay(word);
+          if (found) {
+            return {
+              ...found,
+              category: cat.name,
+              categoryOrder: cat.order,
+              tileOrder: nextTileOrder++
+            };
+          } else {
+            return {
+              category: cat.name,
+              categoryOrder: cat.order,
+              display: word,
+              speak: word,
+              image: '',
+              categoryColor: cat.color || '#5bb0ff',
+              tileColor: cat.color || '#5bb0ff',
+              tileOrder: nextTileOrder++,
+              categoryImage: cat.image || '',
+              boardName: state.currentBoardTitle || '',
+              boardColor: '',
+              boardImage: ''
+            };
+          }
+        });
+      }
       // Always add "I" and "you" from Actions to People category, colored purple, at the end, no duplicates
       if ((cat.name || '').trim().toLowerCase() === 'people') {
         cat.items = cat.items.filter(item => {
@@ -3840,7 +3879,8 @@ function updateHeaderForCurrentView(){
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        const quickRow = [el.mainMenuQuickBtn, el.keyboardToolBtn, el.yesQuickBtn, el.noQuickBtn, el.categoryOptionsBtn].filter(isVisible);
+        // Scan order: Keyboard, Options, Yes, No (main menu button is not shown on category page)
+        const quickRow = [el.keyboardToolBtn, el.categoryOptionsBtn, el.yesQuickBtn, el.noQuickBtn].filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
