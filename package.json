@@ -5,6 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "build:win": "electron-builder --win portable",
+    "build:mac": "electron-builder --mac",
     "build": "electron-builder"
   },
   "author": "Benny's Software",
@@ -24,8 +26,12 @@
       "output": "dist"
     },
     "win": {
-      "target": "nsis",
+      "target": ["portable"],
       "icon": "bennyshub/images/icon.ico"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "bennyshub/images/icon.icns"
     },
     "files": [
       "main.js",
