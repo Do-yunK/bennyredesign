@@ -1278,7 +1278,10 @@
       justify-self: stretch;
       background: var(--muted-blue) !important;
       color: #ffffff !important;
-      border: 2px solid var(--muted-blue) !important;
+      border-top: 3px solid #fff !important;
+      border-right: 3px solid #fff !important;
+      border-bottom: 3px solid #fff !important;
+      border-left: 3px solid #fff !important;
       position: relative;
       padding-top: 18px !important;
       padding-bottom: 18px !important;
@@ -2715,10 +2718,9 @@ function getDisplayCategoryName(categoryName) {
   const normalized = (categoryName || '').trim().toLowerCase();
   if (normalized === 'basic') return 'Core Phrases';
   if (normalized === 'needs') return 'Needs & Wants';
-  if (normalized === 'pronouns') return 'Actions';
-  if (normalized === 'verbs') return 'Questions';
+  if (normalized === 'verbs') return 'Body';
   if (normalized === 'helpers') return 'Places';
-  if (normalized === 'questions & time') return 'Time';
+  if (normalized === 'questions & time' || normalized === 'time') return 'Questions & Time';
   return categoryName;
 }
 
@@ -2728,7 +2730,14 @@ function updateHeaderForCurrentView(){
   let title = 'Main Menu';
   switch(state.currentMenu){
     case 'main': title = 'Main Menu'; break;
-    case 'categories': title = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories'; break;
+    case 'categories':
+      // If the current board/category is 'time', show 'Questions & Time'
+      if (state.currentCategory && getDisplayCategoryName(state.currentCategory) === 'Questions & Time') {
+        title = 'Questions & Time';
+      } else {
+        title = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
+      }
+      break;
     case 'settings': title = 'Settings'; break;
     case 'gridsize': title = 'Grid Size'; break;
     case 'tts': title = 'Voice & TTS'; break;
@@ -3155,10 +3164,20 @@ function updateHeaderForCurrentView(){
         gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { state.page--; renderCategoryMenu(); }, 'back-btn category-nav-btn') });
       }
       for (let i = startIdx; i < endIdx; i++) {
-        const cat = state.categories[i];
+        let cat = state.categories[i];
+        let normalized = (cat.name || '').trim().toLowerCase();
+        // Rename 'questions' category to 'Food' (not custom/user-added)
+        const isCustomCategory = loadAddedCategoriesForBoard(state.currentBoardTitle).some(c => (c.name || '').trim().toLowerCase() === normalized);
+        if (normalized === 'questions' && !isCustomCategory) {
+          cat = { ...cat, name: 'Food' };
+          normalized = 'food';
+        }
+        if ((['connectors', 'modifiers'].includes(normalized)) && !isCustomCategory) {
+          continue;
+        }
+
+        // ...existing code for button creation and styling...
         const displayName = getDisplayCategoryName(cat.name);
-        // Check if this is a user-added (custom) category
-        const isCustomCategory = loadAddedCategoriesForBoard(state.currentBoardTitle).some(c => (c.name || '').trim().toLowerCase() === (cat.name || '').trim().toLowerCase());
         const btn = createButton(displayName, '', () => {
           if (state.editMode && isCustomCategory) {
             deleteCategory(cat.name);
@@ -3166,21 +3185,17 @@ function updateHeaderForCurrentView(){
           }
           openCategory(cat.name);
         });
-        
-        // Add category image if available
         if (cat.image) {
           const img = document.createElement('img');
           img.src = cat.image;
           img.alt = '';
           btn.insertBefore(img, btn.firstChild);
         }
-        
-        const isFeelingsCard = (cat.name || '').trim().toLowerCase() === 'feelings';
-        const isPeopleCard = (cat.name || '').trim().toLowerCase() === 'people';
+        const isFeelingsCard = normalized === 'feelings';
+        const isPeopleCard = normalized === 'people';
         const isBasicStyleCard = isNarbeBasicStyleCategory(cat.name);
         const isTealCard = isNarbeTealAccentCategory(cat.name);
         const isCanTintCard = useWhiteBordersForCurrentBoard() && isNarbeCanTintCategory(cat.name);
-        // For custom categories, detect card type from color
         const catColor = (cat.color || '').toLowerCase();
         const isCustomRedCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && isRedTone(cat.color);
         const isCustomPurpleCard = !isFeelingsCard && !isPeopleCard && !isBasicStyleCard && !isTealCard && !isCanTintCard && catColor === '#6a1b9a';
@@ -3664,7 +3679,7 @@ function updateHeaderForCurrentView(){
       // Only show the specified cards in Questions & Time category, in the given order, reusing existing cards if present
       if ((cat.name || '').trim().toLowerCase() === 'questions & time') {
         const desiredOrder = [
-          'Who?', 'What?', 'Where?', 'When?', 'Why?', 'How?', 'Now?', 'Today', 'Tomorrow', 'Yesterday'
+          'Who?', 'What?', 'Where?', 'When?', 'Why?', 'How?', 'Now?', 'Before', 'After', 'Today', 'Tomorrow', 'Yesterday'
         ];
         function findCardByDisplay(display) {
           const lower = display.trim().toLowerCase();
@@ -3701,6 +3716,43 @@ function updateHeaderForCurrentView(){
             };
           }
         });
+      }
+      // Replace 'verbs' (Body) page cards with Narbe Words body cards
+      if ((cat.name || '').trim().toLowerCase() === 'verbs') {
+        const bodyWords = [
+          { display: 'Head', speak: 'Head', image: '', },
+          { display: 'Eyes', speak: 'Eyes', image: '', },
+          { display: 'Ears', speak: 'Ears', image: '', },
+          { display: 'Nose', speak: 'Nose', image: '', },
+          { display: 'Mouth', speak: 'Mouth', image: '', },
+          { display: 'Teeth', speak: 'Teeth', image: '', },
+          { display: 'Tongue', speak: 'Tongue', image: '', },
+          { display: 'Neck', speak: 'Neck', image: '', },
+          { display: 'Shoulders', speak: 'Shoulders', image: '', },
+          { display: 'Arms', speak: 'Arms', image: '', },
+          { display: 'Hands', speak: 'Hands', image: '', },
+          { display: 'Fingers', speak: 'Fingers', image: '', },
+          { display: 'Chest', speak: 'Chest', image: '', },
+          { display: 'Stomach', speak: 'Stomach', image: '', },
+          { display: 'Back', speak: 'Back', image: '', },
+          { display: 'Legs', speak: 'Legs', image: '', },
+          { display: 'Knees', speak: 'Knees', image: '', },
+          { display: 'Feet', speak: 'Feet', image: '', },
+          { display: 'Toes', speak: 'Toes', image: '', }
+        ];
+        let nextTileOrder = 1;
+        cat.items = bodyWords.map(word => ({
+          ...word,
+          category: cat.name,
+          categoryOrder: cat.order,
+          tileOrder: nextTileOrder++,
+          categoryColor: cat.color || '#5bb0ff',
+          tileColor: cat.color || '#5bb0ff',
+          categoryImage: cat.image || '',
+          boardName: state.currentBoardTitle || '',
+          boardColor: '',
+          boardImage: ''
+        }));
       }
       // Always add "I" and "you" from Actions to People category, colored purple, at the end, no duplicates
       if ((cat.name || '').trim().toLowerCase() === 'people') {
@@ -3879,8 +3931,9 @@ function updateHeaderForCurrentView(){
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        // Scan order: Keyboard, Options, Yes, No (main menu button is not shown on category page)
-        const quickRow = [el.keyboardToolBtn, el.categoryOptionsBtn, el.yesQuickBtn, el.noQuickBtn].filter(isVisible);
+        // Scan order: Main Menu (if visible), Keyboard, Options, Yes, No
+        const quickRow = [el.mainMenuQuickBtn, el.keyboardToolBtn, el.categoryOptionsBtn, el.yesQuickBtn, el.noQuickBtn]
+          .filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
       if (state.sentenceMode && el.sentenceRow.classList.contains('active')) {
