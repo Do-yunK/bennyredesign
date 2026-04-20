@@ -1052,7 +1052,7 @@
     }
 
     .top-quick-actions.board-top-layout {
-      grid-template-areas: 'main keyboard yes no';
+      grid-template-areas: 'keyboard main yes no';
     }
 
     .top-quick-actions.category-top-layout {
@@ -1254,17 +1254,23 @@
       border-left: 3px solid var(--hoverBorderYellow) !important;
     }
 
+
+
     #yesQuickBtn.row-highlight,
-    #yesQuickBtn.scan-highlight,
+    #yesQuickBtn.scan-highlight {
+      background: #16a34a !important; /* green fill */
+      color: #fff !important;
+      font-weight: 800 !important;
+      border: 3px solid var(--hoverBorderYellow) !important;
+    }
+
+
     #noQuickBtn.row-highlight,
     #noQuickBtn.scan-highlight {
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
+      background: #ef4444 !important; /* red fill */
+      color: #fff !important;
       font-weight: 800 !important;
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: 3px solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
+      border: 3px solid var(--hoverBorderYellow) !important;
     }
 
     #yesQuickBtn::before,
@@ -1322,10 +1328,22 @@
     }
 
     #categoryOptionsBtn.row-highlight,
+
     #categoryOptionsBtn.scan-highlight {
       background: var(--columnHighlight) !important;
       color: #000 !important;
       border-color: var(--hoverBorderYellow) !important;
+      box-shadow: none;
+    }
+
+    #categoryOptionsBtn.scan-highlight.toggled {
+      border-color: #ff0000 !important;
+    }
+
+    #categoryOptionsBtn.row-highlight:hover,
+    #categoryOptionsBtn.scan-highlight.toggled:hover {
+      border-color: #ff0000 !important;
+      box-shadow: 0 0 0 3px #ff0000, 0 2px 8px rgba(0,0,0,0.08);
     }
 
     #categoryOptionsBtn.modal-highlight {
@@ -1479,18 +1497,18 @@
         <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button" aria-label="Keyboard" title="Keyboard" style="grid-area: keyboard;">
           <span class="icon">⌨</span>
         </button>
-        <button class="grid-button" id="categoryOptionsBtn" type="button" style="grid-area: options;">
-          <span class="icon">⚙</span>
-          <span class="label">Options</span>
-        </button>
         <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn" type="button" aria-label="Main Menu" title="Main Menu" style="grid-area: main;">
-          <span class="icon">⌂</span>
+          <span class="icon" style="font-size:2rem;line-height:1;">⌂</span>
         </button>
         <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button" style="grid-area: yes;">
           Yes
         </button>
         <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button" style="grid-area: no;">
           No
+        </button>
+        <button class="grid-button" id="categoryOptionsBtn" type="button" style="grid-area: options;">
+          <span class="icon">⚙</span>
+          <span class="label">Options</span>
         </button>
       </div>
     </main>
@@ -2721,6 +2739,7 @@ function getDisplayCategoryName(categoryName) {
   if (normalized === 'verbs') return 'Body';
   if (normalized === 'helpers') return 'Places';
   if (normalized === 'questions & time' || normalized === 'time') return 'Questions & Time';
+  if (normalized === 'pronouns') return 'Actions';
   return categoryName;
 }
 
@@ -3069,7 +3088,7 @@ function updateHeaderForCurrentView(){
             btn.style.background = item.bgColor;
           }
           
-          // Apply board color and image if available, but skip image for DEFAULT card
+          // Apply board color and image if available, but skip image for DEFAULT/NARBE
           if (item.boardData) {
             btn.classList.add('phrase-board-card');
             if (item.boardData.color) {
@@ -3221,7 +3240,31 @@ function updateHeaderForCurrentView(){
         applyNarbeRedCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && !isNarbeBlueAccentCategory(cat.name) && !isCustomBlueCard && !isTealCard && !isCustomTealCard && !isCustomPurpleCard && (isBasicStyleCard || isCustomRedCard));
 
         if (useWhiteBordersForCurrentBoard()) {
-          const radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
+          // For main menu, preview category words as before
+          let radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
+          // If on a category page, preview the actual words in the category
+          if (state.currentMenu === 'category' && state.currentCategory === cat.name) {
+            // Special handling for Actions and Body (verbs) to show correct words
+            if (cat.name.trim().toLowerCase() === 'actions' || cat.name.trim().toLowerCase() === 'pronouns') {
+              const desiredOrder = [
+                'Stop', 'Want', 'Come', 'Close', 'Pull', 'Push', 'Wait', 'Listen', 'Leave', 'Call', 'Read'
+              ];
+              radialItems = desiredOrder.map(word => {
+                const found = cat.items.find(item => (item.display || '').trim().toLowerCase() === word.toLowerCase());
+                return found ? { display: found.display, speak: found.speak || found.display } : { display: word, speak: word };
+              }).slice(0, 5);
+            } else if (cat.name.trim().toLowerCase() === 'verbs' || cat.name.trim().toLowerCase() === 'body') {
+              const bodyWords = [
+                'Head', 'Eyes', 'Ears', 'Nose', 'Mouth', 'Teeth', 'Tongue', 'Neck', 'Shoulders', 'Arms', 'Hands', 'Fingers', 'Chest', 'Stomach', 'Back', 'Legs', 'Knees', 'Feet', 'Toes'
+              ];
+              radialItems = bodyWords.map(word => {
+                const found = cat.items.find(item => (item.display || '').trim().toLowerCase() === word.toLowerCase());
+                return found ? { display: found.display, speak: found.speak || found.display } : { display: word, speak: word };
+              }).slice(0, 5);
+            } else {
+              radialItems = cat.items.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
+            }
+          }
           if (radialItems.length) {
             btn.dataset.radialItems = JSON.stringify(radialItems);
             btn.dataset.radialBorderColor = getRadialBorderColorForCategory(cat.name, cat.color);
@@ -3260,7 +3303,7 @@ function updateHeaderForCurrentView(){
           button: createButton('Add Category', '＋', () => showAddCategoryModal(), 'muted-green-btn add-category-btn')
         });
       }
-      // Add Next button if there are multiple pages (loops back to first page from last page)
+      // Add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
         gridPositions.push({ type: 'next', button: createButton('Next', '▶', () => { state.page = (state.page + 1) % totalPages; renderCategoryMenu(); }, 'next-btn category-nav-btn') });
       }
@@ -3332,7 +3375,7 @@ function updateHeaderForCurrentView(){
       const gridSizes = [];
       for (let size = 2; size <= 10; size++) gridSizes.push(size);
       
-      const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
+      const availableSlots = totalSlots - 1; // Reserve one slot for back/next button  
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(gridSizes.length / itemsPerPage);
       
@@ -3414,7 +3457,7 @@ function updateHeaderForCurrentView(){
         });
       }
       
-      const availableSlots = totalSlots - 1; // Reserve one slot for back/next button  
+      const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(buttons.length / itemsPerPage);
       
@@ -3676,7 +3719,72 @@ function updateHeaderForCurrentView(){
       el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
       const cat = state.byCat.get(state.currentCategory);
       if (!cat) return;
-      // Only show the specified cards in Questions & Time category, in the given order, reusing existing cards if present
+      // Only show the specified cards in Core Phrases (basic) and Questions & Time category, in the given order, reusing existing cards if present
+      if ((cat.name || '').trim().toLowerCase() === 'basic') {
+        // Remove Yes/No, add Good/Bad, and move Good/Bad before Please
+        function findCardByDisplay(display) {
+          const lower = display.trim().toLowerCase();
+          for (const category of state.categories) {
+            const found = category.items.find(item => (item.display || '').trim().toLowerCase() === lower);
+            if (found) return found;
+          }
+          return null;
+        }
+        // Remove Yes/No
+        cat.items = cat.items.filter(item => {
+          const d = (item.display || '').trim().toLowerCase();
+          return d !== 'yes' && d !== 'no';
+        });
+        // Add Good/Bad if not present
+        const hasGood = cat.items.some(item => (item.display || '').trim().toLowerCase() === 'good');
+        const hasBad = cat.items.some(item => (item.display || '').trim().toLowerCase() === 'bad');
+        let nextTileOrder = cat.items.reduce((maxOrder, item) => Math.max(maxOrder, item.tileOrder || 0), 0) + 1;
+        if (!hasGood) {
+          cat.items.push({
+            category: cat.name,
+            categoryOrder: cat.order,
+            display: 'Good',
+            speak: 'Good',
+            image: '',
+            categoryColor: cat.color || '#5bb0ff',
+            tileColor: cat.color || '#5bb0ff',
+            tileOrder: nextTileOrder++,
+            categoryImage: cat.image || '',
+            boardName: state.currentBoardTitle || '',
+            boardColor: '',
+            boardImage: ''
+          });
+        }
+        if (!hasBad) {
+          cat.items.push({
+            category: cat.name,
+            categoryOrder: cat.order,
+            display: 'Bad',
+            speak: 'Bad',
+            image: '',
+            categoryColor: cat.color || '#5bb0ff',
+            tileColor: cat.color || '#5bb0ff',
+            tileOrder: nextTileOrder++,
+            categoryImage: cat.image || '',
+            boardName: state.currentBoardTitle || '',
+            boardColor: '',
+            boardImage: ''
+          });
+        }
+        // Move Good/Bad before Please
+        const pleaseIdx = cat.items.findIndex(item => (item.display || '').trim().toLowerCase() === 'please');
+        if (pleaseIdx !== -1) {
+          // Remove Good/Bad from current positions
+          const goodIdx = cat.items.findIndex(item => (item.display || '').trim().toLowerCase() === 'good');
+          const badIdx = cat.items.findIndex(item => (item.display || '').trim().toLowerCase() === 'bad');
+          const good = goodIdx !== -1 ? cat.items.splice(goodIdx, 1)[0] : null;
+          // Adjust badIdx if it was after goodIdx
+          const bad = badIdx !== -1 ? cat.items.splice(badIdx > goodIdx && goodIdx !== -1 ? badIdx - 1 : badIdx, 1)[0] : null;
+          // Insert Good/Bad before Please
+          if (good) cat.items.splice(pleaseIdx, 0, good);
+          if (bad) cat.items.splice(pleaseIdx + (good ? 1 : 0), 0, bad);
+        }
+      }
       if ((cat.name || '').trim().toLowerCase() === 'questions & time') {
         const desiredOrder = [
           'Who?', 'What?', 'Where?', 'When?', 'Why?', 'How?', 'Now?', 'Before', 'After', 'Today', 'Tomorrow', 'Yesterday'
@@ -3844,6 +3952,10 @@ function updateHeaderForCurrentView(){
       const gridPositions = [];
       const backLabel = (state.page === 0 && useWhiteBordersForCurrentBoard()) ? 'Back to Categories' : 'Back';
       gridPositions.push({ type: 'back', button: createButton(backLabel, '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
+            // Set speak text for back button to 'Back' for TTS
+            if (gridPositions.length > 0 && gridPositions[0].type === 'back') {
+              gridPositions[0].button.dataset.speakText = 'Back';
+            }
       for (let i = startIdx; i < endIdx; i++) {
         const item = cat.items[i];
         const btn = createButton(
@@ -3931,8 +4043,8 @@ function updateHeaderForCurrentView(){
       const rows = [];
       const cols = state.gridSize.cols;
       if (isVisible(el.topQuickActions) && useWhiteBordersForCurrentBoard() && (state.currentMenu === 'categories' || state.currentMenu === 'category')) {
-        // Scan order: Main Menu (if visible), Keyboard, Options, Yes, No
-        const quickRow = [el.mainMenuQuickBtn, el.keyboardToolBtn, el.categoryOptionsBtn, el.yesQuickBtn, el.noQuickBtn]
+        // Scan order: Keyboard (first), Main Menu, Options, Yes, No
+        const quickRow = [el.keyboardToolBtn, el.mainMenuQuickBtn, el.categoryOptionsBtn, el.yesQuickBtn, el.noQuickBtn]
           .filter(isVisible);
         if (quickRow.length > 0) rows.push(quickRow);
       }
@@ -4083,7 +4195,9 @@ function updateHeaderForCurrentView(){
           let textToSpeak = '';
           if (element === el.deleteWordBtn && state.sentenceMode) textToSpeak = 'Delete';
           else if (element === el.clearSentenceBtn && state.sentenceMode) textToSpeak = 'Clear all';
-          else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
+          else if (element === el.rowBackOptionBtn) {
+            textToSpeak = 'Back';
+          } else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
             if (element.dataset.radialItems) {
               // Radial menu is open: only speak the card name, not the full preview items
               const labelEl = element.querySelector('.label');
@@ -4093,14 +4207,14 @@ function updateHeaderForCurrentView(){
               if (explicitSpeakText) {
                 textToSpeak = explicitSpeakText;
               } else {
-              const pageIndicator = element.querySelector('.page-indicator');
-              const cleanText = cleanTextForTTS(element.textContent);
-              if (pageIndicator) {
-                const pageText = pageIndicator.textContent;
-                const categoryName = cleanText.replace(pageText, '').trim();
-                if (categoryName) textToSpeak = `${categoryName}, ${pageText}`;
-              } else if (cleanText) textToSpeak = cleanText;
-            }
+                const pageIndicator = element.querySelector('.page-indicator');
+                const cleanText = cleanTextForTTS(element.textContent);
+                if (pageIndicator) {
+                  const pageText = pageIndicator.textContent;
+                  const categoryName = cleanText.replace(pageText, '').trim();
+                  if (categoryName) textToSpeak = `${categoryName}, ${pageText}`;
+                } else if (cleanText) textToSpeak = cleanText;
+              }
             }
           }
           if (textToSpeak) speak(textToSpeak);
@@ -4881,8 +4995,52 @@ function updateHeaderForCurrentView(){
     function navigateTo(menuName) {
       saveNavigationState();
       state.page = 0; state.scanMode = 'row'; state.currentRow = 0; state.scanIndex = 0;
-      openMenu(menuName);
+      
+      // Speak the menu name when entering
+      let menuTitle = '';
+      switch (menuName) {
+        case 'main': 
+          renderMainMenu(); 
+          menuTitle = 'Main Menu';
+          break;
+        case 'categories': 
+          renderCategoryMenu(); 
+          menuTitle = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
+          break;
+        case 'settings': 
+          renderSettingsMenu(); 
+          menuTitle = 'Settings Menu';
+          break;
+        case 'gridsize': 
+          renderGridSizeMenu(); 
+          menuTitle = 'Grid Size';
+          break;
+        case 'tts': 
+          renderTTSMenu(); 
+          menuTitle = 'Voice & TTS';
+          break;
+        case 'scan': 
+          renderScanMenu(); 
+          menuTitle = 'Scan Settings';
+          break;
+        case 'highlight': 
+          renderHighlightMenu(); 
+          menuTitle = 'Highlight Colors';
+          break;
+        case 'theme': 
+          renderThemeMenu(); 
+          menuTitle = 'Theme';
+          break;
+      }
+      
+      // Speak the menu title
+      if (menuTitle) {
+        const cleanTitle = cleanTextForTTS(menuTitle);
+        if (cleanTitle) speak(cleanTitle);
+      }
+      
       updateHeaderForCurrentView();
+      setTimeout(() => { updateScannable(); }, 50);
     }
 
     function navigateBack() {
