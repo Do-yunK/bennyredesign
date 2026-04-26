@@ -23,7 +23,7 @@
       --muted-green: #86b39a;
       --muted-yellow: #d4c896;
       --hoverBorderYellow: #ffff00;
-    }
+    
     
     /* Dark theme */
     [data-theme="dark"] {
@@ -216,6 +216,7 @@
     .main-grid > .grid-button.main-menu-card {
       --footer-strip-height: 3px;
       border-bottom: 3px solid #FFF;
+      justify-content: center;
     }
 
     .main-grid > .grid-button.phrase-board-card .label,
@@ -467,10 +468,16 @@
     }
     
     .grid-button img {
-      max-width: 60%;
-      max-height: 50px;
-      object-fit: contain;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
       margin-bottom: 8px;
+      margin-top: -5px;
+      max-width: 70%;
+      max-height: 80px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
     }
     
     .grid-button .icon {
@@ -484,15 +491,19 @@
     }
 
     .main-grid > .grid-button img {
-      max-width: 72px;
-      max-height: 72px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 8px;
+      margin-top: -5px;
+      max-width: 90px;
+      max-height: 90px;
       width: auto;
       height: auto;
-      margin-bottom: 8px;
+      object-fit: contain;
     }
 
-    .main-grid > .grid-button.main-menu-card .icon,
-    .main-grid > .grid-button.main-menu-card img {
+    .main-grid > .grid-button.main-menu-card .icon {
       position: absolute;
       left: 50%;
       top: calc(50% - 14px);
@@ -504,8 +515,7 @@
       top: calc(50% - 14px);
     }
 
-    .main-grid > .grid-button.priority-board-card .icon,
-    .main-grid > .grid-button.priority-board-card img {
+    .main-grid > .grid-button.priority-board-card .icon {
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
@@ -3204,7 +3214,37 @@ function updateHeaderForCurrentView(){
           }
           openCategory(cat.name);
         });
-        if (cat.image) {
+        // Override images for specific categories on default page
+        const displayCatName = getDisplayCategoryName(cat.name).toLowerCase();
+        if (
+          displayCatName === 'places' && useWhiteBordersForCurrentBoard() && !isCustomCategory
+        ) {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/32598/32598_300.png';
+          img.alt = 'Places';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (
+          displayCatName === 'feelings' && useWhiteBordersForCurrentBoard() && !isCustomCategory
+        ) {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/37190/37190_300.png';
+          img.alt = 'Feelings';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (
+          displayCatName === 'body' && useWhiteBordersForCurrentBoard() && !isCustomCategory
+        ) {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/6473/6473_nocolor_500.png';
+          img.alt = 'Body';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (
+          (displayCatName === 'questions & time' || displayCatName === 'questions and time') && useWhiteBordersForCurrentBoard() && !isCustomCategory
+        ) {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/7217/7217_300.png';
+          img.alt = 'Questions & Time';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (cat.image) {
           const img = document.createElement('img');
           img.src = cat.image;
           img.alt = '';
@@ -3240,10 +3280,10 @@ function updateHeaderForCurrentView(){
         applyNarbeRedCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && !isNarbeBlueAccentCategory(cat.name) && !isCustomBlueCard && !isTealCard && !isCustomTealCard && !isCustomPurpleCard && (isBasicStyleCard || isCustomRedCard));
 
         if (useWhiteBordersForCurrentBoard()) {
-          // Ensure 'Body' and 'Actions' categories have the correct items before preview
+          // Ensure 'Body', 'Actions', and 'Feelings' categories have the correct items before preview
           let normalizedName = (cat.name || '').trim().toLowerCase();
           if (normalizedName === 'verbs' || getDisplayCategoryName(cat.name).toLowerCase() === 'body') {
-            // Set hardcoded body words
+            // ...existing code for body words...
             const narbeBodyWords = [
               { display: 'Head', speak: 'Head', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/head.png.varianted-skin.png' },
               { display: 'Eye', speak: 'Eye', image: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/eye.png.varianted-skin.png' },
@@ -3279,7 +3319,7 @@ function updateHeaderForCurrentView(){
               boardImage: ''
             }));
           } else if (normalizedName === 'actions' || normalizedName === 'pronouns' || getDisplayCategoryName(cat.name).toLowerCase() === 'actions') {
-            // Set hardcoded actions words
+            // ...existing code for actions words...
             const desiredOrder = [
               'Stop', 'Want', 'Come', 'Close', 'Pull', 'Push', 'Wait', 'Listen', 'Leave', 'Call', 'Read'
             ];
@@ -3318,6 +3358,46 @@ function updateHeaderForCurrentView(){
                 };
               }
             });
+          } else if (normalizedName === 'feelings' || getDisplayCategoryName(cat.name).toLowerCase() === 'feelings') {
+            // Add 'Hot' and 'Cold' to Feelings
+            let nextTileOrder = 1;
+            let items = Array.isArray(cat.items) ? [...cat.items] : [];
+            // Only add if not already present
+            if (!items.some(item => (item.display || '').trim().toLowerCase() === 'hot')) {
+              items.push({
+                display: 'Hot',
+                speak: 'Hot',
+                image: '',
+                category: cat.name,
+                categoryOrder: cat.order,
+                tileOrder: items.length + 1,
+                categoryColor: cat.color || '#ff9c00',
+                tileColor: cat.color || '#ff9c00',
+                categoryImage: cat.image || '',
+                boardName: state.currentBoardTitle || '',
+                boardColor: '',
+                boardImage: ''
+              });
+            }
+            if (!items.some(item => (item.display || '').trim().toLowerCase() === 'cold')) {
+              items.push({
+                display: 'Cold',
+                speak: 'Cold',
+                image: '',
+                category: cat.name,
+                categoryOrder: cat.order,
+                tileOrder: items.length + 1,
+                categoryColor: cat.color || '#ff9c00',
+                tileColor: cat.color || '#ff9c00',
+                categoryImage: cat.image || '',
+                boardName: state.currentBoardTitle || '',
+                boardColor: '',
+                boardImage: ''
+              });
+            }
+            // Reassign tileOrder
+            items = items.map((item, idx) => ({ ...item, tileOrder: idx + 1 }));
+            cat.items = items;
           }
           let previewItems = cat.items;
           let radialItems = previewItems.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
@@ -4052,7 +4132,34 @@ function updateHeaderForCurrentView(){
         );
         // Store the speak text for scan selection to use
         btn.dataset.speakText = item.speak || item.display || '';
-        if (item.image) {
+        // Override images for 'Good' and 'Bad' on Core Phrases page
+        const isCorePhrases = getDisplayCategoryName(state.currentCategory).toLowerCase() === 'core phrases';
+        if (isCorePhrases && (item.display || '').trim().toLowerCase() === 'good') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/5397/5397_nocolor_500.png';
+          img.alt = 'Good';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (isCorePhrases && (item.display || '').trim().toLowerCase() === 'bad') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/5504/5504_nocolor_500.png';
+          img.alt = 'Bad';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (isCorePhrases && (item.display || '').trim().toLowerCase() === 'hello') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/6522/6522_300.png';
+          img.alt = 'Hello';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (getDisplayCategoryName(state.currentCategory).toLowerCase() === 'feelings' && (item.display || '').trim().toLowerCase() === 'happy') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/35547/35547_300.png';
+          img.alt = 'Happy';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (getDisplayCategoryName(state.currentCategory).toLowerCase() === 'feelings' && (item.display || '').trim().toLowerCase() === 'sad') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/35545/35545_300.png';
+          img.alt = 'Sad';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (item.image) {
           const img = document.createElement('img');
           img.src = item.image;
           img.alt = '';

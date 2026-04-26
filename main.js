@@ -1281,9 +1281,21 @@ ipcMain.handle('system:shutdown', async () => {
 // ============ ARDUINO SWITCH SUPPORT ============
 let arduinoPort = null;
 
-function startArduino() {
+async function startArduino() {
   try {
-    arduinoPort = new SerialPort({ path: 'COM3', baudRate: 9600 });
+    // List all available serial ports
+    const ports = await SerialPort.list();
+    // Try to auto-detect Arduino by manufacturer or fallback to first port
+    let selectedPort = ports.find(p => p.manufacturer && p.manufacturer.toLowerCase().includes('arduino'));
+    if (!selectedPort && ports.length > 0) {
+      selectedPort = ports[0];
+      console.warn('[ARDUINO] No Arduino manufacturer detected, using first available port:', selectedPort.path);
+    }
+    if (!selectedPort) {
+      console.error('[ARDUINO] No serial ports found.');
+      return;
+    }
+    arduinoPort = new SerialPort({ path: selectedPort.path, baudRate: 9600 });
     const parser = arduinoPort.pipe(new ReadlineParser({ delimiter: '\n' }));
 
     let lastRight = 1;
@@ -1295,7 +1307,6 @@ function startArduino() {
 
       const right = parseInt(parts[0]);
       const left  = parseInt(parts[1]);
-
 
       // Right switch = spacebar (scan)
       if (right === 0 && lastRight === 1) {
@@ -1321,7 +1332,7 @@ function startArduino() {
       console.error('[ARDUINO] Error:', err.message);
     });
 
-    console.log('[ARDUINO] Connected on COM3');
+    console.log(`[ARDUINO] Connected on ${selectedPort.path}`);
   } catch (e) {
     console.error('[ARDUINO] Failed to connect:', e.message);
   }
