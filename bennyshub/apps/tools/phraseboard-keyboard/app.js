@@ -116,7 +116,16 @@ class PredictionSystem {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initializePhraseboardKeyboardScanning() {
+      // --- Text to Speech ---
+      function speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const utter = new window.SpeechSynthesisUtterance(text);
+        utter.rate = 1.0;
+        window.speechSynthesis.speak(utter);
+      }
+
     // Radial emoji menu logic
     const emojiRadialMenu = document.getElementById('emoji-radial-menu');
     const emojiRadialOptions = Array.from(document.querySelectorAll('.emoji-radial-option'));
@@ -127,8 +136,20 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentRow = 0;
   let currentCol = 0;
   let inRowScan = true;
-  const rows = Array.from(document.querySelectorAll('.keyboard-row'));
-  const keys = rows.map(row => Array.from(row.querySelectorAll('.key')));
+  // Predict bar as first row for scanning
+  let rows = [];
+  let keys = [];
+  function updateRowsAndKeys() {
+    const predictBtns = Array.from(document.querySelectorAll('.predict-btn'));
+    const keyboardRows = Array.from(document.querySelectorAll('.keyboard-row'));
+    rows = [predictBtns, ...keyboardRows];
+    keys = [predictBtns, ...keyboardRows.map(row => Array.from(row.querySelectorAll('.key')))];
+  }
+  updateRowsAndKeys();
+
+  // If already initialized, don't double-bind events
+  if (window.__phraseboardKeyboardScanInit) return;
+  window.__phraseboardKeyboardScanInit = true;
   const textBar = document.getElementById('textBar');
   const predictBar = document.getElementById('predictBar');
   const emojiPicker = document.getElementById('emoji-picker');
@@ -153,9 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
         buffer += word + ' ';
         updateTextBar();
         updatePredictions();
+        // After selecting a prediction, resume scanning at first keyboard row
+        currentRow = 1;
+        currentCol = 0;
+        inRowScan = true;
+        highlightRow(currentRow);
       };
       predictBar.appendChild(btn);
     });
+    updateRowsAndKeys();
   }
 
   function addLetter(letter) {
@@ -202,14 +229,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function highlightRow(rowIdx) {
     rows.forEach((row, i) => {
-      row.style.boxShadow = i === rowIdx ? '0 0 0 4px #ff6b35' : '';
+      if (Array.isArray(row)) {
+        // predict bar
+        row.forEach(btn => btn.classList.remove('active'));
+        if (i === rowIdx) {
+          predictBar.classList.add('scanning');
+        } else {
+          predictBar.classList.remove('scanning');
+        }
+      } else {
+        row.style.boxShadow = i === rowIdx ? '0 0 0 4px #ff6b35' : '';
+      }
     });
     keys.forEach((row, i) => row.forEach(key => key.classList.remove('active')));
   }
   function highlightKey(rowIdx, colIdx) {
+        // Speak the label of the key or prediction when scanning
+        let label = '';
+        if (rowIdx === 0 && keys[0][colIdx]) {
+          label = keys[0][colIdx].textContent.trim();
+        } else if (keys[rowIdx] && keys[rowIdx][colIdx]) {
+          label = keys[rowIdx][colIdx].textContent.trim();
+        }
+        if (label) speak(label);
     highlightRow(-1);
     keys.forEach(row => row.forEach(key => key.classList.remove('active')));
-    if (keys[rowIdx] && keys[rowIdx][colIdx]) {
+    if (rowIdx === 0 && keys[0][colIdx]) {
+      keys[0][colIdx].classList.add('active');
+    } else if (keys[rowIdx] && keys[rowIdx][colIdx]) {
       keys[rowIdx][colIdx].classList.add('active');
     }
   }
@@ -296,6 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelectorAll('.key').forEach(key => {
     key.addEventListener('click', (e) => {
+      // Speak the label when selected
+      let label = key.textContent.trim();
+      if (label) speak(label);
       // Prevent emoji key from adding emoji to buffer
       if (key.classList.contains('emoji')) {
         e.preventDefault();
@@ -305,7 +355,33 @@ document.addEventListener('DOMContentLoaded', () => {
         highlightEmojiRadial();
         return;
       }
-      let label = key.textContent.trim();
+      // Read aloud button
+      if (key.classList.contains('readaloud')) {
+        e.preventDefault();
+        speak(buffer);
+        return;
+      }
+      // ADD WORD button logic
+      if (key.classList.contains('addword')) {
+        e.preventDefault();
+        const text = textBar.textContent.replace(/\|/g, '').trim();
+        if (text) {
+          // Get category and board from URL params (like old keyboard)
+          const params = new URLSearchParams(window.location.search);
+          const category = params.get('category') || '';
+          const board = params.get('board') || '';
+          const PHRASEBOARD_ADD_WORD_RETURN_KEY = 'phraseboard_pending_add_word';
+          sessionStorage.setItem(PHRASEBOARD_ADD_WORD_RETURN_KEY, JSON.stringify({
+            word: text,
+            category,
+            board,
+            ts: Date.now()
+          }));
+          // Instead of closing the window, return to the category page
+          window.location.href = `../phraseboard/index.html?category=${encodeURIComponent(category)}`;
+        }
+        return;
+      }
       // For SVG delete key, check aria-label or visually hidden span
       if (key.classList.contains('delete')) {
         label = '⌫';
@@ -356,4 +432,11 @@ document.addEventListener('DOMContentLoaded', () => {
   highlightRow(currentRow);
   updateTextBar();
   updatePredictions();
-});
+}
+
+// Support both static and dynamic loading
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializePhraseboardKeyboardScanning);
+} else {
+  initializePhraseboardKeyboardScanning();
+}

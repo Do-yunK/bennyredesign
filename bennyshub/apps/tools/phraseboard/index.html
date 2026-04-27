@@ -2070,7 +2070,7 @@
         category: state.currentCategory,
         board: state.currentBoardTitle || ''
       });
-      window.location.href = `../keyboard/index.html?${params.toString()}`;
+      window.location.href = `../phraseboard/add-word-keyboard.html?${params.toString()}`;
     }
 
     function renderAddCategoryColorChoices() {
@@ -2373,19 +2373,38 @@
 
       const item = category.items[index];
       const display = item.display || item.speak || 'Unknown';
-      
+
       if (!confirm(`Delete "${display}"?`)) return false;
 
       // Remove from state.raw
       state.raw = state.raw.filter(r => !(r.category === state.currentCategory && r.display === display && r.tileOrder === item.tileOrder));
-      
+
+      // Remove from localStorage persistence if it was an added word
+      try {
+        const raw = localStorage.getItem(ADDED_WORDS_KEY);
+        if (raw) {
+          const addedWords = JSON.parse(raw);
+          const boardKey = (state.currentBoardTitle || '').trim();
+          if (addedWords[boardKey] && addedWords[boardKey][state.currentCategory]) {
+            addedWords[boardKey][state.currentCategory] = addedWords[boardKey][state.currentCategory].filter(w => w !== display);
+            // If the category is now empty, remove it
+            if (addedWords[boardKey][state.currentCategory].length === 0) {
+              delete addedWords[boardKey][state.currentCategory];
+            }
+            localStorage.setItem(ADDED_WORDS_KEY, JSON.stringify(addedWords));
+          }
+        }
+      } catch (e) {
+        console.error('Failed to remove added word from persistence:', e);
+      }
+
       // Remove from category items
       const updatedItems = category.items.filter((_, i) => i !== index);
       const updatedCategory = { ...category, items: updatedItems };
-      
+
       state.categories = state.categories.map(cat => cat.name === state.currentCategory ? updatedCategory : cat);
       state.byCat.set(state.currentCategory, updatedCategory);
-      
+
       renderCategory();
       el.statusFooter.textContent = `Deleted ${display}`;
       speak(`${cleanTextForTTS(display)} deleted`);
