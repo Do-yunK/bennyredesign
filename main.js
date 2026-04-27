@@ -380,11 +380,10 @@ async function createWindow() {
     webContents.session.setPreloads([path.join(__dirname, 'preload.js')]);
   });
 
-  // Load via localhost server for YouTube embeds to work
-  // This gives us a proper HTTP origin instead of file://
-  const serverUrl = `http://127.0.0.1:${hubServerPort}/index.html`;
-  console.log(`[HUB] Loading main window from: ${serverUrl}`);
-  mainWindow.loadURL(serverUrl);
+  // Load Phraseboard main menu directly
+  const phraseboardUrl = `http://127.0.0.1:${hubServerPort}/apps/tools/phraseboard/index.html`;
+  console.log(`[HUB] Loading main window from: ${phraseboardUrl}`);
+  mainWindow.loadURL(phraseboardUrl);
   
   // CRASH HANDLERS - Log renderer crashes
   mainWindow.webContents.on('render-process-gone', (event, details) => {
@@ -1297,6 +1296,7 @@ async function startArduino() {
     }
     arduinoPort = new SerialPort({ path: selectedPort.path, baudRate: 9600 });
     const parser = arduinoPort.pipe(new ReadlineParser({ delimiter: '\n' }));
+
 
     let lastRight = 1;
     let lastLeft = 1;
