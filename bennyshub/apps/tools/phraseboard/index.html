@@ -1517,7 +1517,7 @@
           No
         </button>
         <button class="grid-button" id="categoryOptionsBtn" type="button" style="grid-area: options;">
-          <span class="icon">⚙</span>
+          <span class="icon" aria-hidden="true">+/-</span>
           <span class="label">Options</span>
         </button>
       </div>
@@ -1579,9 +1579,9 @@
   <div class="category-options-overlay" id="categoryOptionsOverlay"></div>
   <div id="categoryOptionsPanel" class="category-options-panel" role="dialog" aria-label="Category Options">
     <div class="category-options-panel-title">Options</div>
-    <button class="category-options-panel-btn" id="optionAddWordBtn" type="button">＋ &nbsp;Add Word</button>
+    <button class="category-options-panel-btn" id="optionAddWordBtn" type="button"><span class="icon" aria-hidden="true">➕</span> Add Word</button>
     <button class="category-options-panel-btn" id="optionEditWordsBtn" type="button">✎ &nbsp;Edit Words</button>
-    <button class="category-options-panel-btn danger" id="optionRemoveCategoryBtn" type="button">🗑 &nbsp;Remove from Default Page</button>
+    <button class="category-options-panel-btn danger" id="optionRemoveCategoryBtn" type="button"><span class="icon" aria-hidden="true">➖</span> Remove from Default Page</button>
   </div>
 
   <div id="addCategoryModal" class="add-category-modal" role="dialog" aria-modal="true" aria-labelledby="addCategoryTitle">
@@ -2304,6 +2304,7 @@
       if (state.editMode) {
         el.mainGrid.classList.add('edit-mode');
         if (el.categoryOptionsBtn) el.categoryOptionsBtn.classList.add('active-green');
+        el.categoryOptionsBtn && el.categoryOptionsBtn.classList.add('scan-highlight');
         const msg = state.currentMenu === 'categories'
           ? 'Edit mode enabled. Tap a category to delete it.'
           : 'Edit mode enabled. Tap a card to delete it.';
@@ -2311,6 +2312,7 @@
       } else {
         el.mainGrid.classList.remove('edit-mode');
         if (el.categoryOptionsBtn) el.categoryOptionsBtn.classList.remove('active-green');
+        el.categoryOptionsBtn && el.categoryOptionsBtn.classList.remove('scan-highlight');
         speak('Edit mode disabled.');
       }
     }
@@ -2374,41 +2376,111 @@
       const item = category.items[index];
       const display = item.display || item.speak || 'Unknown';
 
-      if (!confirm(`Delete "${display}"?`)) return false;
+      // Show a custom scannable confirmation modal
+      return showDeletePhraseConfirmModal(display, () => {
+        // Remove from state.raw
+        state.raw = state.raw.filter(r => !(r.category === state.currentCategory && r.display === display && r.tileOrder === item.tileOrder));
 
-      // Remove from state.raw
-      state.raw = state.raw.filter(r => !(r.category === state.currentCategory && r.display === display && r.tileOrder === item.tileOrder));
-
-      // Remove from localStorage persistence if it was an added word
-      try {
-        const raw = localStorage.getItem(ADDED_WORDS_KEY);
-        if (raw) {
-          const addedWords = JSON.parse(raw);
-          const boardKey = (state.currentBoardTitle || '').trim();
-          if (addedWords[boardKey] && addedWords[boardKey][state.currentCategory]) {
-            addedWords[boardKey][state.currentCategory] = addedWords[boardKey][state.currentCategory].filter(w => w !== display);
-            // If the category is now empty, remove it
-            if (addedWords[boardKey][state.currentCategory].length === 0) {
-              delete addedWords[boardKey][state.currentCategory];
+        // Remove from localStorage persistence if it was an added word
+        try {
+          const raw = localStorage.getItem(ADDED_WORDS_KEY);
+          if (raw) {
+            const addedWords = JSON.parse(raw);
+            const boardKey = (state.currentBoardTitle || '').trim();
+            if (addedWords[boardKey] && addedWords[boardKey][state.currentCategory]) {
+              addedWords[boardKey][state.currentCategory] = addedWords[boardKey][state.currentCategory].filter(w => w !== display);
+              // If the category is now empty, remove it
+              if (addedWords[boardKey][state.currentCategory].length === 0) {
+                delete addedWords[boardKey][state.currentCategory];
+              }
+              localStorage.setItem(ADDED_WORDS_KEY, JSON.stringify(addedWords));
             }
-            localStorage.setItem(ADDED_WORDS_KEY, JSON.stringify(addedWords));
           }
+        } catch (e) {
+          console.error('Failed to remove added word from persistence:', e);
         }
-      } catch (e) {
-        console.error('Failed to remove added word from persistence:', e);
+
+        // Remove from category items
+        const updatedItems = category.items.filter((_, i) => i !== index);
+        const updatedCategory = { ...category, items: updatedItems };
+
+        state.categories = state.categories.map(cat => cat.name === state.currentCategory ? updatedCategory : cat);
+        state.byCat.set(state.currentCategory, updatedCategory);
+
+        renderCategory();
+        el.statusFooter.textContent = `Deleted ${display}`;
+        speak(`${cleanTextForTTS(display)} deleted`);
+        return true;
+      });
+    }
+    // --- Scannable Delete Phrase Modal ---
+    function showDeletePhraseConfirmModal(phrase, onConfirm) {
+      // Remove any existing modal
+      let modal = document.getElementById('deletePhraseModal');
+      if (modal) modal.remove();
+
+      modal = document.createElement('div');
+      modal.id = 'deletePhraseModal';
+      modal.className = 'warning-modal active';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.innerHTML = `
+        <div class="warning-content">
+          <div class="warning-title">⚠️ Confirm Delete</div>
+          <div class="warning-message">Delete "<span class="phrase">${phrase}</span>"?</div>
+          <div class="warning-buttons">
+            <button class="warning-button back" id="deletePhraseCancel">Cancel</button>
+            <button class="warning-button proceed" id="deletePhraseProceed">Delete</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Scanning state
+      let scanIdx = 0;
+      const btns = [
+        document.getElementById('deletePhraseCancel'),
+        document.getElementById('deletePhraseProceed')
+      ];
+      function updateScan() {
+        btns.forEach((btn, i) => {
+          if (i === scanIdx) {
+            btn.classList.add('modal-highlight');
+            btn.focus();
+          } else {
+            btn.classList.remove('modal-highlight');
+          }
+        });
+        // Speak the label
+        if (scanIdx === 0) speak('Cancel');
+        else speak('Delete');
       }
-
-      // Remove from category items
-      const updatedItems = category.items.filter((_, i) => i !== index);
-      const updatedCategory = { ...category, items: updatedItems };
-
-      state.categories = state.categories.map(cat => cat.name === state.currentCategory ? updatedCategory : cat);
-      state.byCat.set(state.currentCategory, updatedCategory);
-
-      renderCategory();
-      el.statusFooter.textContent = `Deleted ${display}`;
-      speak(`${cleanTextForTTS(display)} deleted`);
-      return true;
+      function cleanup() {
+        document.removeEventListener('keydown', handleScanKey);
+        if (modal) modal.remove();
+      }
+      function handleScanKey(e) {
+        if (e.code === 'Space' || e.code === 'ArrowRight') {
+          e.preventDefault();
+          scanIdx = (scanIdx + 1) % btns.length;
+          updateScan();
+        } else if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'ArrowLeft') {
+          e.preventDefault();
+          btns[scanIdx].click();
+        }
+      }
+      btns[0].onclick = () => {
+        cleanup();
+        speak('Cancelled');
+      };
+      btns[1].onclick = () => {
+        cleanup();
+        if (typeof onConfirm === 'function') onConfirm();
+      };
+      document.addEventListener('keydown', handleScanKey);
+      // Initial highlight
+      updateScan();
+      return false; // Prevent default delete until confirmed
     }
 
     function addWordToCategory(categoryName, wordText) {
