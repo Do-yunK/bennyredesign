@@ -117,6 +117,12 @@ class PredictionSystem {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Radial emoji menu logic
+    const emojiRadialMenu = document.getElementById('emoji-radial-menu');
+    const emojiRadialOptions = Array.from(document.querySelectorAll('.emoji-radial-option'));
+    const closeEmojiRadial = document.getElementById('close-emoji-radial');
+    let emojiRadialOpen = false;
+    let emojiRadialIndex = 0;
   // Keyboard scanning state
   let currentRow = 0;
   let currentCol = 0;
@@ -125,6 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const keys = rows.map(row => Array.from(row.querySelectorAll('.key')));
   const textBar = document.getElementById('textBar');
   const predictBar = document.getElementById('predictBar');
+  const emojiPicker = document.getElementById('emoji-picker');
+  const closeEmojiPicker = document.getElementById('close-emoji-picker');
   let buffer = '';
   let predictionSystem = new PredictionSystem();
 
@@ -155,15 +163,36 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTextBar();
     updatePredictions();
   }
+    // (Removed duplicate emoji key override handler here)
   function addSpace() {
     buffer += ' ';
     updateTextBar();
     updatePredictions();
   }
   function backspace() {
-    buffer = buffer.slice(0, -1);
-    updateTextBar();
-    updatePredictions();
+    // Remove last grapheme cluster (full emoji or char)
+    if (buffer.length > 0) {
+      // Use Intl.Segmenter if available for robust emoji deletion
+      if (window.Intl && Intl.Segmenter) {
+        const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+        const segments = Array.from(segmenter.segment(buffer));
+        if (segments.length > 1) {
+          buffer = segments.slice(0, -1).map(s => s.segment).join('');
+        } else {
+          buffer = '';
+        }
+      } else {
+        // Fallback: remove last code point
+        const code = buffer.codePointAt(buffer.length - 1);
+        if (code > 0xffff) {
+          buffer = buffer.slice(0, -2);
+        } else {
+          buffer = buffer.slice(0, -1);
+        }
+      }
+      updateTextBar();
+      updatePredictions();
+    }
   }
   function clearText() {
     buffer = '';
@@ -202,7 +231,54 @@ document.addEventListener('DOMContentLoaded', () => {
       startRowScan();
     }
   }
+  function highlightEmojiRadial() {
+    emojiRadialOptions.forEach((btn, idx) => {
+      if (idx === emojiRadialIndex) {
+        btn.style.outline = '4px solid #5bb0ff';
+        btn.style.zIndex = 2;
+      } else {
+        btn.style.outline = '';
+        btn.style.zIndex = '';
+      }
+    });
+    if (closeEmojiRadial) {
+      if (emojiRadialIndex === emojiRadialOptions.length) {
+        closeEmojiRadial.style.outline = '4px solid #5bb0ff';
+        closeEmojiRadial.style.zIndex = 2;
+      } else {
+        closeEmojiRadial.style.outline = '';
+        closeEmojiRadial.style.zIndex = '';
+      }
+    }
+  }
+  function unhighlightEmojiRadial() {
+    emojiRadialOptions.forEach(btn => {
+      btn.style.outline = '';
+      btn.style.zIndex = '';
+    });
+    if (closeEmojiRadial) {
+      closeEmojiRadial.style.outline = '';
+      closeEmojiRadial.style.zIndex = '';
+    }
+  }
   document.addEventListener('keydown', (e) => {
+    if (emojiRadialOpen) {
+      // Scan through emoji radial menu
+      if (e.code === 'Space' || e.code === 'ArrowRight') {
+        e.preventDefault();
+        emojiRadialIndex = (emojiRadialIndex + 1) % (emojiRadialOptions.length + 1);
+        highlightEmojiRadial();
+      } else if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'ArrowLeft') {
+        e.preventDefault();
+        if (emojiRadialIndex < emojiRadialOptions.length) {
+          emojiRadialOptions[emojiRadialIndex].click();
+        } else {
+          closeEmojiRadial.click();
+        }
+      }
+      return;
+    }
+    // Normal keyboard scan
     if (e.code === 'Space' || e.code === 'ArrowRight') {
       e.preventDefault();
       if (inRowScan) {
@@ -220,7 +296,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelectorAll('.key').forEach(key => {
     key.addEventListener('click', (e) => {
-      const label = key.textContent.trim();
+      // Prevent emoji key from adding emoji to buffer
+      if (key.classList.contains('emoji')) {
+        e.preventDefault();
+        emojiRadialMenu.style.display = 'block';
+        emojiRadialOpen = true;
+        emojiRadialIndex = 0;
+        highlightEmojiRadial();
+        return;
+      }
+      let label = key.textContent.trim();
+      // For SVG delete key, check aria-label or visually hidden span
+      if (key.classList.contains('delete')) {
+        label = '⌫';
+      }
       if (label === 'EXIT') {
         window.location.href = '../phraseboard/index.html';
       } else if (label === 'CLEAR') {
@@ -229,13 +318,38 @@ document.addEventListener('DOMContentLoaded', () => {
         addSpace();
       } else if (label === '⌫') {
         backspace();
-      } else if (label === '⚙️') {
-        // Settings (not implemented)
-      } else if (label === '😀') {
-        // Emoji picker (not implemented)
       } else {
         addLetter(label);
       }
+    });
+  });
+
+  // Emoji/settings button (row 4)
+  const emojiKeyBtn = document.querySelector('.key.emoji');
+  if (emojiKeyBtn) {
+    emojiKeyBtn.addEventListener('click', () => {
+      emojiRadialMenu.style.display = 'block';
+      emojiRadialOpen = true;
+      emojiRadialIndex = 0;
+      highlightEmojiRadial();
+    });
+  }
+  if (closeEmojiRadial) {
+    closeEmojiRadial.addEventListener('click', () => {
+      emojiRadialMenu.style.display = 'none';
+      emojiRadialOpen = false;
+      unhighlightEmojiRadial();
+    });
+  }
+  emojiRadialOptions.forEach((btn, idx) => {
+    btn.addEventListener('click', (e) => {
+      const emoji = btn.getAttribute('data-emoji');
+      buffer += emoji;
+      updateTextBar();
+      updatePredictions();
+      emojiRadialMenu.style.display = 'none';
+      emojiRadialOpen = false;
+      unhighlightEmojiRadial();
     });
   });
   // Initialize
