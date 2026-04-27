@@ -1,0 +1,122 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  background: #ece5dc;
+  font-family: 'Inter', Arial, sans-serif;
+  color: #222;
+}
+
+#keyboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background: #ece5dc;
+  width: 100vw;
+  height: 100vh;
+}
+
+.accessory-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  background: rgba(154,171,198,0.5);
+  border: 10px solid #9aabc6;
+  border-radius: 10px;
+  width: 90vw;
+  max-width: 1257px;
+  height: 66px;
+  margin: 40px 0 24px 0;
+  align-items: center;
+  padding: 0 10px;
+}
+.autocomplete-suggestion {
+  flex: 1 0 0;
+  background: #ebedf0;
+  border-radius: 4.6px;
+  font-size: 36px;
+  text-align: center;
+  padding: 8px 0;
+  color: #111;
+  font-family: 'SF Pro', Arial, sans-serif;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.autocomplete-suggestion.selected {
+  background: var(--miscellaneous-keyboard-accessory-bar---selection, #ebedf0);
+  font-weight: bold;
+}
+.autocomplete-separator {
+  width: 1px;
+  height: 25px;
+  background: #111;
+  opacity: 0.1;
+}
+.autocomplete-separator.faded {
+  opacity: 0.05;
+}
+
+.keyboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 90vw;
+  max-width: 1279px;
+}
+.keyboard-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.key {
+  background: #636161;
+  border: 4px solid #3d362f;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 2.5rem;
+  width: 167px;
+  height: 113px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  font-family: 'Inter', Arial, sans-serif;
+}
+.key.clear {
+  background: #d32f2f;
+  border-color: #a31515;
+}
+.key.space {
+  background: #5bb0ff;
+  border-color: #2d3748;
+  width: 255px;
+  font-size: 2rem;
+}
+.key.emoji {
+  background: #fff;
+  color: #222;
+  border-color: #9aabc6;
+}
+.key.delete {
+  background: #fff;
+  color: #222;
+  border-color: #9aabc6;
+}
+.key.settings {
+  background: #805ad5;
+  border-color: #4b2e83;
+}
+.key.exit {
+  background: #ef4444;
+  border-color: #a31515;
+  font-size: 2rem;
+}
+.key:focus, .key.active {
+  outline: 3px solid #ff6b35;
+  z-index: 2;
+}
