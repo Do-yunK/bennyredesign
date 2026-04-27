@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,1151 +24,1183 @@
       --muted-green: #86b39a;
       --muted-yellow: #d4c896;
       --hoverBorderYellow: #ffff00;
-    
-    
-    /* Dark theme */
-    [data-theme="dark"] {
-      --brand: #2d3748;
-      --bg: #1a202c;
-    }
-    
-    /* Blue theme */
-    [data-theme="blue"] {
-      --brand: #2b6cb0;
-      --bg: #ebf8ff;
-    }
-    
-    /* Green theme */
-    [data-theme="green"] {
-      --brand: #38a169;
-      --bg: #f0fff4;
-    }
-    
-    /* Purple theme */
-    [data-theme="purple"] {
-      --brand: #805ad5;
-      --bg: #faf5ff;
-    }
-    * { box-sizing: border-box; }
-    body { 
-      margin: 0; 
-      background: var(--bg); 
-      color: var(--text); 
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      overflow: hidden;
-    }
-    
-    .app-container {
-      height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-    }
-    
-    header { 
-  background: var(--brand); 
-  color: #fff; 
-  padding: 12px 20px; 
-}
-.header-inner{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.brand{ font-size:20px; font-weight:800; white-space:nowrap; }
-.header-title{ font-size:18px; font-weight:700; margin:0 auto; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70vw; }
-.header-right{ width:24px; }
-    
-    .main-grid {
-      padding: 84px 143px 251px 142px;
-      display: grid;
-      gap: 15px;
-      grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
-      grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
-      align-items: center;
-      align-content: start;
-      justify-content: center;
-      width: 1440px;
-      margin: 0 auto;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
 
-    .main-grid.has-top-quick-actions {
-      padding-top: 28px;
-    }
-    
-    /* Only use auto row sizing when sentence mode is active */
-    .main-grid.sentence-active {
-      grid-template-rows: auto repeat(var(--grid-rows, 4), 1fr); /* auto for sentence bar, rest for buttons */
-    }
-    
-    .sentence-row {
-      grid-column: 1 / -1;
-      display: none;
-      grid-template-columns: 3fr auto auto;
-      gap: 15px;
-      align-items: center;
-    }
-    
-    .sentence-row.active {
-      display: grid;
-      height: 80px; /* Fixed height to prevent button shrinking */
-      padding: 0; /* Remove padding */
-      align-items: center;
-    }
-    
-    .sentence-display {
-      background: #0047F112;
-      border-top: 3px solid #FFF;
-      border-right: 3px solid #FFF;
-      border-bottom: 55px solid #FFF;
-      border-left: 3px solid #FFF;
-      border-radius: 10px;
-      padding: 5px 10px;
-      font-size: 20px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      word-wrap: break-word;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
-    }
-    
-    /* Sentence row buttons should also have fixed height to match */
-    .sentence-row .grid-button {
-      height: 60px; /* Match sentence display height */
-      min-height: 60px;
-      padding: 8px 12px;
-      font-size: 14px;
-    }
-    
-    .grid-button {
-      border-radius: 10px;
-      border-top: 3px solid #FFF;
-      border-right: 3px solid #FFF;
-      --footer-strip-height: 55px;
-      border-bottom: var(--footer-strip-height) solid #FFF;
-      border-left: 3px solid #FFF;
-      background: #0047F112;
-      box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
-      padding: 15px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 16px;
-      font-weight: 600;
-      width: 255px;
-      height: 170px;
-      aspect-ratio: 3/2;
-      transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
-      position: relative;
-    }
 
-    .grid-button .label {
-      width: 100%;
-      text-align: center;
-      line-height: 1.2;
-      display: block;
-    }
-
-    .main-grid > .grid-button {
-      justify-content: flex-start;
-      padding-bottom: 18px;
-    }
-
-    .main-grid > .grid-button::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 120px;
-      height: 120px;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(50% 50% at 50% 50%, #FFF 0%, rgba(255, 255, 255, 0.00) 100%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .main-grid > .grid-button > :not(.page-indicator):not(.card-preview) {
-      position: relative;
-      z-index: 1;
-    }
-
-    .main-grid > .grid-button .page-indicator {
-      position: absolute;
-      top: 5px;
-      right: 8px;
-      z-index: 2;
-    }
-
-    .main-grid > .grid-button .label {
-      position: absolute !important;
-      left: 50% !important;
-      top: calc(100% + (var(--footer-strip-height) / 2));
-      transform: translate(-50%, -50%);
-      width: calc(100% - 20px);
-      margin: 0 !important;
-    }
-
-    .main-grid > .grid-button.phrase-board-card,
-    .main-grid > .grid-button.main-menu-card {
-      --footer-strip-height: 3px;
-      border-bottom: 3px solid #FFF;
-      justify-content: center;
-    }
-
-    .main-grid > .grid-button.phrase-board-card .label,
-    .main-grid > .grid-button.main-menu-card .label {
-      top: auto;
-      bottom: 8px;
-      transform: translateX(-50%);
-    }
-    
-    .grid-button:hover {
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
-    }
-
-    .main-grid > .grid-button.main-menu-card:hover,
-    .main-grid > .grid-button.phrase-board-card:hover {
-      border-bottom: 3px solid var(--hoverBorderYellow) !important;
-    }
-
-    .main-menu-spacer {
-      width: 255px;
-      height: 170px;
-      pointer-events: none;
-    }
-    
-    .grid-button.scan-highlight {
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
-      font-weight: 800 !important;
-    }
-    
-    .grid-button.back-btn {
-      background: rgba(0, 0, 0, 0.15);
-      color: white;
-    }
-    
-    .grid-button.next-btn {
-      background: rgba(0, 0, 0, 0.15);
-      color: white;
-    }
-
-    .main-grid > .grid-button.back-btn,
-    .main-grid > .grid-button.next-btn,
-    .main-grid > .grid-button.add-category-btn {
-      background: rgba(0, 0, 0, 0.15) !important;
-      color: #ffffff !important;
-      border: 1px solid #6b7280 !important;
-      --footer-strip-height: 1px;
-      border-bottom: 1px solid #6b7280 !important;
-      justify-content: center !important;
-      align-items: center !important;
-      text-align: center !important;
-      padding-bottom: 15px !important;
-    }
-
-    .main-grid > .grid-button.back-btn::before,
-    .main-grid > .grid-button.next-btn::before,
-    .main-grid > .grid-button.add-category-btn::before {
-      display: none;
-    }
-
-    .main-grid > .grid-button.back-btn .label,
-    .main-grid > .grid-button.next-btn .label,
-    .main-grid > .grid-button.add-category-btn .label {
-      position: static !important;
-      left: auto !important;
-      top: auto !important;
-      transform: none !important;
-      width: 100% !important;
-      margin-top: 8px !important;
-      text-align: center !important;
-    }
-
-    .main-grid > .grid-button.back-btn:hover,
-    .main-grid > .grid-button.next-btn:hover,
-    .main-grid > .grid-button.add-category-btn:hover {
-      background: rgba(0, 0, 0, 0.15) !important;
-      color: #ffffff !important;
-      font-weight: 600 !important;
-      border: 1px solid var(--hoverBorderYellow) !important;
-      border-bottom: 1px solid var(--hoverBorderYellow) !important;
-    }
-
-    .main-grid > .grid-button.back-btn.row-highlight,
-    .main-grid > .grid-button.next-btn.row-highlight,
-    .main-grid > .grid-button.add-category-btn.row-highlight,
-    .main-grid > .grid-button.back-btn.scan-highlight,
-    .main-grid > .grid-button.next-btn.scan-highlight,
-    .main-grid > .grid-button.add-category-btn.scan-highlight {
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-      border: 1px solid var(--hoverBorderYellow) !important;
-      border-bottom: 1px solid var(--hoverBorderYellow) !important;
-    }
-
-    .main-grid > .grid-button.add-category-btn {
-      background: rgba(0, 0, 0, 0.15) !important;
-      border: 2px dotted #e5e7eb !important;
-      border-bottom: 2px dotted #e5e7eb !important;
-      padding-top: 18px !important;
-      padding-bottom: 18px !important;
-      gap: 0 !important;
-    }
-
-    .main-grid > .grid-button.category-nav-btn,
-    .main-grid > .grid-button.category-nav-btn:hover {
-      background: rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .main-grid > .grid-button.add-category-btn .icon {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -58%);
-      margin: 0 !important;
-      font-size: 64px !important;
-      line-height: 1;
-    }
-
-    .main-grid > .grid-button.add-category-btn .label {
-      position: absolute !important;
-      left: 50% !important;
-      bottom: 12px !important;
-      top: auto !important;
-      transform: translateX(-50%) !important;
-      margin: 0 !important;
-      font-size: 14px;
-      font-weight: 700;
-    }
-    
-    .grid-button.settings-btn {
-      background: var(--ok);
-      color: white;
-    }
-    
-    .grid-button.danger-btn {
-      background: var(--danger);
-      color: white;
-    }
-    
-    .grid-button.muted-red-btn {
-      background: var(--muted-red);
-      color: white;
-    }
-    
-    .grid-button.muted-blue-btn {
-      background: var(--muted-blue);
-      color: white;
-    }
-    
-    .grid-button.muted-green-btn {
-      background: var(--muted-green);
-      color: white;
-    }
-    
-    .grid-button.muted-yellow-btn {
-      background: var(--muted-yellow);
-      color: white;
-    }
-    
-    .grid-button.voice-toggle {
-      background: var(--brand);
-      color: white;
-      font-size: 14px !important;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .grid-button.voice-toggle:hover {
-      background: var(--brand);
-      opacity: 1;
-      border-top-color: var(--hoverBorderYellow);
-      border-right-color: var(--hoverBorderYellow);
-      border-bottom-color: var(--hoverBorderYellow);
-      border-left-color: var(--hoverBorderYellow);
-    }
-    
-    /* Mobile Responsive Styles */
-    @media (max-width: 768px) {
-      .main-grid {
-        padding: 10px;
-        gap: 8px;
+      /* Dark theme */
+      [data-theme="dark"] {
+        --brand: #2d3748;
+        --bg: #1a202c;
       }
-      
-      .grid-button {
-        min-height: 60px;
-        padding: 8px;
-        font-size: 14px;
+
+      /* Blue theme */
+      [data-theme="blue"] {
+        --brand: #2b6cb0;
+        --bg: #ebf8ff;
       }
-      
-      .sentence-display {
-        padding: 10px;
+
+      /* Green theme */
+      [data-theme="green"] {
+        --brand: #38a169;
+        --bg: #f0fff4;
+      }
+
+      /* Purple theme */
+      [data-theme="purple"] {
+        --brand: #805ad5;
+        --bg: #faf5ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        overflow: hidden;
+      }
+
+      .app-container {
+        height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      header {
+        background: var(--brand);
+        color: #fff;
+        padding: 12px 20px;
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand {
+        font-size: 20px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .header-title {
         font-size: 18px;
-        min-height: 60px;
+        font-weight: 700;
+        margin: 0 auto;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 70vw;
       }
-      
-      header {
-        padding: 8px 15px;
+
+      .header-right {
+        width: 24px;
       }
-      
-      .brand {
-        font-size: 16px;
-      }
-      
-      .header-title {
-        font-size: 14px;
-      }
-    }
-    
-    @media (max-width: 480px) {
+
       .main-grid {
-        padding: 8px;
-        gap: 6px;
+        padding: 84px 143px 251px 142px;
+        display: grid;
+        gap: 15px;
+        grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
+        grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
+        align-items: center;
+        align-content: start;
+        justify-content: center;
+        width: 1440px;
+        margin: 0 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
       }
-      
-      .grid-button {
-        min-height: 50px;
-        padding: 6px;
-        font-size: 12px;
+
+      .main-grid.has-top-quick-actions {
+        padding-top: 28px;
       }
-      
+
+      /* Only use auto row sizing when sentence mode is active */
+      .main-grid.sentence-active {
+        grid-template-rows: auto repeat(var(--grid-rows, 4), 1fr);
+        /* auto for sentence bar, rest for buttons */
+      }
+
+      .sentence-row {
+        grid-column: 1 / -1;
+        display: none;
+        grid-template-columns: 3fr auto auto;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .sentence-row.active {
+        display: grid;
+        height: 80px;
+        /* Fixed height to prevent button shrinking */
+        padding: 0;
+        /* Remove padding */
+        align-items: center;
+      }
+
       .sentence-display {
-        padding: 8px;
-        font-size: 16px;
-        min-height: 50px;
+        background: #0047F112;
+        border-top: 3px solid #FFF;
+        border-right: 3px solid #FFF;
+        border-bottom: 55px solid #FFF;
+        border-left: 3px solid #FFF;
+        border-radius: 10px;
+        padding: 5px 10px;
+        font-size: 20px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        word-wrap: break-word;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
       }
-      
-      header {
-        padding: 6px 10px;
-      }
-      
-      .brand {
+
+      /* Sentence row buttons should also have fixed height to match */
+      .sentence-row .grid-button {
+        height: 60px;
+        /* Match sentence display height */
+        min-height: 60px;
+        padding: 8px 12px;
         font-size: 14px;
       }
-      
-      .header-title {
-        font-size: 12px;
-      }
-      
-      .grid-button .icon {
+
+      .grid-button {
+        border-radius: 10px;
+        border-top: 3px solid #FFF;
+        border-right: 3px solid #FFF;
+        --footer-strip-height: 55px;
+        border-bottom: var(--footer-strip-height) solid #FFF;
+        border-left: 3px solid #FFF;
+        background: #0047F112;
+        box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
+        padding: 15px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
         font-size: 16px;
+        font-weight: 600;
+        width: 255px;
+        height: 170px;
+        aspect-ratio: 3/2;
+        transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+        position: relative;
       }
-    }
-    
-    .grid-button img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      margin-bottom: 8px;
-      margin-top: -5px;
-      max-width: 70%;
-      max-height: 80px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-    }
-    
-    .grid-button .icon {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-
-    .main-grid > .grid-button .icon {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-
-    .main-grid > .grid-button img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      margin-bottom: 8px;
-      margin-top: -5px;
-      max-width: 90px;
-      max-height: 90px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-    }
-
-    .main-grid > .grid-button.main-menu-card .icon {
-      position: absolute;
-      left: 50%;
-      top: calc(50% - 14px);
-      transform: translate(-50%, -50%);
-      margin: 0;
-    }
-
-    .main-grid > .grid-button.main-menu-card::before {
-      top: calc(50% - 14px);
-    }
-
-    .main-grid > .grid-button.priority-board-card .icon {
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      margin: 0;
-    }
-    
-    .page-indicator {
-      position: absolute;
-      top: 5px;
-      right: 8px;
-      display: inline-flex;
-      padding: var(--Spacing-1, 4px) var(--Spacing-2, 8px);
-      justify-content: center;
-      align-items: center;
-      gap: var(--Spacing-1, 4px);
-      border-radius: var(--Radius-1-max, 3px);
-      background: var(--Colors-Accent-Accent-Alpha-3, rgba(0, 71, 241, 0.07));
-      color: var(--Colors-Accent-Accent-Alpha-11, rgba(0, 43, 183, 0.77));
-      font-size: var(--Typography-Font-size-2, 14px);
-      font-style: normal;
-      font-weight: 510;
-      line-height: var(--Typography-Line-height-2, 20px);
-      letter-spacing: var(--Typography-Letter-spacing-2, 0);
-    }
-
-    .page-indicator.badge-blue {
-      background: rgba(0, 71, 241, 0.12);
-      color: rgba(0, 43, 183, 0.92);
-    }
-
-    .page-indicator.badge-green {
-      background: rgba(126, 217, 87, 0.20);
-      color: rgba(0, 116, 145, 0.95);
-    }
-
-    .page-indicator.badge-teal {
-      background: rgba(126, 217, 87, 0.20);
-      color: rgba(79, 141, 47, 0.96);
-    }
-
-    .page-indicator.badge-purple {
-      background: rgba(128, 0, 128, 0.16);
-      color: rgba(90, 16, 122, 0.95);
-    }
-
-    .page-indicator.badge-yellow {
-      background: rgba(255, 196, 61, 0.22);
-      color: rgba(146, 94, 0, 0.95);
-    }
-
-    .page-indicator.badge-red {
-      background: rgba(196, 0, 79, 0.14);
-      color: rgba(150, 0, 57, 0.95);
-    }
-
-    .card-preview {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      top: 56%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      line-height: 1.25;
-      text-align: center;
-      color: rgba(17, 24, 39, 0.75);
-      display: none;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    /* Radial menu */
-    #radialMenuOverlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1200;
-      pointer-events: none;
-    }
-
-    .radial-anchor-highlight {
-      outline: 3px solid rgba(255, 255, 255, 0.9) !important;
-      outline-offset: 4px;
-    }
-
-    .radial-menu-item {
-      position: absolute;
-      pointer-events: all;
-      background: rgba(255, 255, 255, 0.95);
-      border: 2.5px solid #d1d5db;
-      border-radius: 50%;
-      width: 92px;
-      height: 92px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 1.2;
-      padding: 14px 10px;
-      box-sizing: border-box;
-      cursor: pointer;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.22);
-      transform: translate(-50%, -50%) scale(0.92);
-      opacity: 0;
-      transition: opacity 0.14s ease, transform 0.14s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
-    }
-
-    .radial-menu-item.radial-open {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-
-    .radial-menu-item.scan-highlight {
-      background: var(--rowHighlight, #ffff00);
-      border-color: #d4af00;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 6px 24px rgba(0,0,0,0.30);
-      z-index: 2;
-    }
-
-    .radial-menu-item:hover {
-      background: var(--rowHighlight, #ffff00);
-      border-color: #d4af00;
-      color: #111827;
-    }
-
-    .radial-menu-item.radial-cancel {
-      background: rgba(254, 240, 138, 0.97);
-      border-color: #eab308;
-      font-size: 18px;
-      color: #111827;
-    }
-
-    .radial-menu-item.radial-cancel.scan-highlight {
-      background: var(--rowHighlight, #ffff00);
-      color: #111827;
-      border-color: #eab308;
-    }
-
-    .radial-menu-item.radial-cancel:hover {
-      border-color: #eab308;
-    }
-
-    .radial-menu-item.radial-close {
-      background: rgba(254, 226, 226, 0.97);
-      border-color: #ef4444;
-      font-size: 18px;
-      color: #7f1d1d;
-    }
-
-    .radial-menu-item.radial-close.scan-highlight {
-      background: var(--rowHighlight, #ffff00);
-      color: #111827;
-      border-color: #ef4444;
-    }
-
-    .radial-menu-item.radial-close:hover {
-      border-color: #ef4444;
-    }
-    
-    footer {
-      text-align: center;
-      color: var(--muted);
-      padding: 10px;
-      font-size: 14px;
-    }
-    
-    .hidden {
-      display: none !important;
-    }
-    
-    #iframeModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 1000;
-    }
-    
-    /* Bigger card and player area */
-    #iframeCard {
-      background: #000;
-      width: min(96vw, 1600px);
-      height: min(85vh, 900px);
-      border-radius: 12px;
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: 1fr auto;
-    }
-    
-    #mediaFrame {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: #000;
-    }
-    
-    #iframeControls {
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      background: #111827;
-    }
-    
-    #iframeControls .grid-button {
-      border-top: 3px solid #FFF;
-      border-right: 3px solid #FFF;
-      border-bottom: 55px solid #FFF;
-      border-left: 3px solid #FFF;
-      background: #374151;
-      color: white;
-      min-height: 50px;
-      flex: 1;
-    }
-    
-    .grid-button.active-green {
-      background: var(--ok) !important;
-      color: white !important;
-    }
-    
-    /* Ensure scan highlights override all button colors */
-    .grid-button.row-highlight,
-    .grid-button.scan-highlight {
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
-      font-weight: 800 !important;
-    }
-    
-    .grid-button.row-highlight {
-      color: inherit !important;
-    }
-
-    body.column-selection-active .main-grid > .grid-button {
-      opacity: 0.35;
-      transition: opacity 0.12s ease;
-    }
-
-    body.column-selection-active .row-focus {
-      opacity: 1 !important;
-    }
-
-    body.column-selection-active .scan-highlight,
-    body.column-selection-active .row-highlight {
-      opacity: 1 !important;
-    }
-    
-    .grid-button.scan-highlight {
-      color: inherit !important;
-    }
-
-    .sentence-display.row-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--rowHighlight) !important;
-      color: #000 !important;
-    }
-
-    .sentence-display.scan-highlight {
-      border-top: 3px solid #FFF !important;
-      border-right: 3px solid #FFF !important;
-      border-bottom: 55px solid #FFF !important;
-      border-left: 3px solid #FFF !important;
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-    }
-
-    /* Warning Modal Styles */
-    .warning-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-    
-    .warning-modal.active {
-      display: flex;
-    }
-    
-    .warning-content {
-      background: var(--card);
-      border-radius: var(--tileRadius);
-      padding: 30px;
-      max-width: 500px;
-      text-align: center;
-    }
-    
-    .warning-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: var(--danger);
-    }
-    
-    .warning-message {
-      font-size: 18px;
-      margin-bottom: 30px;
-      line-height: 1.5;
-    }
-    
-    .warning-buttons {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-    }
-    
-    .warning-button {
-      padding: 15px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      border: 2px solid #000000;
-      border-radius: var(--tileRadius);
-      cursor: pointer;
-      background: var(--card);
-      transition: all 0.2s;
-    }
-    
-    .warning-button.back {
-      background: var(--muted-blue);
-      color: white;
-    }
-    
-    .warning-button.proceed {
-      background: var(--muted-green);
-      color: white;
-    }
-    
-    .warning-button.modal-highlight {
-      border: 4px solid var(--scanHighlight) !important;
-      background: var(--rowHighlight) !important;
-      color: #000 !important;
-      transform: scale(1.05);
-    }
-
-    .add-category-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2100;
-      padding: 20px;
-    }
-
-    .add-category-modal.active {
-      display: flex;
-    }
-
-    .add-category-content {
-      width: min(92vw, 680px);
-      background: #ffffff;
-      border-radius: 16px;
-      border: 3px solid #ffffff;
-      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
-      padding: 20px;
-      display: grid;
-      gap: 16px;
-    }
-
-    .add-category-title {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 800;
-      color: #111827;
-      text-align: center;
-    }
-
-    .add-category-label {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    .add-category-input {
-      width: 100%;
-      border: 2px solid #d1d5db;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 20px;
-      font-weight: 600;
-      color: #111827;
-      outline: none;
-    }
-
-    .add-category-input:focus {
-      border-color: var(--brand);
-    }
-
-    .add-category-colors {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .add-category-color-btn {
-      border: 3px solid #d1d5db;
-      border-radius: 12px;
-      padding: 10px 8px;
-      background: #ffffff;
-      color: #111827;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: grid;
-      gap: 6px;
-      justify-items: center;
-    }
-
-    .add-category-color-swatch {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      border: 2px solid rgba(0, 0, 0, 0.18);
-      pointer-events: none;
-    }
-
-    .add-category-color-btn.active,
-    .add-category-color-btn:hover {
-      border-color: var(--hoverBorderYellow);
-    }
-
-    .add-category-input.modal-highlight,
-    .add-category-color-btn.modal-highlight,
-    .add-category-action-btn.modal-highlight {
-      border-color: var(--hoverBorderYellow) !important;
-      box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.28);
-    }
-
-    .add-category-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .add-category-action-btn {
-      border: 3px solid #ffffff;
-      border-radius: 12px;
-      padding: 12px 10px;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-      color: #ffffff;
-    }
-
-    .add-category-cancel {
-      background: #6b7280;
-    }
-
-    .add-category-save {
-      background: #16a34a;
-    }
-
-    .row-back-option {
-      position: fixed;
-      left: 20px;
-      top: 50%;
-      width: 170px;
-      height: 90px;
-      min-height: 90px;
-      z-index: 1600;
-      --footer-strip-height: 3px;
-      border-top: 3px solid #fff;
-      border-right: 3px solid #fff;
-      border-bottom: 3px solid #fff;
-      border-left: 3px solid #fff;
-      padding: 8px 10px;
-      gap: 6px;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      transform: translateY(-50%);
-    }
-
-    .row-back-option .icon {
-      margin: 0 !important;
-    }
-
-    .row-back-option:hover,
-    .row-back-option.row-highlight,
-    .row-back-option.scan-highlight {
-      background: var(--columnHighlight) !important;
-      color: inherit !important;
-      font-weight: inherit !important;
-      border-top-color: var(--hoverBorderYellow) !important;
-      border-right-color: var(--hoverBorderYellow) !important;
-      border-bottom-color: var(--hoverBorderYellow) !important;
-      border-left-color: var(--hoverBorderYellow) !important;
-    }
-
-    .phrase-preview-toast {
-      position: fixed;
-      left: 50%;
-      top: 74px;
-      transform: translateX(-50%) translateY(-6px);
-      z-index: 1700;
-      max-width: min(90vw, 980px);
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: 2px solid rgba(255, 255, 255, 0.95);
-      background: rgba(17, 24, 39, 0.82);
-      color: #ffffff;
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1.3;
-      text-align: center;
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.28s ease, transform 0.28s ease;
-      white-space: normal;
-    }
-
-    .phrase-preview-toast.active {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .top-quick-actions {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      grid-auto-rows: 90px;
-      align-items: stretch;
-      justify-items: start;
-      column-gap: 15px;
-      width: 100%;
-      justify-self: stretch;
-      margin-bottom: 0;
-    }
-
-    .top-quick-actions.board-top-layout {
-      grid-template-areas: 'keyboard main yes no';
-    }
-
-    .top-quick-actions.category-top-layout {
-      grid-template-areas: 'keyboard options yes no';
-    }
-
-    /* Keep all top-row controls on the same sizing/alignment system */
-    .top-quick-actions > .grid-button,
-    .top-quick-actions .quick-right-actions > .grid-button {
-      width: 255px;
-      max-width: 255px;
-      min-width: 0;
-      height: 100%;
-      min-height: 0;
-      margin: 0;
-      align-self: stretch;
-      box-sizing: border-box;
-      justify-self: start;
-    }
-
-    .quick-right-actions {
-      grid-column: 3 / span 2;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: 90px;
-      align-items: stretch;
-      align-content: start;
-      gap: 15px;
-      width: 100%;
-    }
-
-    /* On board/category pages, flatten the right actions into the same 4-column grid as cards. */
-    .top-quick-actions.board-top-layout .quick-right-actions,
-    .top-quick-actions.category-top-layout .quick-right-actions {
-      display: contents;
-    }
-
-    .keyboard-tool-option,
-    .quick-word-option {
-      border-bottom: 3px solid #fff;
-    }
-
-    .keyboard-tool-option {
-      justify-self: stretch;
-    }
-
-    .main-menu-tool-option {
-      justify-self: stretch;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 !important;
-    }
-
-    .main-menu-tool-option .icon {
-      color: #fff !important;
-      font-size: 46px !important;
-      line-height: 1;
-      margin: 0 !important;
-    }
-
-    #keyboardToolBtn {
-      grid-area: keyboard;
-      position: relative;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-      gap: 0 !important;
-      justify-content: center;
-    }
-
-    #mainMenuQuickBtn {
-      grid-area: main;
-      position: relative;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-      gap: 0 !important;
-    }
-
-    #yesQuickBtn {
-      grid-area: yes;
-    }
-
-    #noQuickBtn {
-      grid-area: no;
-    }
-
-    #categoryOptionsBtn {
-      grid-area: options;
-    }
-
-    #keyboardToolBtn .icon {
-      color: #fff !important;
-      font-size: 48px !important;
-      font-weight: 300 !important;
-      line-height: 1;
-      margin: 0 !important;
-      letter-spacing: 0;
-      font-family: 'Segoe UI Symbol', 'Arial', sans-serif;
-      /* Use a thinner SVG if present */
-    }
-
-    /* Optional: If using SVG, target stroke-width */
-    #keyboardToolBtn .icon svg {
-      stroke-width: 1.2 !important;
-    }
+
+      .grid-button .label {
+        width: 100%;
+        text-align: center;
+        line-height: 1.2;
+        display: block;
+      }
+
+      .main-grid>.grid-button {
+        justify-content: flex-start;
+        padding-bottom: 18px;
+      }
+
+      .main-grid>.grid-button::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 120px;
+        height: 120px;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(50% 50% at 50% 50%, #FFF 0%, rgba(255, 255, 255, 0.00) 100%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .main-grid>.grid-button> :not(.page-indicator):not(.card-preview) {
+        position: relative;
+        z-index: 1;
+      }
+
+      .main-grid>.grid-button .page-indicator {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        z-index: 2;
+      }
+
+      .main-grid>.grid-button .label {
+        position: absolute !important;
+        left: 50% !important;
+        top: calc(100% + (var(--footer-strip-height) / 2));
+        transform: translate(-50%, -50%);
+        width: calc(100% - 20px);
+        margin: 0 !important;
+      }
+
+      .main-grid>.grid-button.phrase-board-card,
+      .main-grid>.grid-button.main-menu-card {
+        --footer-strip-height: 3px;
+        border-bottom: 3px solid #FFF;
+        justify-content: center;
+      }
+
+      .main-grid>.grid-button.phrase-board-card .label,
+      .main-grid>.grid-button.main-menu-card .label {
+        top: auto;
+        bottom: 8px;
+        transform: translateX(-50%);
+      }
+
+      .grid-button:hover {
+        border-top: 3px solid var(--hoverBorderYellow) !important;
+        border-right: 3px solid var(--hoverBorderYellow) !important;
+        border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
+        border-left: 3px solid var(--hoverBorderYellow) !important;
+      }
+
+      .main-grid>.grid-button.main-menu-card:hover,
+      .main-grid>.grid-button.phrase-board-card:hover {
+        border-bottom: 3px solid var(--hoverBorderYellow) !important;
+      }
+
+      .main-menu-spacer {
+        width: 255px;
+        height: 170px;
+        pointer-events: none;
+      }
+
+      .grid-button.scan-highlight {
+        border-top: 3px solid var(--hoverBorderYellow) !important;
+        border-right: 3px solid var(--hoverBorderYellow) !important;
+        border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
+        border-left: 3px solid var(--hoverBorderYellow) !important;
+        font-weight: 800 !important;
+      }
+
+      .grid-button.back-btn {
+        background: rgba(0, 0, 0, 0.15);
+        color: white;
+      }
+
+      .grid-button.next-btn {
+        background: rgba(0, 0, 0, 0.15);
+        color: white;
+      }
+
+      .main-grid>.grid-button.back-btn,
+      .main-grid>.grid-button.next-btn,
+      .main-grid>.grid-button.add-category-btn {
+        background: rgba(0, 0, 0, 0.15) !important;
+        color: #ffffff !important;
+        border: 1px solid #6b7280 !important;
+        --footer-strip-height: 1px;
+        border-bottom: 1px solid #6b7280 !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        padding-bottom: 15px !important;
+      }
+
+      .main-grid>.grid-button.back-btn::before,
+      .main-grid>.grid-button.next-btn::before,
+      .main-grid>.grid-button.add-category-btn::before {
+        display: none;
+      }
+
+      .main-grid>.grid-button.back-btn .label,
+      .main-grid>.grid-button.next-btn .label,
+      .main-grid>.grid-button.add-category-btn .label {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        margin-top: 8px !important;
+        text-align: center !important;
+      }
+
+      .main-grid>.grid-button.back-btn:hover,
+      .main-grid>.grid-button.next-btn:hover,
+      .main-grid>.grid-button.add-category-btn:hover {
+        background: rgba(0, 0, 0, 0.15) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        border: 1px solid var(--hoverBorderYellow) !important;
+        border-bottom: 1px solid var(--hoverBorderYellow) !important;
+      }
+
+      .main-grid>.grid-button.back-btn.row-highlight,
+      .main-grid>.grid-button.next-btn.row-highlight,
+      .main-grid>.grid-button.add-category-btn.row-highlight,
+      .main-grid>.grid-button.back-btn.scan-highlight,
+      .main-grid>.grid-button.next-btn.scan-highlight,
+      .main-grid>.grid-button.add-category-btn.scan-highlight {
+        background: var(--columnHighlight) !important;
+        color: #000 !important;
+        font-weight: 800 !important;
+        border: 1px solid var(--hoverBorderYellow) !important;
+        border-bottom: 1px solid var(--hoverBorderYellow) !important;
+      }
+
+      .main-grid>.grid-button.add-category-btn {
+        background: rgba(0, 0, 0, 0.15) !important;
+        border: 2px dotted #e5e7eb !important;
+        border-bottom: 2px dotted #e5e7eb !important;
+        padding-top: 18px !important;
+        padding-bottom: 18px !important;
+        gap: 0 !important;
+      }
+
+      .main-grid>.grid-button.category-nav-btn,
+      .main-grid>.grid-button.category-nav-btn:hover {
+        background: rgba(0, 0, 0, 0.15) !important;
+      }
+
+      .main-grid>.grid-button.add-category-btn .icon {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -58%);
+        margin: 0 !important;
+        font-size: 64px !important;
+        line-height: 1;
+      }
+
+      .main-grid>.grid-button.add-category-btn .label {
+        position: absolute !important;
+        left: 50% !important;
+        bottom: 12px !important;
+        top: auto !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .grid-button.settings-btn {
+        background: var(--ok);
+        color: white;
+      }
+
+      .grid-button.danger-btn {
+        background: var(--danger);
+        color: white;
+      }
+
+      .grid-button.muted-red-btn {
+        background: var(--muted-red);
+        color: white;
+      }
+
+      .grid-button.muted-blue-btn {
+        background: var(--muted-blue);
+        color: white;
+      }
+
+      .grid-button.muted-green-btn {
+        background: var(--muted-green);
+        color: white;
+      }
+
+      .grid-button.muted-yellow-btn {
+        background: var(--muted-yellow);
+        color: white;
+      }
+
+      .grid-button.voice-toggle {
+        background: var(--brand);
+        color: white;
+        font-size: 14px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .grid-button.voice-toggle:hover {
+        background: var(--brand);
+        opacity: 1;
+        border-top-color: var(--hoverBorderYellow);
+        border-right-color: var(--hoverBorderYellow);
+        border-bottom-color: var(--hoverBorderYellow);
+        border-left-color: var(--hoverBorderYellow);
+      }
+
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        .main-grid {
+          padding: 10px;
+          gap: 8px;
+        }
+
+        .grid-button {
+          min-height: 60px;
+          padding: 8px;
+          font-size: 14px;
+        }
+
+        .sentence-display {
+          padding: 10px;
+          font-size: 18px;
+          min-height: 60px;
+        }
+
+        header {
+          padding: 8px 15px;
+        }
+
+        .brand {
+          font-size: 16px;
+        }
+
+        .header-title {
+          font-size: 14px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .main-grid {
+          padding: 8px;
+          gap: 6px;
+        }
+
+        .grid-button {
+          min-height: 50px;
+          padding: 6px;
+          font-size: 12px;
+        }
+
+        .sentence-display {
+          padding: 8px;
+          font-size: 16px;
+          min-height: 50px;
+        }
+
+        header {
+          padding: 6px 10px;
+        }
+
+        .brand {
+          font-size: 14px;
+        }
+
+        .header-title {
+          font-size: 12px;
+        }
+
+        .grid-button .icon {
+          font-size: 16px;
+        }
+      }
+
+      .grid-button img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        margin-top: -5px;
+        max-width: 70%;
+        max-height: 80px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+
+      .grid-button .icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+
+      .main-grid>.grid-button .icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+
+      .main-grid>.grid-button img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        margin-top: -5px;
+        max-width: 90px;
+        max-height: 90px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+
+      .main-grid>.grid-button.main-menu-card .icon {
+        position: absolute;
+        left: 50%;
+        top: calc(50% - 14px);
+        transform: translate(-50%, -50%);
+        margin: 0;
+      }
+
+      .main-grid>.grid-button.main-menu-card::before {
+        top: calc(50% - 14px);
+      }
+
+      .main-grid>.grid-button.priority-board-card .icon {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+      }
+
+      .page-indicator {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        display: inline-flex;
+        padding: var(--Spacing-1, 4px) var(--Spacing-2, 8px);
+        justify-content: center;
+        align-items: center;
+        gap: var(--Spacing-1, 4px);
+        border-radius: var(--Radius-1-max, 3px);
+        background: var(--Colors-Accent-Accent-Alpha-3, rgba(0, 71, 241, 0.07));
+        color: var(--Colors-Accent-Accent-Alpha-11, rgba(0, 43, 183, 0.77));
+        font-size: var(--Typography-Font-size-2, 14px);
+        font-style: normal;
+        font-weight: 510;
+        line-height: var(--Typography-Line-height-2, 20px);
+        letter-spacing: var(--Typography-Letter-spacing-2, 0);
+      }
+
+      .page-indicator.badge-blue {
+        background: rgba(0, 71, 241, 0.12);
+        color: rgba(0, 43, 183, 0.92);
+      }
+
+      .page-indicator.badge-green {
+        background: rgba(126, 217, 87, 0.20);
+        color: rgba(0, 116, 145, 0.95);
+      }
+
+      .page-indicator.badge-teal {
+        background: rgba(126, 217, 87, 0.20);
+        color: rgba(79, 141, 47, 0.96);
+      }
+
+      .page-indicator.badge-purple {
+        background: rgba(128, 0, 128, 0.16);
+        color: rgba(90, 16, 122, 0.95);
+      }
+
+      .page-indicator.badge-yellow {
+        background: rgba(255, 196, 61, 0.22);
+        color: rgba(146, 94, 0, 0.95);
+      }
+
+      .page-indicator.badge-red {
+        background: rgba(196, 0, 79, 0.14);
+        color: rgba(150, 0, 57, 0.95);
+      }
+
+      .card-preview {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        top: 56%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        line-height: 1.25;
+        text-align: center;
+        color: rgba(17, 24, 39, 0.75);
+        display: none;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      /* Radial menu */
+      #radialMenuOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        pointer-events: none;
+      }
+
+      .radial-anchor-highlight {
+        outline: 3px solid rgba(255, 255, 255, 0.9) !important;
+        outline-offset: 4px;
+      }
+
+      .radial-menu-item {
+        position: absolute;
+        pointer-events: all;
+        background: rgba(255, 255, 255, 0.95);
+        border: 2.5px solid #d1d5db;
+        border-radius: 50%;
+        width: 92px;
+        height: 92px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.2;
+        padding: 14px 10px;
+        box-sizing: border-box;
+        cursor: pointer;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+        transform: translate(-50%, -50%) scale(0.92);
+        opacity: 0;
+        transition: opacity 0.14s ease, transform 0.14s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      }
+
+      .radial-menu-item.radial-open {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      .radial-menu-item.scan-highlight {
+        background: var(--rowHighlight, #ffff00);
+        border-color: #d4af00;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.30);
+        z-index: 2;
+      }
+
+      .radial-menu-item:hover {
+        background: var(--rowHighlight, #ffff00);
+        border-color: #d4af00;
+        color: #111827;
+      }
+
+      .radial-menu-item.radial-cancel {
+        background: rgba(254, 240, 138, 0.97);
+        border-color: #eab308;
+        font-size: 18px;
+        color: #111827;
+      }
+
+      .radial-menu-item.radial-cancel.scan-highlight {
+        background: var(--rowHighlight, #ffff00);
+        color: #111827;
+        border-color: #eab308;
+      }
+
+      .radial-menu-item.radial-cancel:hover {
+        border-color: #eab308;
+      }
+
+      .radial-menu-item.radial-close {
+        background: rgba(254, 226, 226, 0.97);
+        border-color: #ef4444;
+        font-size: 18px;
+        color: #7f1d1d;
+      }
+
+      .radial-menu-item.radial-close.scan-highlight {
+        background: var(--rowHighlight, #ffff00);
+        color: #111827;
+        border-color: #ef4444;
+      }
+
+      .radial-menu-item.radial-close:hover {
+        border-color: #ef4444;
+      }
+
+      footer {
+        text-align: center;
+        color: var(--muted);
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #iframeModal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 1000;
+      }
+
+      /* Bigger card and player area */
+      #iframeCard {
+        background: #000;
+        width: min(96vw, 1600px);
+        height: min(85vh, 900px);
+        border-radius: 12px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 1fr auto;
+      }
+
+      #mediaFrame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #000;
+      }
+
+      #iframeControls {
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        background: #111827;
+      }
+
+      #iframeControls .grid-button {
+        border-top: 3px solid #FFF;
+        border-right: 3px solid #FFF;
+        border-bottom: 55px solid #FFF;
+        border-left: 3px solid #FFF;
+        background: #374151;
+        color: white;
+        min-height: 50px;
+        flex: 1;
+      }
+
+      .grid-button.active-green {
+        background: var(--ok) !important;
+        color: white !important;
+      }
+
+      /* Ensure scan highlights override all button colors */
+      .grid-button.row-highlight,
+      .grid-button.scan-highlight {
+        border-top: 3px solid var(--hoverBorderYellow) !important;
+        border-right: 3px solid var(--hoverBorderYellow) !important;
+        border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
+        border-left: 3px solid var(--hoverBorderYellow) !important;
+        font-weight: 800 !important;
+      }
+
+      .grid-button.row-highlight {
+        color: inherit !important;
+      }
+
+      body.column-selection-active .main-grid>.grid-button {
+        opacity: 0.35;
+        transition: opacity 0.12s ease;
+      }
+
+      body.column-selection-active .row-focus {
+        opacity: 1 !important;
+      }
+
+      body.column-selection-active .scan-highlight,
+      body.column-selection-active .row-highlight {
+        opacity: 1 !important;
+      }
+
+      .grid-button.scan-highlight {
+        color: inherit !important;
+      }
+
+      .sentence-display.row-highlight {
+        border-top: 3px solid #FFF !important;
+        border-right: 3px solid #FFF !important;
+        border-bottom: 55px solid #FFF !important;
+        border-left: 3px solid #FFF !important;
+        background: var(--rowHighlight) !important;
+        color: #000 !important;
+      }
+
+      .sentence-display.scan-highlight {
+        border-top: 3px solid #FFF !important;
+        border-right: 3px solid #FFF !important;
+        border-bottom: 55px solid #FFF !important;
+        border-left: 3px solid #FFF !important;
+        background: var(--columnHighlight) !important;
+        color: #000 !important;
+        font-weight: 800 !important;
+      }
+
+      /* Warning Modal Styles */
+      .warning-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      }
+
+      .warning-modal.active {
+        display: flex;
+      }
+
+      .warning-content {
+        background: var(--card);
+        border-radius: var(--tileRadius);
+        padding: 30px;
+        max-width: 500px;
+        text-align: center;
+      }
+
+      .warning-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: var(--danger);
+      }
+
+      .warning-message {
+        font-size: 18px;
+        margin-bottom: 30px;
+        line-height: 1.5;
+      }
+
+      .warning-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+      }
+
+      .warning-button {
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000000;
+        border-radius: var(--tileRadius);
+        cursor: pointer;
+        background: var(--card);
+        transition: all 0.2s;
+      }
+
+      .warning-button.back {
+        background: var(--muted-blue);
+        color: white;
+      }
+
+      .warning-button.proceed {
+        background: var(--muted-green);
+        color: white;
+      }
+
+      .warning-button.modal-highlight {
+        border: 4px solid var(--scanHighlight) !important;
+        background: var(--rowHighlight) !important;
+        color: #000 !important;
+        transform: scale(1.05);
+      }
+
+      .add-category-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2100;
+        padding: 20px;
+      }
+
+      .add-category-modal.active {
+        display: flex;
+      }
+
+      .add-category-content {
+        width: min(92vw, 680px);
+        background: #ffffff;
+        border-radius: 16px;
+        border: 3px solid #ffffff;
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+        padding: 20px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .add-category-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 800;
+        color: #111827;
+        text-align: center;
+      }
+
+      .add-category-label {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .add-category-input {
+        width: 100%;
+        border: 2px solid #d1d5db;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 20px;
+        font-weight: 600;
+        color: #111827;
+        outline: none;
+      }
+
+      .add-category-input:focus {
+        border-color: var(--brand);
+      }
+
+      .add-category-colors {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .add-category-color-btn {
+        border: 3px solid #d1d5db;
+        border-radius: 12px;
+        padding: 10px 8px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        display: grid;
+        gap: 6px;
+        justify-items: center;
+      }
+
+      .add-category-color-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 2px solid rgba(0, 0, 0, 0.18);
+        pointer-events: none;
+      }
+
+      .add-category-color-btn.active,
+      .add-category-color-btn:hover {
+        border-color: var(--hoverBorderYellow);
+      }
+
+      .add-category-input.modal-highlight,
+      .add-category-color-btn.modal-highlight,
+      .add-category-action-btn.modal-highlight {
+        border-color: var(--hoverBorderYellow) !important;
+        box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.28);
+      }
+
+      .add-category-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .add-category-action-btn {
+        border: 3px solid #ffffff;
+        border-radius: 12px;
+        padding: 12px 10px;
+        font-size: 18px;
+        font-weight: 800;
+        cursor: pointer;
+        color: #ffffff;
+      }
+
+      .add-category-cancel {
+        background: #6b7280;
+      }
+
+      .add-category-save {
+        background: #16a34a;
+      }
+
+      .row-back-option {
+        position: fixed;
+        left: 20px;
+        top: 50%;
+        width: 170px;
+        height: 90px;
+        min-height: 90px;
+        z-index: 1600;
+        --footer-strip-height: 3px;
+        border-top: 3px solid #fff;
+        border-right: 3px solid #fff;
+        border-bottom: 3px solid #fff;
+        border-left: 3px solid #fff;
+        padding: 8px 10px;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transform: translateY(-50%);
+      }
+
+      .row-back-option .icon {
+        margin: 0 !important;
+      }
+
+      .row-back-option:hover,
+      .row-back-option.row-highlight,
+      .row-back-option.scan-highlight {
+        background: var(--columnHighlight) !important;
+        color: inherit !important;
+        font-weight: inherit !important;
+        border-top-color: var(--hoverBorderYellow) !important;
+        border-right-color: var(--hoverBorderYellow) !important;
+        border-bottom-color: var(--hoverBorderYellow) !important;
+        border-left-color: var(--hoverBorderYellow) !important;
+      }
+
+      .phrase-preview-toast {
+        position: fixed;
+        left: 50%;
+        top: 74px;
+        transform: translateX(-50%) translateY(-6px);
+        z-index: 1700;
+        max-width: min(90vw, 980px);
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.95);
+        background: rgba(17, 24, 39, 0.82);
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.3;
+        text-align: center;
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease, transform 0.28s ease;
+        white-space: normal;
+      }
+
+      .phrase-preview-toast.active {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .top-quick-actions {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-auto-rows: 90px;
+        align-items: stretch;
+        justify-items: start;
+        column-gap: 15px;
+        width: 100%;
+        justify-self: stretch;
+        margin-bottom: 0;
+      }
+
+      .top-quick-actions.board-top-layout {
+        grid-template-areas: 'keyboard main yes no';
+      }
+
+      .top-quick-actions.category-top-layout {
+        grid-template-areas: 'keyboard options yes no';
+      }
+
+      /* Keep all top-row controls on the same sizing/alignment system */
+      .top-quick-actions>.grid-button,
+      .top-quick-actions .quick-right-actions>.grid-button {
+        width: 255px;
+        max-width: 255px;
+        min-width: 0;
+        height: 100%;
+        min-height: 0;
+        margin: 0;
+        align-self: stretch;
+        box-sizing: border-box;
+        justify-self: start;
+      }
+
+      .quick-right-actions {
+        grid-column: 3 / span 2;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: 90px;
+        align-items: stretch;
+        align-content: start;
+        gap: 15px;
+        width: 100%;
+      }
+
+      /* On board/category pages, flatten the right actions into the same 4-column grid as cards. */
+      .top-quick-actions.board-top-layout .quick-right-actions,
+      .top-quick-actions.category-top-layout .quick-right-actions {
+        display: contents;
+      }
+
+      .keyboard-tool-option,
+      .quick-word-option {
+        border-bottom: 3px solid #fff;
+      }
+
+      .keyboard-tool-option {
+        justify-self: stretch;
+      }
+
+      .main-menu-tool-option {
+        justify-self: stretch;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+      }
+
+      .main-menu-tool-option .icon {
+        color: #fff !important;
+        font-size: 46px !important;
+        line-height: 1;
+        margin: 0 !important;
+      }
+
+      #keyboardToolBtn {
+        grid-area: keyboard;
+        position: relative;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        gap: 0 !important;
+        justify-content: center;
+      }
+
+      #mainMenuQuickBtn {
+        grid-area: main;
+        position: relative;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        gap: 0 !important;
+      }
+
+      #yesQuickBtn {
+        grid-area: yes;
+      }
+
+      #noQuickBtn {
+        grid-area: no;
+      }
+
+      #categoryOptionsBtn {
+        grid-area: options;
+      }
+
+      #keyboardToolBtn .icon {
+        color: #fff !important;
+        font-size: 48px !important;
+        font-weight: 300 !important;
+        line-height: 1;
+        margin: 0 !important;
+        letter-spacing: 0;
+        font-family: 'Segoe UI Symbol', 'Arial', sans-serif;
+        /* Use a thinner SVG if present */
+      }
+
+      /* Optional: If using SVG, target stroke-width */
+      #keyboardToolBtn .icon svg {
+        stroke-width: 1.2 !important;
+      }
     }
 
     .quick-right-actions .quick-word-option {
@@ -1268,7 +1301,8 @@
 
     #yesQuickBtn.row-highlight,
     #yesQuickBtn.scan-highlight {
-      background: #16a34a !important; /* green fill */
+      background: #16a34a !important;
+      /* green fill */
       color: #fff !important;
       font-weight: 800 !important;
       border: 3px solid var(--hoverBorderYellow) !important;
@@ -1277,7 +1311,8 @@
 
     #noQuickBtn.row-highlight,
     #noQuickBtn.scan-highlight {
-      background: #ef4444 !important; /* red fill */
+      background: #ef4444 !important;
+      /* red fill */
       color: #fff !important;
       font-weight: 800 !important;
       border: 3px solid var(--hoverBorderYellow) !important;
@@ -1353,7 +1388,7 @@
     #categoryOptionsBtn.row-highlight:hover,
     #categoryOptionsBtn.scan-highlight.toggled:hover {
       border-color: #ff0000 !important;
-      box-shadow: 0 0 0 3px #ff0000, 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 0 0 3px #ff0000, 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     #categoryOptionsBtn.modal-highlight {
@@ -1370,7 +1405,7 @@
       background: #ffffff;
       border-radius: 16px;
       border: 3px solid #e5e7eb;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
       padding: 14px;
       gap: 12px;
       flex-direction: column;
@@ -1476,19 +1511,94 @@
         padding: 8px 12px;
       }
     }
+
+    /* Emergency bottom bar */
+    .emergency-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding: 18px 32px;
+      background: rgba(239, 68, 68, 0.12);
+      border-top: 2px solid rgba(239, 68, 68, 0.25);
+      cursor: pointer;
+      gap: 16px;
+      transition: opacity 0.18s ease;
+    }
+
+    .emergency-bar.hidden {
+      display: none !important;
+    }
+
+    .emergency-bar .emergency-icon {
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .emergency-bar .emergency-label {
+      flex: 1;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ef4444;
+    }
+
+    .emergency-bar .emergency-chevron {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ef4444;
+    }
+
+    .emergency-bar:hover {
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    .emergency-bar.scan-highlight,
+    .emergency-bar.row-highlight {
+      background: var(--columnHighlight) !important;
+      border-top-color: var(--hoverBorderYellow) !important;
+    }
+
+    .emergency-bar.scan-highlight .emergency-label,
+    .emergency-bar.row-highlight .emergency-label,
+    .emergency-bar.scan-highlight .emergency-chevron,
+    .emergency-bar.row-highlight .emergency-chevron {
+      color: #000 !important;
+    }
+
+    @media (max-width: 768px) {
+      .emergency-bar {
+        padding: 12px 20px;
+      }
+
+      .emergency-bar .emergency-icon {
+        font-size: 28px;
+      }
+
+      .emergency-bar .emergency-label {
+        font-size: 20px;
+      }
+
+      .emergency-bar .emergency-chevron {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="app-container">
     <header>
-  <div class="header-inner">
-    <div class="header-right" aria-hidden="true"></div>
-    <div id="viewTitle" class="header-title">Main Menu</div>
-    <div class="header-right"></div>
-  </div>
-</header>
+      <div class="header-inner">
+        <div class="header-right" aria-hidden="true"></div>
+        <div id="viewTitle" class="header-title">Main Menu</div>
+        <div class="header-right"></div>
+      </div>
+    </header>
 
-  <div class="phrase-preview-toast hidden" id="phrasePreviewToast" aria-live="polite" aria-atomic="true"></div>
+    <div class="phrase-preview-toast hidden" id="phrasePreviewToast" aria-live="polite" aria-atomic="true"></div>
 
     <main class="main-grid" id="mainGrid">
       <div class="sentence-row" id="sentenceRow">
@@ -1504,16 +1614,20 @@
       </div>
 
       <div class="top-quick-actions hidden" id="topQuickActions">
-        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button" aria-label="Keyboard" title="Keyboard" style="grid-area: keyboard;">
+        <button class="grid-button muted-blue-btn keyboard-tool-option" id="keyboardToolBtn" type="button"
+          aria-label="Keyboard" title="Keyboard" style="grid-area: keyboard;">
           <span class="icon">⌨</span>
         </button>
-        <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn" type="button" aria-label="Main Menu" title="Main Menu" style="grid-area: main;">
+        <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn"
+          type="button" aria-label="Main Menu" title="Main Menu" style="grid-area: main;">
           <span class="icon" style="font-size:2rem;line-height:1;">⌂</span>
         </button>
-        <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button" style="grid-area: yes;">
+        <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button"
+          style="grid-area: yes;">
           Yes
         </button>
-        <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button" style="grid-area: no;">
+        <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button"
+          style="grid-area: no;">
           No
         </button>
         <button class="grid-button" id="categoryOptionsBtn" type="button" style="grid-area: options;">
@@ -1524,6 +1638,13 @@
     </main>
 
     <footer id="statusFooter">Ready - Load CSV to begin</footer>
+  </div>
+
+  <!-- Emergency bottom bar (always visible on boards) -->
+  <div class="emergency-bar hidden" id="emergencyBar" role="button" tabindex="0" aria-label="Emergency">
+    <span class="emergency-icon">🚨</span>
+    <span class="emergency-label">Emergency</span>
+    <span class="emergency-chevron">›</span>
   </div>
 
   <button class="grid-button back-btn row-back-option hidden" id="rowBackOptionBtn" type="button">
@@ -1553,7 +1674,8 @@
     <div class="warning-content">
       <div class="warning-title">⚠️ Warning</div>
       <div class="warning-message">
-        Creating a Board will open a new tab and you will not be able to use the scan and select method to return to the NARBE Phrase & Media Board.
+        Creating a Board will open a new tab and you will not be able to use the scan and select method to return to the
+        NARBE Phrase & Media Board.
       </div>
       <div class="warning-buttons">
         <button class="warning-button back" id="createBoardBack">GO BACK</button>
@@ -1567,7 +1689,8 @@
     <div class="warning-content">
       <div class="warning-title">⚠️ Warning</div>
       <div class="warning-message">
-        Loading a Board from file will open a file dialog and you will not be able to use the scan and select method to return to the NARBE Phrase & Media Board.
+        Loading a Board from file will open a file dialog and you will not be able to use the scan and select method to
+        return to the NARBE Phrase & Media Board.
       </div>
       <div class="warning-buttons">
         <button class="warning-button back" id="loadBoardBack">GO BACK</button>
@@ -1579,23 +1702,29 @@
   <div class="category-options-overlay" id="categoryOptionsOverlay"></div>
   <div id="categoryOptionsPanel" class="category-options-panel" role="dialog" aria-label="Category Options">
     <div class="category-options-panel-title">Options</div>
-    <button class="category-options-panel-btn" id="optionAddWordBtn" type="button"><span class="icon" aria-hidden="true">➕</span> Add Word</button>
+    <button class="category-options-panel-btn" id="optionAddWordBtn" type="button"><span class="icon"
+        aria-hidden="true">➕</span> Add Word</button>
     <button class="category-options-panel-btn" id="optionEditWordsBtn" type="button">✎ &nbsp;Edit Words</button>
-    <button class="category-options-panel-btn danger" id="optionRemoveCategoryBtn" type="button"><span class="icon" aria-hidden="true">➖</span> Remove from Default Page</button>
+    <button class="category-options-panel-btn danger" id="optionRemoveCategoryBtn" type="button"><span class="icon"
+        aria-hidden="true">➖</span> Remove from Default Page</button>
   </div>
 
-  <div id="addCategoryModal" class="add-category-modal" role="dialog" aria-modal="true" aria-labelledby="addCategoryTitle">
+  <div id="addCategoryModal" class="add-category-modal" role="dialog" aria-modal="true"
+    aria-labelledby="addCategoryTitle">
     <div class="add-category-content">
       <h2 class="add-category-title" id="addCategoryTitle">Add Category Card</h2>
       <label class="add-category-label" for="addCategoryNameInput">Category Text</label>
-      <input id="addCategoryNameInput" class="add-category-input" type="text" maxlength="36" placeholder="Type card name" />
+      <input id="addCategoryNameInput" class="add-category-input" type="text" maxlength="36"
+        placeholder="Type card name" />
 
       <div class="add-category-label">Card Color</div>
       <div class="add-category-colors" id="addCategoryColorChoices"></div>
 
       <div class="add-category-actions">
-        <button class="add-category-action-btn add-category-cancel" id="addCategoryCancelBtn" type="button">Cancel</button>
-        <button class="add-category-action-btn add-category-save" id="addCategorySaveBtn" type="button">Add Card</button>
+        <button class="add-category-action-btn add-category-cancel" id="addCategoryCancelBtn"
+          type="button">Cancel</button>
+        <button class="add-category-action-btn add-category-save" id="addCategorySaveBtn" type="button">Add
+          Card</button>
       </div>
     </div>
   </div>
@@ -1606,7 +1735,7 @@
   <script src="../../../shared/voice-manager.js"></script>
   <script src="../../../shared/scan-manager.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  
+
   <script>
     const state = {
       raw: [],
@@ -1675,7 +1804,7 @@
     const RETURN_CONTEXT_KEY = 'phraseboard_return_context';
     const ADDED_WORDS_KEY = 'phraseboard_added_words';
     const ADDED_CATEGORIES_KEY = 'phraseboard_added_categories';
-    
+
     function saveSettings() {
       try {
         const settings = {
@@ -1691,7 +1820,7 @@
         console.error('Failed to save phraseboard settings:', e);
       }
     }
-    
+
     function loadSettings() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -1719,7 +1848,7 @@
         console.error('Failed to load phraseboard settings:', e);
       }
     }
-    
+
     // Load settings immediately
     loadSettings();
 
@@ -1729,23 +1858,23 @@
         let addedWords = {};
         const raw = localStorage.getItem(ADDED_WORDS_KEY);
         if (raw) addedWords = JSON.parse(raw);
-        
+
         const boardKey = (boardName || '').trim();
         if (!boardKey) return false;
-        
+
         if (!addedWords[boardKey]) {
           addedWords[boardKey] = {};
         }
-        
+
         if (!addedWords[boardKey][categoryName]) {
           addedWords[boardKey][categoryName] = [];
         }
-        
+
         // Add word if not already present
         if (!addedWords[boardKey][categoryName].includes(word)) {
           addedWords[boardKey][categoryName].push(word);
         }
-        
+
         localStorage.setItem(ADDED_WORDS_KEY, JSON.stringify(addedWords));
         return true;
       } catch (e) {
@@ -1758,10 +1887,10 @@
       try {
         const raw = localStorage.getItem(ADDED_WORDS_KEY);
         if (!raw) return {};
-        
+
         const addedWords = JSON.parse(raw);
         const boardKey = (boardName || '').trim();
-        
+
         return addedWords[boardKey] || {};
       } catch (e) {
         console.error('Failed to load added words:', e);
@@ -1773,7 +1902,7 @@
       try {
         const added = loadAddedWordsForBoard(boardName);
         if (!added || Object.keys(added).length === 0) return;
-        
+
         Object.entries(added).forEach(([categoryName, words]) => {
           if (Array.isArray(words) && state.byCat.has(categoryName)) {
             words.forEach(word => {
@@ -1798,7 +1927,7 @@
                   boardColor: boardRow.boardColor || '',
                   boardImage: boardRow.boardImage || ''
                 };
-                
+
                 state.raw = [...state.raw, newItem];
                 const updatedCategory = {
                   ...category,
@@ -1821,24 +1950,24 @@
         let addedCategories = {};
         const raw = localStorage.getItem(ADDED_CATEGORIES_KEY);
         if (raw) addedCategories = JSON.parse(raw);
-        
+
         const boardKey = (boardName || '').trim();
         if (!boardKey || !categoryName) return false;
-        
+
         if (!addedCategories[boardKey]) {
           addedCategories[boardKey] = [];
         }
-        
+
         // Add category if not already present
         const catExists = addedCategories[boardKey].some(c => (c.name || '').trim().toLowerCase() === categoryName.trim().toLowerCase());
         if (!catExists) {
-          addedCategories[boardKey].push({ 
-            name: categoryName.trim(), 
+          addedCategories[boardKey].push({
+            name: categoryName.trim(),
             color: categoryColor || '#3498db',
             ts: Date.now()
           });
         }
-        
+
         localStorage.setItem(ADDED_CATEGORIES_KEY, JSON.stringify(addedCategories));
         return true;
       } catch (e) {
@@ -1851,10 +1980,10 @@
       try {
         const raw = localStorage.getItem(ADDED_CATEGORIES_KEY);
         if (!raw) return [];
-        
+
         const addedCategories = JSON.parse(raw);
         const boardKey = (boardName || '').trim();
-        
+
         return addedCategories[boardKey] || [];
       } catch (e) {
         console.error('Failed to load added categories:', e);
@@ -1866,11 +1995,11 @@
       try {
         const added = loadAddedCategoriesForBoard(boardName);
         if (!added || added.length === 0) return;
-        
+
         added.forEach(addedCat => {
           const catName = (addedCat.name || '').trim();
           if (!catName) return;
-          
+
           // Check if category already exists
           const exists = state.categories.some(c => (c.name || '').trim().toLowerCase() === catName.toLowerCase());
           if (!exists) {
@@ -1879,7 +2008,7 @@
               const order = Number.isFinite(category.order) ? category.order : 0;
               return Math.max(maxOrder, order);
             }, 0) + 1;
-            
+
             const newCategory = {
               name: catName,
               color: addedCat.color || '#3498db',
@@ -1887,10 +2016,10 @@
               image: '',
               items: []
             };
-            
+
             state.categories = [...state.categories, newCategory].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
             state.byCat.set(catName, newCategory);
-            
+
             // Add category metadata to state.raw
             const boardRow = state.raw[0] || {};
             const categoryRow = {
@@ -1965,9 +2094,9 @@
       addCategoryNameInput: document.getElementById('addCategoryNameInput'),
       addCategoryColorChoices: document.getElementById('addCategoryColorChoices'),
       addCategoryCancelBtn: document.getElementById('addCategoryCancelBtn'),
-      addCategorySaveBtn: document.getElementById('addCategorySaveBtn')
-      ,
-      phrasePreviewToast: document.getElementById('phrasePreviewToast')
+      addCategorySaveBtn: document.getElementById('addCategorySaveBtn'),
+      phrasePreviewToast: document.getElementById('phrasePreviewToast'),
+      emergencyBar: document.getElementById('emergencyBar')
     };
 
     const ADD_CATEGORY_COLOR_CHOICES = [
@@ -2252,14 +2381,14 @@
       saveAddedCategoryToPersistence(state.currentBoardTitle, name, selectedColor);
 
       hideAddCategoryModal();
-      
+
       // Show the new category in the categories menu
       state.currentCategory = null;
       state.page = 0;
       state.scanMode = 'row';
       state.currentRow = 0;
       state.scanIndex = 0;
-      
+
       renderCategoryMenu();
       updateHeaderForCurrentView();
       updateScannable();
@@ -2695,29 +2824,29 @@
       if (el.yesQuickBtn) el.yesQuickBtn.style.display = onDefaultBoardView ? 'flex' : '';
       if (el.noQuickBtn) el.noQuickBtn.style.display = onDefaultBoardView ? 'flex' : '';
       if (el.categoryOptionsBtn) el.categoryOptionsBtn.style.display = onCategoryPage ? 'flex' : 'none';
-        if (el.categoryOptionsBtn) {
-          el.categoryOptionsBtn.style.display = onCategoryPage ? 'flex' : 'none';
-          // Match the keyboard button color and style
-          el.categoryOptionsBtn.classList.add('muted-blue-btn');
-          el.categoryOptionsBtn.classList.remove('muted-green-btn');
-          el.categoryOptionsBtn.classList.remove('add-category-btn');
-          el.categoryOptionsBtn.style.background = '';
-          el.categoryOptionsBtn.style.borderColor = '';
-          el.categoryOptionsBtn.style.color = '';
-          el.categoryOptionsBtn.style.boxShadow = '';
-          var label = el.categoryOptionsBtn.querySelector('.label');
-          if (label) label.style.display = 'none';
-        }
-        if (el.categoryOptionsBtn) {
-          el.categoryOptionsBtn.style.display = onCategoryPage ? 'flex' : 'none';
-          // Force blue background and icon-only, override any previous style
-          el.categoryOptionsBtn.style.background = '#3498db';
-          el.categoryOptionsBtn.style.color = '#fff';
-          el.categoryOptionsBtn.style.borderColor = '#3498db';
-          el.categoryOptionsBtn.style.boxShadow = 'none';
-          var label = el.categoryOptionsBtn.querySelector('.label');
-          if (label) label.style.display = 'none';
-        }
+      if (el.categoryOptionsBtn) {
+        el.categoryOptionsBtn.style.display = onCategoryPage ? 'flex' : 'none';
+        // Match the keyboard button color and style
+        el.categoryOptionsBtn.classList.add('muted-blue-btn');
+        el.categoryOptionsBtn.classList.remove('muted-green-btn');
+        el.categoryOptionsBtn.classList.remove('add-category-btn');
+        el.categoryOptionsBtn.style.background = '';
+        el.categoryOptionsBtn.style.borderColor = '';
+        el.categoryOptionsBtn.style.color = '';
+        el.categoryOptionsBtn.style.boxShadow = '';
+        var label = el.categoryOptionsBtn.querySelector('.label');
+        if (label) label.style.display = 'none';
+      }
+      if (el.categoryOptionsBtn) {
+        el.categoryOptionsBtn.style.display = onCategoryPage ? 'flex' : 'none';
+        // Force blue background and icon-only, override any previous style
+        el.categoryOptionsBtn.style.background = '#3498db';
+        el.categoryOptionsBtn.style.color = '#fff';
+        el.categoryOptionsBtn.style.borderColor = '#3498db';
+        el.categoryOptionsBtn.style.boxShadow = 'none';
+        var label = el.categoryOptionsBtn.querySelector('.label');
+        if (label) label.style.display = 'none';
+      }
       if (el.quickRightActions) el.quickRightActions.classList.toggle('single-action', false);
       if (!onCategoryPage) closeCategoryOptionsPanel();
     }
@@ -2737,6 +2866,20 @@
     if (el.noQuickBtn) {
       el.noQuickBtn.dataset.speakText = 'No';
       el.noQuickBtn.addEventListener('click', () => quickPhrase('No'));
+    }
+
+    // ---- Emergency Bar ----
+    if (el.emergencyBar) {
+      el.emergencyBar.dataset.speakText = 'Emergency';
+      el.emergencyBar.addEventListener('click', async () => {
+        speak('Emergency');
+        const success = await loadBoard('boards/Emergency.csv');
+        if (success) {
+          state.currentBoardTitle = 'Emergency';
+          updateHeaderForCurrentView();
+          updateEmergencyBarVisibility();
+        }
+      });
     }
 
     // ---- Category Options Panel ----
@@ -2825,52 +2968,52 @@
       });
     }
 
-    
-// ---- Dynamic header title ----
-function formatBoardDisplayTitle(title) {
-  const normalized = (title || '').trim().toLowerCase();
-  if (normalized === 'narbe default') return 'DEFAULT';
-  return title;
-}
 
-function getDisplayCategoryName(categoryName) {
-  const normalized = (categoryName || '').trim().toLowerCase();
-  if (normalized === 'basic') return 'Core Phrases';
-  if (normalized === 'needs') return 'Needs & Wants';
-  if (normalized === 'verbs') return 'Body';
-  if (normalized === 'helpers') return 'Places';
-  if (normalized === 'questions & time' || normalized === 'time') return 'Questions & Time';
-  if (normalized === 'pronouns') return 'Actions';
-  return categoryName;
-}
+    // ---- Dynamic header title ----
+    function formatBoardDisplayTitle(title) {
+      const normalized = (title || '').trim().toLowerCase();
+      if (normalized === 'narbe default') return 'DEFAULT';
+      return title;
+    }
 
-function updateHeaderForCurrentView(){
-  const t = document.getElementById('viewTitle');
-  if(!t) return;
-  let title = 'Main Menu';
-  switch(state.currentMenu){
-    case 'main': title = 'Main Menu'; break;
-    case 'categories':
-      // If the current board/category is 'time', show 'Questions & Time'
-      if (state.currentCategory && getDisplayCategoryName(state.currentCategory) === 'Questions & Time') {
-        title = 'Questions & Time';
-      } else {
-        title = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
+    function getDisplayCategoryName(categoryName) {
+      const normalized = (categoryName || '').trim().toLowerCase();
+      if (normalized === 'basic') return 'Core Phrases';
+      if (normalized === 'needs') return 'Needs & Wants';
+      if (normalized === 'verbs') return 'Body';
+      if (normalized === 'helpers') return 'Places';
+      if (normalized === 'questions & time' || normalized === 'time') return 'Questions & Time';
+      if (normalized === 'pronouns') return 'Actions';
+      return categoryName;
+    }
+
+    function updateHeaderForCurrentView() {
+      const t = document.getElementById('viewTitle');
+      if (!t) return;
+      let title = 'Main Menu';
+      switch (state.currentMenu) {
+        case 'main': title = 'Main Menu'; break;
+        case 'categories':
+          // If the current board/category is 'time', show 'Questions & Time'
+          if (state.currentCategory && getDisplayCategoryName(state.currentCategory) === 'Questions & Time') {
+            title = 'Questions & Time';
+          } else {
+            title = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
+          }
+          break;
+        case 'settings': title = 'Settings'; break;
+        case 'gridsize': title = 'Grid Size'; break;
+        case 'tts': title = 'Voice & TTS'; break;
+        case 'scan': title = 'Scan Settings'; break;
+        case 'highlight': title = 'Highlight Colors'; break;
+        case 'theme': title = 'Theme'; break;
+        case 'category': title = getDisplayCategoryName(state.currentCategory) || 'Category'; break;
       }
-      break;
-    case 'settings': title = 'Settings'; break;
-    case 'gridsize': title = 'Grid Size'; break;
-    case 'tts': title = 'Voice & TTS'; break;
-    case 'scan': title = 'Scan Settings'; break;
-    case 'highlight': title = 'Highlight Colors'; break;
-    case 'theme': title = 'Theme'; break;
-    case 'category': title = getDisplayCategoryName(state.currentCategory) || 'Category'; break;
-  }
-  t.textContent = title;
-  document.title = state.currentMenu === 'main' ? 'Tools' : 'Phrase Board';
-  updateKeyboardToolButtonVisibility();
-}
-// Modal Functions
+      t.textContent = title;
+      document.title = state.currentMenu === 'main' ? 'Tools' : 'Phrase Board';
+      updateKeyboardToolButtonVisibility();
+    }
+    // Modal Functions
     function showWarningModal(type) {
       state.modalActive = true;
       state.modalScanIndex = -1;
@@ -2961,8 +3104,8 @@ function updateHeaderForCurrentView(){
 
     // TTS using unified voice manager
     function isIOS() {
-      return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     }
 
     function initVoices() {
@@ -2980,7 +3123,7 @@ function updateHeaderForCurrentView(){
     function speak(text, isChild = false, gender = null, specificVoiceIndex = null) {
       const voiceSettings = window.NarbeVoiceManager.getSettings();
       if (!voiceSettings.ttsEnabled || !text) return;
-      
+
       if (specificVoiceIndex !== null) {
         const voices = window.NarbeVoiceManager.getEnglishVoices();
         if (voices[specificVoiceIndex]) {
@@ -2991,7 +3134,7 @@ function updateHeaderForCurrentView(){
           return;
         }
       }
-      
+
       if (isChild && gender && state.childVoices[gender]) {
         window.NarbeVoiceManager.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -3068,17 +3211,17 @@ function updateHeaderForCurrentView(){
 
     // Menus
     function renderMainMenu() {
-            const setWhiteBorder = btn => {
-              btn.style.borderTopColor = '#FFFFFF';
-              btn.style.borderRightColor = '#FFFFFF';
-              btn.style.borderLeftColor = '#FFFFFF';
-              btn.style.borderBottomColor = '#FFFFFF';
-              btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.10), 0 6px 14px -10px #fff, 0 0 10px -8px #fff';
-            };
-            const isDefaultOrNarbe = txt => {
-              const t = (txt || '').toLowerCase().trim();
-              return t === 'default' || t === 'narbe default' || t === 'narbe house default' || t === 'narbe words';
-            };
+      const setWhiteBorder = btn => {
+        btn.style.borderTopColor = '#FFFFFF';
+        btn.style.borderRightColor = '#FFFFFF';
+        btn.style.borderLeftColor = '#FFFFFF';
+        btn.style.borderBottomColor = '#FFFFFF';
+        btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.10), 0 6px 14px -10px #fff, 0 0 10px -8px #fff';
+      };
+      const isDefaultOrNarbe = txt => {
+        const t = (txt || '').toLowerCase().trim();
+        return t === 'default' || t === 'narbe default' || t === 'narbe house default' || t === 'narbe words';
+      };
       clearGrid();
       state.currentMenu = 'main';
       // Main menu is always two rows with priority boards in the top row.
@@ -3087,14 +3230,14 @@ function updateHeaderForCurrentView(){
       el.mainGrid.style.setProperty('--grid-rows', mainMenuRows);
       el.mainGrid.style.setProperty('--grid-cols', mainMenuCols);
       const totalSlots = mainMenuRows * mainMenuCols;
-      
+
       const coreItems = [
         { text: 'Exit', icon: '🚪', action: () => exitToHub(), bgColor: 'rgba(255, 0, 82, 0.08)' },
         { text: 'Settings', icon: '⚙️', action: () => navigateTo('settings'), bgColor: 'rgba(52, 152, 219, 0.2)' },
         { text: 'Create Board', icon: '✏️', action: () => showWarningModal('create'), bgColor: 'rgba(126, 217, 87, 0.2)' },
         { text: 'Load Board', icon: '📁', action: () => showWarningModal('load'), bgColor: 'rgba(255, 156, 0, 0.2)' }
       ];
-      
+
       // Add local board if exists
       const localBoard = getLocalSavedBoard();
       let allMainItems = [...coreItems];
@@ -3102,9 +3245,9 @@ function updateHeaderForCurrentView(){
         // Parse the local board CSV to check for board image
         const localBoardData = parseCSV(localBoard.csv);
         const boardHasImage = localBoardData.length > 0 && localBoardData[0].boardImage;
-        
+
         allMainItems.push({
-          text: localBoard.name, 
+          text: localBoard.name,
           icon: boardHasImage ? '' : '📋', // Only use clipboard icon if no image is available
           boardData: localBoardData.length > 0 ? {
             image: localBoardData[0].boardImage,
@@ -3113,14 +3256,14 @@ function updateHeaderForCurrentView(){
           action: () => {
             const cleanBoardName = cleanTextForTTS(localBoard.name);
             if (cleanBoardName) speak(cleanBoardName);
-            
+
             state.currentBoardTitle = localBoard.name;
             buildIndex(parseCSV(localBoard.csv));
             el.statusFooter.textContent = `Loaded board: ${localBoard.name}`;
           }
         });
       }
-      
+
       // Add available boards to main items list
       state.availableBoards.forEach(board => {
         const normalizedBoardName = (board.name || '')
@@ -3139,7 +3282,7 @@ function updateHeaderForCurrentView(){
           action: async () => {
             const cleanBoardName = cleanTextForTTS(displayBoardName);
             if (cleanBoardName) speak(cleanBoardName);
-            
+
             const success = await loadBoard(board.path);
             el.statusFooter.textContent = success ? `Loaded board: ${displayBoardName}` : `Failed to load board: ${displayBoardName}`;
           }
@@ -3156,20 +3299,20 @@ function updateHeaderForCurrentView(){
       const spacerCount = Math.max(0, mainMenuCols - topPriorityItems.length);
       const topRowSpacers = Array.from({ length: spacerCount }, () => ({ isSpacer: true }));
       allMainItems = [...topPriorityItems, ...topRowSpacers, ...bottomActionItems, ...remainingItems];
-      
+
       // Calculate pagination - reserve 1 slot for Next button if needed
       let itemsPerPage = totalSlots;
       const totalPages = Math.ceil(allMainItems.length / itemsPerPage);
-      
+
       // If we need multiple pages, reserve 1 slot for Next button
       if (totalPages > 1) {
         itemsPerPage = totalSlots - 1;
         // Recalculate total pages with the reserved slot
         const recalcTotalPages = Math.ceil(allMainItems.length / itemsPerPage);
-        
+
         const startIdx = state.page * itemsPerPage;
         const endIdx = Math.min(startIdx + itemsPerPage, allMainItems.length);
-        
+
         // Add items for current page
         for (let i = startIdx; i < endIdx; i++) {
           const item = allMainItems[i];
@@ -3183,12 +3326,12 @@ function updateHeaderForCurrentView(){
           btn.classList.add('main-menu-card');
           const priority = getMainMenuCardPriority(item);
           if (priority <= 1) btn.classList.add('priority-board-card');
-          
+
           // Apply bgColor for core menu items
           if (item.bgColor) {
             btn.style.background = item.bgColor;
           }
-          
+
           // Apply board color and image if available, but skip image for DEFAULT/NARBE
           if (item.boardData) {
             btn.classList.add('phrase-board-card');
@@ -3204,16 +3347,16 @@ function updateHeaderForCurrentView(){
               btn.insertBefore(img, btn.firstChild);
             }
           }
-          
+
           if (isDefaultOrNarbe(item.text)) setWhiteBorder(btn);
           el.mainGrid.appendChild(btn);
         }
-        
+
         // Always add Next button if multiple pages
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % recalcTotalPages; 
-          renderMainMenu(); 
-          updateHeaderForCurrentView(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % recalcTotalPages;
+          renderMainMenu();
+          updateHeaderForCurrentView();
         }, 'next-btn');
         nextBtn.classList.add('main-menu-card');
         el.mainGrid.appendChild(nextBtn);
@@ -3230,12 +3373,12 @@ function updateHeaderForCurrentView(){
           btn.classList.add('main-menu-card');
           const priority = getMainMenuCardPriority(item);
           if (priority <= 1) btn.classList.add('priority-board-card');
-          
+
           // Apply bgColor for core menu items
           if (item.bgColor) {
             btn.style.background = item.bgColor;
           }
-          
+
           // Apply board color and image if available
           if (item.boardData) {
             btn.classList.add('phrase-board-card');
@@ -3250,13 +3393,14 @@ function updateHeaderForCurrentView(){
               btn.insertBefore(img, btn.firstChild);
             }
           }
-          
+
           if (isDefaultOrNarbe(item.text)) setWhiteBorder(btn);
           el.mainGrid.appendChild(btn);
         });
       }
-      
+
       updateScannable();
+      updateEmergencyBarVisibility();
     }
 
     function renderCategoryMenu() {
@@ -3267,8 +3411,11 @@ function updateHeaderForCurrentView(){
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
       const showAddCategoryButton = useWhiteBordersForCurrentBoard();
-      const showLargeMainMenuTile = !useWhiteBordersForCurrentBoard();
-      const reservedBaseSlots = (showLargeMainMenuTile ? 1 : 0) + (showAddCategoryButton ? 1 : 0);
+      const isVoiceHelpOrEmergencyBoard = isVoiceHelpBoard() || isEmergencyBoard();
+      const showVoiceHelpCard = useWhiteBordersForCurrentBoard();
+      const showLargeMainMenuTile = !useWhiteBordersForCurrentBoard() && !isVoiceHelpOrEmergencyBoard;
+      const showBackToCategoriesBtn = isVoiceHelpOrEmergencyBoard;
+      const reservedBaseSlots = (showLargeMainMenuTile ? 1 : 0) + (showBackToCategoriesBtn ? 1 : 0) + (showAddCategoryButton ? 1 : 0) + (showVoiceHelpCard ? 1 : 0);
       let categoriesPerPage = Math.max(1, totalSlots - reservedBaseSlots);
       let totalPages = Math.ceil(state.categories.length / categoriesPerPage);
       if (totalPages > 1) {
@@ -3278,7 +3425,14 @@ function updateHeaderForCurrentView(){
       const startIdx = state.page * categoriesPerPage;
       const endIdx = Math.min(startIdx + categoriesPerPage, state.categories.length);
       const gridPositions = [];
-      if (showLargeMainMenuTile && state.page === 0) {
+      // Voice Help / Emergency boards: show "Back to Categories" to return to NARBE Default
+      if (showBackToCategoriesBtn && state.page === 0) {
+        gridPositions.push({
+          type: 'back', button: createButton('Back to Categories', '←', () => {
+            returnToNarbeDefault();
+          }, 'back-btn')
+        });
+      } else if (showLargeMainMenuTile && state.page === 0) {
         gridPositions.push({ type: 'mainmenu', button: createButton('Main Menu', '🏠', () => { state.csvLoaded = false; navigateTo('main'); }, 'back-btn') });
       } else if (state.page > 0) {
         gridPositions.push({ type: 'back', button: createButton('Back', '←', () => { state.page--; renderCategoryMenu(); }, 'back-btn category-nav-btn') });
@@ -3356,13 +3510,13 @@ function updateHeaderForCurrentView(){
           ? rgbaFromHex(cat.color || '#ff9c00', 0.32)
           : isPeopleCard || isCustomPurpleCard
             ? rgbaFromHex(cat.color || '#6a1b9a', 0.32)
-          : isCanTintCard || isCustomBlueCard
-            ? rgbaFromHex('#3498db', 0.32)
-          : isBasicStyleCard || isCustomRedCard
-            ? '#FF005216'
-          : isTealCard || isCustomTealCard
-              ? rgbaFromHex('#7ed957', 0.32)
-              : rgbaFromHex(cat.color || '#5bb0ff', 0.32);
+            : isCanTintCard || isCustomBlueCard
+              ? rgbaFromHex('#3498db', 0.32)
+              : isBasicStyleCard || isCustomRedCard
+                ? '#FF005216'
+                : isTealCard || isCustomTealCard
+                  ? rgbaFromHex('#7ed957', 0.32)
+                  : rgbaFromHex(cat.color || '#5bb0ff', 0.32);
         btn.style.borderColor = useWhiteBordersForCurrentBoard() ? '#FFFFFF' : cat.color;
         applyNarbeFeelingsCardBorder(btn, isFeelingsCard || isCustomYellowCard);
         applyNarbeBlueCardBorder(btn, !isFeelingsCard && !isCustomYellowCard && (isNarbeBlueAccentCategory(cat.name) || isCustomBlueCard));
@@ -3506,6 +3660,24 @@ function updateHeaderForCurrentView(){
           } else {
             btn.dataset.speakText = displayName;
           }
+        } else if (isVoiceHelpBoard()) {
+          // Voice Help board: attach radial preview items to category cards
+          let previewItems = cat.items;
+          let radialItems = previewItems.slice(0, 5).map(it => ({ display: it.display || '', speak: it.speak || it.display || '' }));
+          if (radialItems.length) {
+            btn.dataset.radialItems = JSON.stringify(radialItems);
+            btn.dataset.radialBorderColor = cat.color || '#3498db';
+          }
+          const previewText = buildCategoryPreviewText(previewItems, 3);
+          if (previewText) {
+            const previewSpan = document.createElement('span');
+            previewSpan.className = 'card-preview';
+            previewSpan.textContent = previewText;
+            btn.appendChild(previewSpan);
+            btn.dataset.speakText = `${displayName}. ${previewText}`;
+          } else {
+            btn.dataset.speakText = displayName;
+          }
         }
 
         const itemsPerPage = state.gridSize.rows * state.gridSize.cols - 1;
@@ -3524,6 +3696,30 @@ function updateHeaderForCurrentView(){
         }
         gridPositions.push({ type: 'category', button: btn });
       }
+      // Insert Voice Help card (only on NARBE Default board)
+      if (showVoiceHelpCard) {
+        const voiceHelpBtn = createButton('Voice Help', '', async () => {
+          speak('Voice Help');
+          const success = await loadBoard('boards/Voice_Help.csv');
+          if (success) {
+            state.currentBoardTitle = 'Voice Help';
+            updateHeaderForCurrentView();
+            updateEmergencyBarVisibility();
+          }
+        });
+        const vhImg = document.createElement('img');
+        vhImg.src = 'https://static.arasaac.org/pictograms/11685/11685_300.png';
+        vhImg.alt = 'Voice Help';
+        voiceHelpBtn.insertBefore(vhImg, voiceHelpBtn.firstChild);
+        voiceHelpBtn.style.background = 'rgba(52, 152, 219, 0.2)';
+        voiceHelpBtn.style.borderColor = '#FFFFFF';
+        voiceHelpBtn.style.borderTopColor = '#FFFFFF';
+        voiceHelpBtn.style.borderRightColor = '#FFFFFF';
+        voiceHelpBtn.style.borderLeftColor = '#FFFFFF';
+        voiceHelpBtn.style.borderBottomColor = '#FFFFFF';
+        voiceHelpBtn.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.10), 0 6px 14px -10px #1C49DDC5, 0 0 10px -8px #1C49DDC5';
+        gridPositions.push({ type: 'voice-help', button: voiceHelpBtn });
+      }
       if (showAddCategoryButton) {
         gridPositions.push({
           type: 'add-category',
@@ -3539,6 +3735,7 @@ function updateHeaderForCurrentView(){
       applyNarbeDefaultFirstRowCenterColors();
       applyNarbeDefaultBottomRowColors();
       updateScannable();
+      updateEmergencyBarVisibility();
     }
 
     function renderSettingsMenu(preservePosition = false) {
@@ -3546,7 +3743,7 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'settings';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      
+
       const buttons = [
         { text: 'Grid Size', icon: '⊞', action: () => navigateTo('gridsize') },
         { text: 'Voice & TTS', icon: '🔊', action: () => navigateTo('tts') },
@@ -3555,11 +3752,11 @@ function updateHeaderForCurrentView(){
         { text: 'Theme', icon: '🌈', action: () => navigateTo('theme') },
         { text: 'Toggle Sentence', icon: '💬', action: () => { toggleSentenceMode(); renderSettingsMenu(true); }, className: state.sentenceMode ? 'active-green' : '' }
       ];
-      
+
       const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(buttons.length / itemsPerPage);
-      
+
       // Back button logic
       if (state.page === 0) {
         const backBtn = createButton('Main Menu', '🏠', () => navigateBack(), 'back-btn');
@@ -3571,25 +3768,25 @@ function updateHeaderForCurrentView(){
         }, 'back-btn');
         el.mainGrid.appendChild(backBtn);
       }
-      
+
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, buttons.length);
-      
+
       for (let i = startIdx; i < endIdx; i++) {
         const btnData = buttons[i];
         const btn = createButton(btnData.text, btnData.icon, btnData.action, btnData.className || '');
         el.mainGrid.appendChild(btn);
       }
-      
+
       // Always add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % totalPages; 
-          renderSettingsMenu(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % totalPages;
+          renderSettingsMenu();
         }, 'next-btn');
         el.mainGrid.appendChild(nextBtn);
       }
-      
+
       updateScannable(preservePosition);
     }
 
@@ -3598,14 +3795,14 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'gridsize';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      
+
       const gridSizes = [];
       for (let size = 2; size <= 10; size++) gridSizes.push(size);
-      
+
       const availableSlots = totalSlots - 1; // Reserve one slot for back/next button  
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(gridSizes.length / itemsPerPage);
-      
+
       // Back button logic
       if (state.page === 0) {
         const backBtn = createButton('Settings', '←', () => navigateBack(), 'back-btn');
@@ -3617,30 +3814,30 @@ function updateHeaderForCurrentView(){
         }, 'back-btn');
         el.mainGrid.appendChild(backBtn);
       }
-      
+
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, gridSizes.length);
-      
+
       for (let i = startIdx; i < endIdx; i++) {
         const size = gridSizes[i];
-        const btn = createButton(`${size}×${size}`, '⊞', () => { 
-          setGridSize(size, size); 
+        const btn = createButton(`${size}×${size}`, '⊞', () => {
+          setGridSize(size, size);
           speak(`Grid size ${size} by ${size} selected`);
-          navigateBack(); 
+          navigateBack();
         });
         if (state.gridSize.rows === size && state.gridSize.cols === size) btn.classList.add('active-green');
         el.mainGrid.appendChild(btn);
       }
-      
+
       // Always add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % totalPages; 
-          renderGridSizeMenu(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % totalPages;
+          renderGridSizeMenu();
         }, 'next-btn');
         el.mainGrid.appendChild(nextBtn);
       }
-      
+
       updateScannable(preservePosition);
     }
 
@@ -3649,27 +3846,31 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'tts';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      
+
       const buttons = [
-        { text: 'TTS', icon: '🔊', action: () => { 
-          const newState = window.NarbeVoiceManager.toggleTTS(); 
-          speak(newState ? 'TTS enabled' : 'TTS disabled');
-          renderTTSMenu(true); 
-        }, className: window.NarbeVoiceManager.getSettings().ttsEnabled ? 'active-green' : '' },
-        { text: 'TTS on Scan', icon: '👆', action: () => { 
-          state.ttsOnScan = !state.ttsOnScan; 
-          saveSettings();
-          speak(state.ttsOnScan ? 'TTS on Scan enabled' : 'TTS on Scan disabled');
-          renderTTSMenu(true); 
-        }, className: state.ttsOnScan ? 'active-green' : '' }
+        {
+          text: 'TTS', icon: '🔊', action: () => {
+            const newState = window.NarbeVoiceManager.toggleTTS();
+            speak(newState ? 'TTS enabled' : 'TTS disabled');
+            renderTTSMenu(true);
+          }, className: window.NarbeVoiceManager.getSettings().ttsEnabled ? 'active-green' : ''
+        },
+        {
+          text: 'TTS on Scan', icon: '👆', action: () => {
+            state.ttsOnScan = !state.ttsOnScan;
+            saveSettings();
+            speak(state.ttsOnScan ? 'TTS on Scan enabled' : 'TTS on Scan disabled');
+            renderTTSMenu(true);
+          }, className: state.ttsOnScan ? 'active-green' : ''
+        }
       ];
-      
+
       // Add voice toggle button if multiple voices available
       const voices = window.NarbeVoiceManager.getEnglishVoices();
       if (voices && voices.length > 1) {
         const currentVoice = window.NarbeVoiceManager.getCurrentVoice();
         let displayName = window.NarbeVoiceManager.getVoiceDisplayName(currentVoice);
-        
+
         buttons.push({
           text: `🎤 ${displayName}`,
           icon: '',
@@ -3683,11 +3884,11 @@ function updateHeaderForCurrentView(){
           className: 'voice-toggle'
         });
       }
-      
+
       const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(buttons.length / itemsPerPage);
-      
+
       // Back button logic
       if (state.page === 0) {
         const backBtn = createButton('Settings', '←', () => navigateBack(), 'back-btn');
@@ -3699,25 +3900,25 @@ function updateHeaderForCurrentView(){
         }, 'back-btn');
         el.mainGrid.appendChild(backBtn);
       }
-      
+
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, buttons.length);
-      
+
       for (let i = startIdx; i < endIdx; i++) {
         const btnData = buttons[i];
         const btn = createButton(btnData.text, btnData.icon, btnData.action, btnData.className || '');
         el.mainGrid.appendChild(btn);
       }
-      
+
       // Always add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % totalPages; 
-          renderTTSMenu(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % totalPages;
+          renderTTSMenu();
         }, 'next-btn');
         el.mainGrid.appendChild(nextBtn);
       }
-      
+
       updateScannable(preservePosition);
     }
 
@@ -3726,7 +3927,7 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'scan';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      
+
       let currentSpeedIndex = 1;
       let autoScan = state.autoScan;
 
@@ -3741,54 +3942,60 @@ function updateHeaderForCurrentView(){
         else if (state.scanSpeed === 3000) currentSpeedIndex = 2;
         else if (state.scanSpeed === 4000) currentSpeedIndex = 3;
       }
-      
+
       const buttons = [
-        { text: 'Auto Scan', icon: '🔄', action: () => { 
-          const newVal = !autoScan;
-          if (window.NarbeScanManager) {
-             window.NarbeScanManager.setAutoScan(newVal);
-          } else {
-             state.autoScan = newVal;
+        {
+          text: 'Auto Scan', icon: '🔄', action: () => {
+            const newVal = !autoScan;
+            if (window.NarbeScanManager) {
+              window.NarbeScanManager.setAutoScan(newVal);
+            } else {
+              state.autoScan = newVal;
+            }
+            speak(newVal ? 'Auto Scan enabled' : 'Auto Scan disabled');
+            // Update local state immediately for responsiveness
+            state.autoScan = newVal;
+            if (state.autoScan) startAutoScan(); else stopScanning();
+            renderScanMenu(true);
+          }, className: autoScan ? 'active-green' : ''
+        },
+
+        {
+          text: 'Scan Mode: ' + (state.userScanPreference === 'cell' ? 'Cell' : 'Row'), icon: '📐', action: () => {
+            state.userScanPreference = state.userScanPreference === 'cell' ? 'row' : 'cell';
+            stopScanning();
+            state.scanMode = state.userScanPreference === 'cell' ? 'cell' : 'row';
+            state.currentRow = -1;
+            state.scanIndex = -1;
+            saveSettings();
+            speak(`Scan mode set to ${state.userScanPreference}`);
+            renderScanMenu(true);
+          }, className: 'muted-blue-btn'
+        },
+
+        {
+          text: `Speed: ${(currentSpeedIndex + 1)}s`, icon: '⏱️', action: () => {
+            let nextIndex = (currentSpeedIndex + 1) % 4;
+            if (window.NarbeScanManager) {
+              window.NarbeScanManager.updateSettings({ scanSpeedIndex: nextIndex });
+              const newSettings = window.NarbeScanManager.getSettings();
+              state.scanSpeed = newSettings.scanInterval;
+            } else {
+              const speeds = [1000, 2000, 3000, 4000];
+              state.scanSpeed = speeds[nextIndex];
+            }
+
+            speak(`${nextIndex + 1} second speed`);
+            if (state.scanning || state.autoScan) { stopScanning(); if (state.autoScan) startAutoScan(); }
+            renderScanMenu(true);
           }
-          speak(newVal ? 'Auto Scan enabled' : 'Auto Scan disabled');
-          // Update local state immediately for responsiveness
-          state.autoScan = newVal;
-          if (state.autoScan) startAutoScan(); else stopScanning(); 
-          renderScanMenu(true); 
-        }, className: autoScan ? 'active-green' : '' },
-        
-        { text: 'Scan Mode: ' + (state.userScanPreference === 'cell' ? 'Cell' : 'Row'), icon: '📐', action: () => {
-          state.userScanPreference = state.userScanPreference === 'cell' ? 'row' : 'cell';
-          stopScanning();
-          state.scanMode = state.userScanPreference === 'cell' ? 'cell' : 'row';
-          state.currentRow = -1;
-          state.scanIndex = -1;
-          saveSettings();
-          speak(`Scan mode set to ${state.userScanPreference}`);
-          renderScanMenu(true);
-        }, className: 'muted-blue-btn' },
-        
-        { text: `Speed: ${(currentSpeedIndex + 1)}s`, icon: '⏱️', action: () => {
-             let nextIndex = (currentSpeedIndex + 1) % 4;
-             if (window.NarbeScanManager) {
-                 window.NarbeScanManager.updateSettings({ scanSpeedIndex: nextIndex });
-                 const newSettings = window.NarbeScanManager.getSettings();
-                 state.scanSpeed = newSettings.scanInterval;
-             } else {
-                 const speeds = [1000, 2000, 3000, 4000];
-                 state.scanSpeed = speeds[nextIndex];
-             }
-             
-             speak(`${nextIndex + 1} second speed`);
-             if (state.scanning || state.autoScan) { stopScanning(); if (state.autoScan) startAutoScan(); }
-             renderScanMenu(true);
-        }}
+        }
       ];
-      
+
       const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(buttons.length / itemsPerPage);
-      
+
       // Back button logic
       if (state.page === 0) {
         const backBtn = createButton('Settings', '←', () => navigateBack(), 'back-btn');
@@ -3800,25 +4007,25 @@ function updateHeaderForCurrentView(){
         }, 'back-btn');
         el.mainGrid.appendChild(backBtn);
       }
-      
+
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, buttons.length);
-      
+
       for (let i = startIdx; i < endIdx; i++) {
         const btnData = buttons[i];
         const btn = createButton(btnData.text, btnData.icon, btnData.action, btnData.className || '');
         el.mainGrid.appendChild(btn);
       }
-      
+
       // Always add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % totalPages; 
-          renderScanMenu(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % totalPages;
+          renderScanMenu();
         }, 'next-btn');
         el.mainGrid.appendChild(nextBtn);
       }
-      
+
       updateScannable(preservePosition);
     }
 
@@ -3827,7 +4034,7 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'highlight';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      
+
       const buttons = Object.entries(HIGHLIGHT_COLORS).map(([name, color]) => ({
         text: name.charAt(0).toUpperCase() + name.slice(1),
         icon: '●',
@@ -3843,11 +4050,11 @@ function updateHeaderForCurrentView(){
         className: state.highlightColor === color ? 'active-green' : '',
         iconColor: color
       }));
-      
+
       const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(buttons.length / itemsPerPage);
-      
+
       // Back button logic
       if (state.page === 0) {
         const backBtn = createButton('Settings', '←', () => navigateBack(), 'back-btn');
@@ -3859,10 +4066,10 @@ function updateHeaderForCurrentView(){
         }, 'back-btn');
         el.mainGrid.appendChild(backBtn);
       }
-      
+
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, buttons.length);
-      
+
       for (let i = startIdx; i < endIdx; i++) {
         const btnData = buttons[i];
         const btn = createButton(btnData.text, btnData.icon, btnData.action, btnData.className || '');
@@ -3871,16 +4078,16 @@ function updateHeaderForCurrentView(){
         }
         el.mainGrid.appendChild(btn);
       }
-      
+
       // Always add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % totalPages; 
-          renderHighlightMenu(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % totalPages;
+          renderHighlightMenu();
         }, 'next-btn');
         el.mainGrid.appendChild(nextBtn);
       }
-      
+
       updateScannable(preservePosition);
     }
 
@@ -3889,22 +4096,22 @@ function updateHeaderForCurrentView(){
       state.currentMenu = 'theme';
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      
+
       const buttons = Object.entries(THEMES).map(([themeKey, themeName]) => ({
         text: themeName,
         icon: '🎨',
-        action: () => { 
-          setTheme(themeKey); 
+        action: () => {
+          setTheme(themeKey);
           speak(`${themeName} theme selected`);
-          renderThemeMenu(true); 
+          renderThemeMenu(true);
         },
         className: state.theme === themeKey ? 'active-green' : ''
       }));
-      
+
       const availableSlots = totalSlots - 1; // Reserve one slot for back/next button
       const itemsPerPage = availableSlots - 1; // Reserve another slot for next button if needed
       const totalPages = Math.ceil(buttons.length / itemsPerPage);
-      
+
       // Back button logic
       if (state.page === 0) {
         const backBtn = createButton('Settings', '←', () => navigateBack(), 'back-btn');
@@ -3916,25 +4123,25 @@ function updateHeaderForCurrentView(){
         }, 'back-btn');
         el.mainGrid.appendChild(backBtn);
       }
-      
+
       const startIdx = state.page * itemsPerPage;
       const endIdx = Math.min(startIdx + itemsPerPage, buttons.length);
-      
+
       for (let i = startIdx; i < endIdx; i++) {
         const btnData = buttons[i];
         const btn = createButton(btnData.text, btnData.icon, btnData.action, btnData.className || '');
         el.mainGrid.appendChild(btn);
       }
-      
+
       // Always add Next button if there are multiple pages (loops back to first page)
       if (totalPages > 1) {
-        const nextBtn = createButton('Next', '▶', () => { 
-          state.page = (state.page + 1) % totalPages; 
-          renderThemeMenu(); 
+        const nextBtn = createButton('Next', '▶', () => {
+          state.page = (state.page + 1) % totalPages;
+          renderThemeMenu();
         }, 'next-btn');
         el.mainGrid.appendChild(nextBtn);
       }
-      
+
       updateScannable(preservePosition);
     }
 
@@ -4203,10 +4410,10 @@ function updateHeaderForCurrentView(){
       const gridPositions = [];
       const backLabel = (state.page === 0 && useWhiteBordersForCurrentBoard()) ? 'Back to Categories' : 'Back';
       gridPositions.push({ type: 'back', button: createButton(backLabel, '←', () => { if (state.page > 0) { state.page--; renderCategory(); } else { navigateBack(); } }, 'back-btn') });
-            // Set speak text for back button to 'Back' for TTS
-            if (gridPositions.length > 0 && gridPositions[0].type === 'back') {
-              gridPositions[0].button.dataset.speakText = 'Back';
-            }
+      // Set speak text for back button to 'Back' for TTS
+      if (gridPositions.length > 0 && gridPositions[0].type === 'back') {
+        gridPositions[0].button.dataset.speakText = 'Back';
+      }
       for (let i = startIdx; i < endIdx; i++) {
         const item = cat.items[i];
         const btn = createButton(
@@ -4282,7 +4489,7 @@ function updateHeaderForCurrentView(){
         gridPositions.push({ type: 'next', button: createButton('Next', '▶', () => { state.page = (state.page + 1) % totalPages; renderCategory(); }, 'next-btn') });
       }
       gridPositions.forEach(pos => { if (pos.button) el.mainGrid.appendChild(pos.button); });
-      
+
       updateScannable();
       applyPendingAddWordFromKeyboard();
     }
@@ -4305,7 +4512,7 @@ function updateHeaderForCurrentView(){
 
       hideRowBackOption();
       document.body.classList.remove('column-selection-active');
-      
+
       // If video modal is open, only scan its visible control buttons
       if (state.videoModalActive) {
         const controls = Array.from(document.querySelectorAll('#iframeControls .grid-button')).filter(isVisible);
@@ -4346,8 +4553,12 @@ function updateHeaderForCurrentView(){
           if (row.length > 0) rows.push(row);
         }
       }
+      // Add emergency bar as its own scannable row if visible
+      if (el.emergencyBar && !el.emergencyBar.classList.contains('hidden')) {
+        rows.push([el.emergencyBar]);
+      }
       state.scannableRows = rows;
-      
+
       // In cell mode with preservePosition, keep the scan position if valid
       if (preservePosition && isCellMode && savedRow >= 0 && savedIndex >= 0) {
         // Make sure the saved position is still valid in the new grid
@@ -4359,7 +4570,7 @@ function updateHeaderForCurrentView(){
           return;
         }
       }
-      
+
       // Start at -1 for no highlighting until spacebar is pressed
       state.currentRow = -1;
       state.scanIndex = -1;
@@ -4452,9 +4663,9 @@ function updateHeaderForCurrentView(){
     function highlightScanIndex() {
       clearScanHighlight();
       // Only highlight if both currentRow and scanIndex are valid (not -1)
-      if (state.currentRow >= 0 && state.scanIndex >= 0 && 
-          state.scannableRows[state.currentRow] && 
-          state.scannableRows[state.currentRow][state.scanIndex]) {
+      if (state.currentRow >= 0 && state.scanIndex >= 0 &&
+        state.scannableRows[state.currentRow] &&
+        state.scannableRows[state.currentRow][state.scanIndex]) {
         state.scannableRows[state.currentRow].forEach(rowEl => rowEl.classList.add('row-focus'));
         const element = state.scannableRows[state.currentRow][state.scanIndex];
         element.classList.add('scan-highlight');
@@ -4637,25 +4848,25 @@ function updateHeaderForCurrentView(){
         return;
       }
 
-      if (state.scanMode === 'row') { 
+      if (state.scanMode === 'row') {
         // If currentRow is -1, start at 0, otherwise cycle normally
         if (state.currentRow === -1) {
           state.currentRow = 0;
         } else {
           state.currentRow = (state.currentRow + 1) % state.scannableRows.length;
         }
-        highlightCurrentRow(); 
+        highlightCurrentRow();
       }
       else if (state.scanMode === 'column') {
         const currentRow = state.scannableRows[state.currentRow];
-        if (currentRow) { 
+        if (currentRow) {
           // If scanIndex is -1, start at 0, otherwise cycle normally
           if (state.scanIndex === -1) {
             state.scanIndex = 0;
           } else {
             state.scanIndex = (state.scanIndex + 1) % currentRow.length;
           }
-          highlightScanIndex(); 
+          highlightScanIndex();
         }
       }
     }
@@ -4680,25 +4891,25 @@ function updateHeaderForCurrentView(){
         return;
       }
 
-      if (state.scanMode === 'row') { 
+      if (state.scanMode === 'row') {
         // If currentRow is -1, start at last row, otherwise cycle normally
         if (state.currentRow === -1) {
           state.currentRow = state.scannableRows.length - 1;
         } else {
           state.currentRow = state.currentRow <= 0 ? state.scannableRows.length - 1 : state.currentRow - 1;
         }
-        highlightCurrentRow(); 
+        highlightCurrentRow();
       }
       else if (state.scanMode === 'column') {
         const currentRow = state.scannableRows[state.currentRow];
-        if (currentRow) { 
+        if (currentRow) {
           // If scanIndex is -1, start at last item, otherwise cycle normally
           if (state.scanIndex === -1) {
             state.scanIndex = currentRow.length - 1;
           } else {
             state.scanIndex = state.scanIndex <= 0 ? currentRow.length - 1 : state.scanIndex - 1;
           }
-          highlightScanIndex(); 
+          highlightScanIndex();
         }
       }
     }
@@ -4709,7 +4920,7 @@ function updateHeaderForCurrentView(){
       const settings = window.NarbeScanManager.getSettings();
       state.autoScan = settings.autoScan;
       state.scanSpeed = settings.scanInterval;
-      
+
       // Update timer if running
       if (state.scanning) {
         if (state.scanTimer) clearInterval(state.scanTimer);
@@ -4738,48 +4949,48 @@ function updateHeaderForCurrentView(){
       }
 
       if (state.userScanPreference === 'cell') {
-        if (state.currentRow >= 0 && state.scanIndex >= 0 && 
-            state.scannableRows[state.currentRow] && 
-            state.scannableRows[state.currentRow][state.scanIndex]) {
-              
-            const element = state.scannableRows[state.currentRow][state.scanIndex];
-            let selectionText = '';
-            
-             if (!state.videoModalActive) {
-                if (element === el.sentenceDisplay && state.sentenceMode) {
-                  const displayText = el.sentenceDisplay.textContent.trim();
-                  if (displayText) { if (window.NarbeVoiceManager.getSettings().ttsEnabled) speak(displayText); }
-                  else { if (window.NarbeVoiceManager.getSettings().ttsEnabled) speak('sentence is empty'); }
-                } else if (element === el.deleteWordBtn && state.sentenceMode) {
-                  selectionText = 'Deleting';
-                  deleteLastWord();
-                } else if (element === el.clearSentenceBtn && state.sentenceMode) {
-                  selectionText = 'Clearing all';
-                  clearSentence();
-                } else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
-                  if (element.dataset.radialItems) { activateRadialScan(); return; }
-                  // For phrase buttons (with data-speakText), onTileClick handles TTS, so don't double-speak
-                  // For other buttons (settings, back, next, etc.), we need to speak
-                  if (!element.dataset.speakText) {
-                    selectionText = cleanTextForTTS(element.textContent);
-                  }
-                  element.click();
-                }
-             } else {
+        if (state.currentRow >= 0 && state.scanIndex >= 0 &&
+          state.scannableRows[state.currentRow] &&
+          state.scannableRows[state.currentRow][state.scanIndex]) {
+
+          const element = state.scannableRows[state.currentRow][state.scanIndex];
+          let selectionText = '';
+
+          if (!state.videoModalActive) {
+            if (element === el.sentenceDisplay && state.sentenceMode) {
+              const displayText = el.sentenceDisplay.textContent.trim();
+              if (displayText) { if (window.NarbeVoiceManager.getSettings().ttsEnabled) speak(displayText); }
+              else { if (window.NarbeVoiceManager.getSettings().ttsEnabled) speak('sentence is empty'); }
+            } else if (element === el.deleteWordBtn && state.sentenceMode) {
+              selectionText = 'Deleting';
+              deleteLastWord();
+            } else if (element === el.clearSentenceBtn && state.sentenceMode) {
+              selectionText = 'Clearing all';
+              clearSentence();
+            } else if (element !== el.sentenceDisplay && element !== el.deleteWordBtn && element !== el.clearSentenceBtn) {
+              if (element.dataset.radialItems) { activateRadialScan(); return; }
+              // For phrase buttons (with data-speakText), onTileClick handles TTS, so don't double-speak
+              // For other buttons (settings, back, next, etc.), we need to speak
+              if (!element.dataset.speakText) {
                 selectionText = cleanTextForTTS(element.textContent);
-                element.click();
-             }
-             
-             if (selectionText && window.NarbeVoiceManager.getSettings().ttsEnabled && element !== el.sentenceDisplay) { setTimeout(() => speak(selectionText), 100); }
-             
-             // Keep highlight on the current selection in cell mode
-             // state.currentRow = -1;
-             // state.scanIndex = -1;
-             // clearScanHighlight();
-             return;
+              }
+              element.click();
+            }
+          } else {
+            selectionText = cleanTextForTTS(element.textContent);
+            element.click();
+          }
+
+          if (selectionText && window.NarbeVoiceManager.getSettings().ttsEnabled && element !== el.sentenceDisplay) { setTimeout(() => speak(selectionText), 100); }
+
+          // Keep highlight on the current selection in cell mode
+          // state.currentRow = -1;
+          // state.scanIndex = -1;
+          // clearScanHighlight();
+          return;
         }
       }
-      
+
       if (state.scanMode === 'row') {
         state.scanMode = 'column';
         document.body.classList.add('column-selection-active');
@@ -4787,9 +4998,9 @@ function updateHeaderForCurrentView(){
         showRowBackOptionForCurrentRow();
         scanForward(); // This will set scanIndex to 0 and highlight
       } else if (state.scanMode === 'column') {
-        if (state.currentRow >= 0 && state.scanIndex >= 0 && 
-            state.scannableRows[state.currentRow] && 
-            state.scannableRows[state.currentRow][state.scanIndex]) {
+        if (state.currentRow >= 0 && state.scanIndex >= 0 &&
+          state.scannableRows[state.currentRow] &&
+          state.scannableRows[state.currentRow][state.scanIndex]) {
           const element = state.scannableRows[state.currentRow][state.scanIndex];
           const selectedRow = state.currentRow; // Remember which row we were in
           let selectionText = '';
@@ -4818,7 +5029,7 @@ function updateHeaderForCurrentView(){
             element.click();
           }
           if (selectionText && window.NarbeVoiceManager.getSettings().ttsEnabled && element !== el.sentenceDisplay) { setTimeout(() => speak(selectionText), 100); }
-          
+
           // Return to row mode, highlighting the same row we were in
           hideRowBackOption();
           state.scanMode = 'row';
@@ -4838,16 +5049,16 @@ function updateHeaderForCurrentView(){
         const speeds = [1000, 2000, 3000, 4000];
         // Use the speed from manager, fallback to 2000 if invalid index
         state.scanSpeed = speeds[settings.scanSpeedIndex] !== undefined ? speeds[settings.scanSpeedIndex] : 2000;
-        
+
         // Update scanning state if needed
         if (state.autoScan) {
-           if (!state.scanning && !state.modalActive && !state.videoModalActive) {
-               startAutoScan();
-           }
+          if (!state.scanning && !state.modalActive && !state.videoModalActive) {
+            startAutoScan();
+          }
         } else {
-           if (state.scanning) {
-               stopScanning();
-           }
+          if (state.scanning) {
+            stopScanning();
+          }
         }
       }
     }
@@ -4856,7 +5067,7 @@ function updateHeaderForCurrentView(){
     let backwardScanTimer = null;
     let backwardScanInterval = null;
     let returnActionTimer = null;
-    
+
     window.addEventListener('keydown', (e) => {
       // Allow F12/DevTools
       if (e.key === 'F12') return;
@@ -4873,10 +5084,10 @@ function updateHeaderForCurrentView(){
       // Auto Scan Logic
       if (state.autoScan) {
         if ((e.code === 'Space' || e.code === 'Enter') && !state.spacePressed && !state.returnPressed) {
-            e.preventDefault();
-            // In auto scan, any switch selects
-            selectCurrent();
-            state.lastKeyPressTime = now;
+          e.preventDefault();
+          // In auto scan, any switch selects
+          selectCurrent();
+          state.lastKeyPressTime = now;
         }
         return;
       }
@@ -4957,10 +5168,10 @@ function updateHeaderForCurrentView(){
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => { 
+      reader.onload = () => {
         const csvText = reader.result;
         const parsedRows = parseCSV(csvText);
-        
+
         // Extract board name from CSV data or use filename
         let boardName = 'My Custom Board';
         if (parsedRows.length > 0 && parsedRows[0].boardName) {
@@ -4969,7 +5180,7 @@ function updateHeaderForCurrentView(){
           // Use filename without extension as board name
           boardName = file.name.replace(/\.csv$/i, '');
         }
-        
+
         // Save to localStorage
         try {
           const boardData = {
@@ -4977,11 +5188,11 @@ function updateHeaderForCurrentView(){
             csv: csvText
           };
           localStorage.setItem('narbe_phrase_builder', JSON.stringify(boardData));
-          
+
           // Show success message and re-render main menu
           el.statusFooter.textContent = `Board "${boardName}" saved! Navigate to it from the main menu.`;
           speak(`Board ${cleanTextForTTS(boardName)} saved`);
-          
+
           // Re-render main menu to show the new board
           if (state.currentMenu === 'main') {
             renderMainMenu();
@@ -5072,7 +5283,7 @@ function updateHeaderForCurrentView(){
       // Voice manager handles voices changed event
       window.addEventListener('load', () => { setTimeout(initVoices, 500); });
     }
-    
+
     // Listen for voice settings changes from other apps
     if (window.NarbeVoiceManager) {
       window.NarbeVoiceManager.onSettingsChange(() => {
@@ -5083,10 +5294,10 @@ function updateHeaderForCurrentView(){
 
     // Initialize Scan Manager
     if (window.NarbeScanManager) {
-        window.NarbeScanManager.subscribe(syncScanSettings);
-        syncScanSettings();
+      window.NarbeScanManager.subscribe(syncScanSettings);
+      syncScanSettings();
     }
-    
+
     // Apply loaded settings to CSS/DOM
     document.documentElement.style.setProperty('--rowHighlight', state.highlightColor);
     document.documentElement.style.setProperty('--columnHighlight', state.highlightColor);
@@ -5103,13 +5314,13 @@ function updateHeaderForCurrentView(){
         // Subscribe to changes
         window.NarbeScanManager.subscribe(updateAutoScan);
       } else {
-         // Fallback polling or just wait? The script is loaded above.
-         // Usually available immediately unless async load issue.
+        // Fallback polling or just wait? The script is loaded above.
+        // Usually available immediately unless async load issue.
         setTimeout(() => {
-            if(window.NarbeScanManager) {
-                updateAutoScan();
-                window.NarbeScanManager.subscribe(updateAutoScan);
-            }
+          if (window.NarbeScanManager) {
+            updateAutoScan();
+            window.NarbeScanManager.subscribe(updateAutoScan);
+          }
         }, 500);
       }
 
@@ -5156,27 +5367,27 @@ function updateHeaderForCurrentView(){
 
       if (boardParam) {
         // Find the board in availableBoards (check filename or name)
-        const targetBoard = state.availableBoards.find(b => 
-          b.filename.toLowerCase() === boardParam.toLowerCase() || 
+        const targetBoard = state.availableBoards.find(b =>
+          b.filename.toLowerCase() === boardParam.toLowerCase() ||
           b.name.toLowerCase() === boardParam.toLowerCase()
         );
-        
+
         if (targetBoard) {
-           const success = await loadBoard(targetBoard.path);
-           if (success) {
-               el.statusFooter.textContent = `Loaded board: ${targetBoard.name}`;
-               if (categoryParam && state.byCat.has(categoryParam)) {
-                 state.currentCategory = categoryParam;
-                 state.page = 0;
-                 renderCategory();
-                 updateHeaderForCurrentView();
-               } else {
-                 updateScannable();
-                 state.currentRow = 0; state.scanIndex = 0;
-                 setTimeout(() => { updateScannable(); }, 100);
-               }
-               return; // Skip rendering main menu
-           }
+          const success = await loadBoard(targetBoard.path);
+          if (success) {
+            el.statusFooter.textContent = `Loaded board: ${targetBoard.name}`;
+            if (categoryParam && state.byCat.has(categoryParam)) {
+              state.currentCategory = categoryParam;
+              state.page = 0;
+              renderCategory();
+              updateHeaderForCurrentView();
+            } else {
+              updateScannable();
+              state.currentRow = 0; state.scanIndex = 0;
+              setTimeout(() => { updateScannable(); }, 100);
+            }
+            return; // Skip rendering main menu
+          }
         }
       }
 
@@ -5193,11 +5404,11 @@ function updateHeaderForCurrentView(){
       renderMainMenu();
       restoreAddCategoryDraft();
       applyPendingAddCategoryTitleFromKeyboard();
-      
+
       if (saved && saved.csv) {
         el.statusFooter.textContent = `You have a saved board: ${saved.name}`;
       }
-      
+
       updateScannable();
       state.currentRow = 0; state.scanIndex = 0;
       setTimeout(() => { updateScannable(); }, 100);
@@ -5234,9 +5445,9 @@ function updateHeaderForCurrentView(){
       const speakText = (item.speak || '').trim();
       const display = (item.display || '').trim();
       const text = speakText || display;
-      
+
       // Check if this is a URL link
-      if (isLikelyUrl(text)) { 
+      if (isLikelyUrl(text)) {
         // For HTML links, speak the display text (what user sees on button) instead of the URL
         const ttsText = display || speakText;
         if (ttsText && !isLikelyUrl(ttsText)) {
@@ -5247,20 +5458,20 @@ function updateHeaderForCurrentView(){
           // If display text is also a URL or empty, speak generic message
           speak("Opening link");
         }
-        openIframe(text); 
-        return; 
+        openIframe(text);
+        return;
       }
-      
+
       // Handle regular phrases (non-URLs) - keep same TTS function
       if (state.currentMenu === 'category') {
         updatePhrasePreview(display || speakText);
       }
-      if (state.sentenceMode) { 
-        state.sentence.push(text); 
-        updateSentenceDisplay(); 
-      } else { 
-        const cleanText = cleanTextForTTS(text); 
-        if (cleanText) speak(cleanText); 
+      if (state.sentenceMode) {
+        state.sentence.push(text);
+        updateSentenceDisplay();
+      } else {
+        const cleanText = cleanTextForTTS(text);
+        if (cleanText) speak(cleanText);
       }
     }
 
@@ -5273,51 +5484,52 @@ function updateHeaderForCurrentView(){
     function navigateTo(menuName) {
       saveNavigationState();
       state.page = 0; state.scanMode = 'row'; state.currentRow = 0; state.scanIndex = 0;
-      
+
       // Speak the menu name when entering
       let menuTitle = '';
       switch (menuName) {
-        case 'main': 
-          renderMainMenu(); 
+        case 'main':
+          renderMainMenu();
           menuTitle = 'Main Menu';
           break;
-        case 'categories': 
-          renderCategoryMenu(); 
+        case 'categories':
+          renderCategoryMenu();
           menuTitle = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
           break;
-        case 'settings': 
-          renderSettingsMenu(); 
+        case 'settings':
+          renderSettingsMenu();
           menuTitle = 'Settings Menu';
           break;
-        case 'gridsize': 
-          renderGridSizeMenu(); 
+        case 'gridsize':
+          renderGridSizeMenu();
           menuTitle = 'Grid Size';
           break;
-        case 'tts': 
-          renderTTSMenu(); 
+        case 'tts':
+          renderTTSMenu();
           menuTitle = 'Voice & TTS';
           break;
-        case 'scan': 
-          renderScanMenu(); 
+        case 'scan':
+          renderScanMenu();
           menuTitle = 'Scan Settings';
           break;
-        case 'highlight': 
-          renderHighlightMenu(); 
+        case 'highlight':
+          renderHighlightMenu();
           menuTitle = 'Highlight Colors';
           break;
-        case 'theme': 
-          renderThemeMenu(); 
+        case 'theme':
+          renderThemeMenu();
           menuTitle = 'Theme';
           break;
       }
-      
+
       // Speak the menu title
       if (menuTitle) {
         const cleanTitle = cleanTextForTTS(menuTitle);
         if (cleanTitle) speak(cleanTitle);
       }
-      
+
       updateHeaderForCurrentView();
+      updateEmergencyBarVisibility();
       setTimeout(() => { updateScannable(); }, 50);
     }
 
@@ -5327,7 +5539,7 @@ function updateHeaderForCurrentView(){
       if (state.navigationHistory.length > 0) {
         const prevState = state.navigationHistory.pop();
         if (prevState.menu !== 'category') disableEditModeSilently();
-        
+
         // Determine what we're going back to for TTS
         switch (prevState.menu) {
           case 'main': backMessage = 'Main Menu'; break;
@@ -5335,14 +5547,14 @@ function updateHeaderForCurrentView(){
           case 'categories': backMessage = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories'; break;
           case 'category': backMessage = getDisplayCategoryName(prevState.category) || 'Category'; break;
         }
-        
+
         state.currentMenu = prevState.menu;
         state.currentCategory = prevState.category;
         state.page = prevState.page;
         state.scanMode = 'row';
         state.currentRow = 0;
         state.scanIndex = 0;
-        
+
         switch (prevState.menu) {
           case 'main': renderMainMenu(); break;
           case 'categories': renderCategoryMenu(); break;
@@ -5354,14 +5566,15 @@ function updateHeaderForCurrentView(){
           case 'theme': renderThemeMenu(); break;
           case 'category': renderCategory(); break;
         }
-        
+
         updateHeaderForCurrentView();
+        updateEmergencyBarVisibility();
         setTimeout(() => { updateScannable(); }, 50);
       } else {
         backMessage = 'Main Menu';
         openMenu('main');
       }
-      
+
       // Speak the back navigation message
       if (backMessage) {
         const cleanMessage = cleanTextForTTS(backMessage);
@@ -5375,51 +5588,52 @@ function updateHeaderForCurrentView(){
       }
       if (menuName !== 'category') disableEditModeSilently();
       state.page = 0; state.scanMode = 'row'; state.currentRow = 0; state.scanIndex = 0;
-      
+
       // Speak the menu name when entering
       let menuTitle = '';
       switch (menuName) {
-        case 'main': 
-          renderMainMenu(); 
+        case 'main':
+          renderMainMenu();
           menuTitle = 'Main Menu';
           break;
-        case 'categories': 
-          renderCategoryMenu(); 
+        case 'categories':
+          renderCategoryMenu();
           menuTitle = formatBoardDisplayTitle(state.currentBoardTitle) || 'Categories';
           break;
-        case 'settings': 
-          renderSettingsMenu(); 
+        case 'settings':
+          renderSettingsMenu();
           menuTitle = 'Settings Menu';
           break;
-        case 'gridsize': 
-          renderGridSizeMenu(); 
+        case 'gridsize':
+          renderGridSizeMenu();
           menuTitle = 'Grid Size';
           break;
-        case 'tts': 
-          renderTTSMenu(); 
+        case 'tts':
+          renderTTSMenu();
           menuTitle = 'Voice & TTS';
           break;
-        case 'scan': 
-          renderScanMenu(); 
+        case 'scan':
+          renderScanMenu();
           menuTitle = 'Scan Settings';
           break;
-        case 'highlight': 
-          renderHighlightMenu(); 
+        case 'highlight':
+          renderHighlightMenu();
           menuTitle = 'Highlight Colors';
           break;
-        case 'theme': 
-          renderThemeMenu(); 
+        case 'theme':
+          renderThemeMenu();
           menuTitle = 'Theme';
           break;
       }
-      
+
       // Speak the menu title
       if (menuTitle) {
         const cleanTitle = cleanTextForTTS(menuTitle);
         if (cleanTitle) speak(cleanTitle);
       }
-      
+
       updateHeaderForCurrentView();
+      updateEmergencyBarVisibility();
       setTimeout(() => { updateScannable(); }, 50);
     }
 
@@ -5428,14 +5642,15 @@ function updateHeaderForCurrentView(){
       const spokenCategoryName = getDisplayCategoryName(categoryName);
       const cleanCategoryName = cleanTextForTTS(spokenCategoryName);
       if (cleanCategoryName) speak(cleanCategoryName);
-      
+
       saveNavigationState();
       state.currentCategory = categoryName;
-      state.page = 0; state.scanMode = 'row'; 
+      state.page = 0; state.scanMode = 'row';
       state.currentRow = -1; // Start at -1 for no highlighting
       state.scanIndex = -1;
       renderCategory();
       updateHeaderForCurrentView();
+      updateEmergencyBarVisibility();
       setTimeout(() => { updateScannable(); }, 50);
     }
 
@@ -5445,10 +5660,10 @@ function updateHeaderForCurrentView(){
         el.sentenceRow.classList.add('active');
         el.mainGrid.classList.add('sentence-active'); // Add class for grid sizing
         speak('Sentence bar on');
-      } else { 
-        el.sentenceRow.classList.remove('active'); 
+      } else {
+        el.sentenceRow.classList.remove('active');
         el.mainGrid.classList.remove('sentence-active'); // Remove class for uniform grid
-        state.sentence = []; 
+        state.sentence = [];
         updateSentenceDisplay();
         speak('Sentence bar off');
       }
@@ -5472,6 +5687,35 @@ function updateHeaderForCurrentView(){
     function useWhiteBordersForCurrentBoard() {
       const boardTitle = (state.currentBoardTitle || '').toLowerCase();
       return boardTitle.includes('narbe default') || boardTitle.includes('narbe house default');
+    }
+
+    function isVoiceHelpBoard() {
+      return (state.currentBoardTitle || '').toLowerCase().trim() === 'voice help';
+    }
+
+    function isEmergencyBoard() {
+      return (state.currentBoardTitle || '').toLowerCase().trim() === 'emergency';
+    }
+
+    function updateEmergencyBarVisibility() {
+      if (!el.emergencyBar) return;
+      const showOnMenus = ['categories', 'category'];
+      const isOnBoard = showOnMenus.includes(state.currentMenu) && state.csvLoaded;
+      if (isOnBoard) {
+        el.emergencyBar.classList.remove('hidden');
+      } else {
+        el.emergencyBar.classList.add('hidden');
+      }
+    }
+
+    async function returnToNarbeDefault() {
+      speak('Back to Categories');
+      const success = await loadBoard('boards/NARBE_Default.csv');
+      if (success) {
+        state.currentBoardTitle = 'NARBE House Default';
+        updateHeaderForCurrentView();
+        updateEmergencyBarVisibility();
+      }
     }
 
     function normalizeHexColor(value) {
@@ -5520,12 +5764,12 @@ function updateHeaderForCurrentView(){
     function isNarbeBlueAccentCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
       return normalized === 'people' ||
-             normalized === 'pronouns' ||
-             normalized === 'actions' ||
-             normalized === 'verbs' ||
-             normalized === 'questions' ||
-             normalized === 'helpers' ||
-             normalized === 'places';
+        normalized === 'pronouns' ||
+        normalized === 'actions' ||
+        normalized === 'verbs' ||
+        normalized === 'questions' ||
+        normalized === 'helpers' ||
+        normalized === 'places';
     }
     function isNarbePeopleCategory(categoryName) {
       return (categoryName || '').trim().toLowerCase() === 'people';
@@ -5549,10 +5793,10 @@ function updateHeaderForCurrentView(){
     function isNarbeTealAccentCategory(categoryName) {
       const normalized = (categoryName || '').trim().toLowerCase();
       return normalized === 'modifiers' ||
-             normalized === 'connectors' ||
-             normalized === 'questions' ||
-             normalized === 'questions & time' ||
-             normalized === 'time';
+        normalized === 'connectors' ||
+        normalized === 'questions' ||
+        normalized === 'questions & time' ||
+        normalized === 'time';
     }
 
     function applyNarbeBlueCardBorder(button, isBlueCard) {
@@ -5686,7 +5930,7 @@ function updateHeaderForCurrentView(){
       for (let i = 0; i < line.length; i++) {
         const ch = line[i];
         if (inQuotes) {
-          if (ch === '"' && line[i+1] === '"') { curr += '"'; i++; }
+          if (ch === '"' && line[i + 1] === '"') { curr += '"'; i++; }
           else if (ch === '"') { inQuotes = false; }
           else { curr += ch; }
         } else {
@@ -5704,34 +5948,34 @@ function updateHeaderForCurrentView(){
       const map = new Map();
       rows.forEach(r => {
         if (!map.has(r.category)) {
-          map.set(r.category, { 
-            color: r.categoryColor, 
-            order: r.categoryOrder, 
+          map.set(r.category, {
+            color: r.categoryColor,
+            order: r.categoryOrder,
             image: r.categoryImage || '', // Store category image
-            items: [] 
+            items: []
           });
         }
         map.get(r.category).items.push(r);
       });
       const cats = Array.from(map.entries())
-        .map(([name, data]) => ({ 
-          name, 
-          color: data.color, 
-          order: data.order, 
+        .map(([name, data]) => ({
+          name,
+          color: data.color,
+          order: data.order,
           image: data.image, // Include in category object
-          items: data.items.sort((a, b) => a.tileOrder - b.tileOrder) 
+          items: data.items.sort((a, b) => a.tileOrder - b.tileOrder)
         }))
         .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
       state.categories = cats;
       state.byCat = new Map(cats.map(c => [c.name, c]));
       state.csvLoaded = true;
-      
+
       // Reapply any previously added categories for this board
       reapplyAddedCategoriesForBoard(state.currentBoardTitle);
-      
+
       // Reapply any previously added words for this board
       reapplyAddedWordsForBoard(state.currentBoardTitle);
-      
+
       el.statusFooter.textContent = `Loaded ${cats.length} categories with ${rows.length} phrases`;
       state.navigationHistory = [];
       openMenu('categories');
@@ -5836,7 +6080,7 @@ function updateHeaderForCurrentView(){
       const embedUrl = normalizeYouTube(url);
       const isYt = /youtube\.com\/embed\//i.test(embedUrl);
       const playlist = isYt && isYouTubePlaylist(embedUrl);
-      if (isYt) { try { await loadYtApi(); } catch {} }
+      if (isYt) { try { await loadYtApi(); } catch { } }
 
       state.videoModalActive = true;
       state.scanMode = 'row';
@@ -5858,23 +6102,23 @@ function updateHeaderForCurrentView(){
       highlightCurrentRow();
 
       if (isYt && window.YT && YT.Player) {
-        if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch {} }
+        if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch { } }
         state.ytPlayer = new YT.Player('mediaFrame', {
           events: {
             onReady: (e) => {
-              try { e.target.mute(); e.target.playVideo(); } catch {}
-              try { el.muteBtn.textContent = (e.target.isMuted && e.target.isMuted()) ? 'Unmute' : 'Mute'; } catch {}
+              try { e.target.mute(); e.target.playVideo(); } catch { }
+              try { el.muteBtn.textContent = (e.target.isMuted && e.target.isMuted()) ? 'Unmute' : 'Mute'; } catch { }
             }
           }
         });
       } else {
-        if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch {} }
+        if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch { } }
         state.ytPlayer = null;
       }
     }
 
     function closeIframe() {
-      if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch {} }
+      if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch { } }
       state.ytPlayer = null;
       if (el.mediaFrame) el.mediaFrame.src = '';
       el.iframeModal.style.display = 'none';
@@ -5894,14 +6138,14 @@ function updateHeaderForCurrentView(){
           const boardPromises = data.files.map(async filename => {
             const name = filename.replace('.csv', '').replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
             const path = `./boards/${filename}`;
-            
+
             try {
               // Fetch the CSV to extract board-level data
               const csvResponse = await fetch(path);
               if (csvResponse.ok) {
                 const csvText = await csvResponse.text();
                 const parsedRows = parseCSV(csvText);
-                
+
                 // Extract board data from the first row
                 let boardColor = null;
                 let boardImage = null;
@@ -5909,10 +6153,10 @@ function updateHeaderForCurrentView(){
                   boardColor = parsedRows[0].boardColor;
                   boardImage = parsedRows[0].boardImage;
                 }
-                
-                return { 
-                  name, 
-                  filename, 
+
+                return {
+                  name,
+                  filename,
                   path,
                   color: boardColor,
                   image: boardImage
@@ -5921,17 +6165,17 @@ function updateHeaderForCurrentView(){
             } catch (error) {
               console.warn(`Failed to load board data for ${filename}:`, error);
             }
-            
+
             // Fallback if CSV loading fails
             return { name, filename, path, color: null, image: null };
           });
-          
+
           state.availableBoards = await Promise.all(boardPromises);
-        } else { 
-          state.availableBoards = []; 
+        } else {
+          state.availableBoards = [];
         }
-      } catch { 
-        state.availableBoards = []; 
+      } catch {
+        state.availableBoards = [];
       }
     }
 
@@ -5947,7 +6191,7 @@ function updateHeaderForCurrentView(){
             .replace(/_/g, ' ')
             .replace(/\b\w/g, c => c.toUpperCase());
           state.currentBoardTitle = nice;
-          
+
           buildIndex(parseCSV(csvText));
           return true;
         }
@@ -5972,7 +6216,7 @@ function updateHeaderForCurrentView(){
           const st = state.ytPlayer.getPlayerState();
           if (st === YT.PlayerState.PLAYING) state.ytPlayer.pauseVideo();
           else state.ytPlayer.playVideo();
-        } catch {}
+        } catch { }
       }
     });
 
@@ -6010,12 +6254,12 @@ function updateHeaderForCurrentView(){
       ensureFreshIframe();
       el.mediaFrame.src = state.lastUrl;
       if (state.playerKind === 'youtube' && window.YT && YT.Player) {
-        if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch {} }
+        if (state.ytPlayer && state.ytPlayer.destroy) { try { state.ytPlayer.destroy(); } catch { } }
         state.ytPlayer = new YT.Player('mediaFrame', {
           events: {
             onReady: (e) => {
-              try { e.target.mute(); e.target.playVideo(); } catch {}
-              try { el.muteBtn.textContent = (e.target.isMuted && e.target.isMuted()) ? 'Unmute' : 'Mute'; } catch {}
+              try { e.target.mute(); e.target.playVideo(); } catch { }
+              try { el.muteBtn.textContent = (e.target.isMuted && e.target.isMuted()) ? 'Unmute' : 'Mute'; } catch { }
             }
           }
         });
@@ -6052,4 +6296,5 @@ function updateHeaderForCurrentView(){
   </script>
 
 </body>
+
 </html>
