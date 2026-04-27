@@ -1,3 +1,51 @@
+# Text bar above keyboard
+.textbar-container {
+  width: 90vw;
+  max-width: 1279px;
+  margin: 32px 0 8px 0;
+  display: flex;
+  justify-content: center;
+}
+.textbar {
+  background: #fff;
+  color: #222;
+  border-radius: 10px;
+  font-size: 2.2rem;
+  min-height: 56px;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+#predictBar, .predict-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 90vw;
+  max-width: 1279px;
+  margin: 0 0 16px 0;
+  justify-content: center;
+}
+.predict-btn {
+  background: #ebedf0;
+  color: #222;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  padding: 8px 18px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', Arial, sans-serif;
+  transition: background 0.15s, color 0.15s;
+}
+.predict-btn.selected, .predict-btn:focus {
+  background: #5bb0ff;
+  color: #fff;
+  outline: 2px solid #5bb0ff;
+}
 body, html {
   margin: 0;
   padding: 0;
