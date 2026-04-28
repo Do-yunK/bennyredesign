@@ -3254,8 +3254,8 @@
       const coreItems = [
         { text: 'Exit', icon: '🚪', action: () => exitToHub(), bgColor: 'rgba(255, 0, 82, 0.08)' },
         { text: 'Settings', icon: '⚙️', action: () => navigateTo('settings'), bgColor: 'rgba(52, 152, 219, 0.2)' },
-        { text: 'Create Board', icon: '✏️', action: () => showWarningModal('create'), bgColor: 'rgba(126, 217, 87, 0.2)' },
-        { text: 'Load Board', icon: '📁', action: () => showWarningModal('load'), bgColor: 'rgba(255, 156, 0, 0.2)' }
+        { text: 'Create Board', icon: '✏️', action: null, bgColor: 'rgba(126, 217, 87, 0.2)', disabled: true },
+        { text: 'Load Board', icon: '📁', action: null, bgColor: 'rgba(255, 156, 0, 0.2)', disabled: true }
       ];
 
       // Add local board if exists
@@ -3346,6 +3346,14 @@
           btn.classList.add('main-menu-card');
           const priority = getMainMenuCardPriority(item);
           if (priority <= 1) btn.classList.add('priority-board-card');
+
+          // Disable Create Board and Load Board
+          if (item.disabled) {
+            btn.disabled = true;
+            btn.setAttribute('aria-disabled', 'true');
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+          }
 
           // Apply bgColor for core menu items
           if (item.bgColor) {

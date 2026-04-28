@@ -114,7 +114,8 @@
 .predict-btn.active, .predict-btn.selected, .predict-btn:focus, .predict-btn:hover {
   background: #ff6b35;
   color: #fff;
-  outline: 2px solid #ff6b35;
+  outline: none;
+  box-shadow: 0 0 0 2px #ff6b35;
 }
 body, html {
   margin: 0;
@@ -262,6 +263,7 @@ body, html {
   font-size: 2rem;
 }
 .key:focus, .key.active {
-  outline: 3px solid #ff6b35;
+  outline: none;
+  box-shadow: 0 0 0 3px #ff6b35;
   z-index: 2;
 }
