@@ -117,6 +117,26 @@ class PredictionSystem {
 }
 
 function initializePhraseboardKeyboardScanning() {
+  // Inject ADD WORD button after readaloud if in add-word mode, only once
+  const params = new URLSearchParams(window.location.search);
+  const isAddWordMode = params.get('mode') === 'add-word';
+  if (isAddWordMode) {
+    const row4 = document.querySelector('.keyboard-row-4');
+    if (row4) {
+      // Remove any existing ADD WORD button to avoid duplicates
+      const existingAddWord = row4.querySelector('.addword');
+      if (existingAddWord) existingAddWord.remove();
+      const readAloudBtn = row4.querySelector('.readaloud');
+      if (readAloudBtn) {
+        const addWordBtn = document.createElement('button');
+        addWordBtn.className = 'key addword';
+        addWordBtn.setAttribute('aria-label', 'Add Word');
+        addWordBtn.setAttribute('title', 'Add Word');
+        addWordBtn.textContent = 'ADD WORD';
+        readAloudBtn.insertAdjacentElement('afterend', addWordBtn);
+      }
+    }
+  }
       // --- Text to Speech ---
       function speak(text) {
         if (!window.speechSynthesis) return;

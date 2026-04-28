@@ -2899,6 +2899,19 @@
       if (el.optionEditWordsBtn) el.optionEditWordsBtn.style.display = onCategoryPage ? 'flex' : 'none';
       if (el.optionRemoveCategoryBtn) {
         el.optionRemoveCategoryBtn.style.display = onCategoryPage ? 'flex' : 'none';
+        // Disable the button if on DEFAULT (white border board)
+        const isDefaultBoard = useWhiteBordersForCurrentBoard() && (state.currentBoardTitle || '').trim().toLowerCase().includes('default');
+        if (isDefaultBoard) {
+          el.optionRemoveCategoryBtn.disabled = true;
+          el.optionRemoveCategoryBtn.setAttribute('aria-disabled', 'true');
+          el.optionRemoveCategoryBtn.style.opacity = '0.6';
+          el.optionRemoveCategoryBtn.style.cursor = 'not-allowed';
+        } else {
+          el.optionRemoveCategoryBtn.disabled = false;
+          el.optionRemoveCategoryBtn.removeAttribute('aria-disabled');
+          el.optionRemoveCategoryBtn.style.opacity = '';
+          el.optionRemoveCategoryBtn.style.cursor = '';
+        }
       }
       // Position panel near the options button
       if (el.categoryOptionsBtn) {
@@ -2982,7 +2995,14 @@
       if (normalized === 'needs') return 'Needs & Wants';
       if (normalized === 'verbs') return 'Body';
       if (normalized === 'helpers') return 'Places';
-      if (normalized === 'questions & time' || normalized === 'time') return 'Questions & Time';
+      if (normalized === 'questions & time' || normalized === 'time') {
+        // Show 'Time' only on Voice Help board, otherwise 'Questions & Time'
+        if ((state.currentBoardTitle || '').trim().toLowerCase() === 'voice help') {
+          return 'Time';
+        } else {
+          return 'Questions & Time';
+        }
+      }
       if (normalized === 'pronouns') return 'Actions';
       return categoryName;
     }
@@ -3408,7 +3428,28 @@
       state.currentMenu = 'categories';
       el.mainGrid.style.setProperty('--grid-rows', state.gridSize.rows);
       el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
-      // Don't subtract sentence row space - it's now in its own dedicated row
+      // Always inject 'Sign Here' as a custom category on DEFAULT
+      const isDefaultBoard = useWhiteBordersForCurrentBoard() && (state.currentBoardTitle || '').trim().toLowerCase().includes('default');
+      if (isDefaultBoard) {
+        const signHereExists = state.categories.some(c => (c.name || '').trim().toLowerCase() === 'sign here');
+        if (!signHereExists) {
+          const nextOrder = state.categories.reduce((maxOrder, category) => {
+            const order = Number.isFinite(category.order) ? category.order : 0;
+            return Math.max(maxOrder, order);
+          }, 0) + 1;
+          const newCategory = {
+            name: 'Sign Here',
+            color: '#7ed957', // green
+            order: nextOrder,
+            image: '',
+            items: []
+          };
+          state.categories = [...state.categories, newCategory]
+            .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+          state.byCat.set('Sign Here', newCategory);
+        }
+      }
+      // ...existing code...
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
       const isVoiceHelpOrEmergencyBoard = isVoiceHelpBoard() || isEmergencyBoard();
       const showAddCategoryButton = useWhiteBordersForCurrentBoard() && !isVoiceHelpOrEmergencyBoard;
@@ -3711,19 +3752,32 @@
         vhImg.src = 'https://static.arasaac.org/pictograms/11685/11685_300.png';
         vhImg.alt = 'Voice Help';
         voiceHelpBtn.insertBefore(vhImg, voiceHelpBtn.firstChild);
-        voiceHelpBtn.style.background = 'rgba(52, 152, 219, 0.2)';
+        // Set to green (category green)
+        voiceHelpBtn.style.background = 'rgba(126, 217, 87, 0.22)'; // matches #7ed957
         voiceHelpBtn.style.borderColor = '#FFFFFF';
         voiceHelpBtn.style.borderTopColor = '#FFFFFF';
         voiceHelpBtn.style.borderRightColor = '#FFFFFF';
         voiceHelpBtn.style.borderLeftColor = '#FFFFFF';
         voiceHelpBtn.style.borderBottomColor = '#FFFFFF';
-        voiceHelpBtn.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.10), 0 6px 14px -10px #1C49DDC5, 0 0 10px -8px #1C49DDC5';
+        voiceHelpBtn.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.10), 0 6px 14px -10px #7ed957C5, 0 0 10px -8px #7ed957C5';
         gridPositions.push({ type: 'voice-help', button: voiceHelpBtn });
       }
       if (showAddCategoryButton) {
+        // On DEFAULT, show the button as disabled (not clickable), not hidden
+        const isDefaultBoard = useWhiteBordersForCurrentBoard() && (state.currentBoardTitle || '').trim().toLowerCase().includes('default');
+        let addCatBtn;
+        if (isDefaultBoard) {
+          addCatBtn = createButton('Add Category', '＋', null, 'muted-green-btn add-category-btn');
+          addCatBtn.disabled = true;
+          addCatBtn.setAttribute('aria-disabled', 'true');
+          addCatBtn.style.opacity = '0.6';
+          addCatBtn.style.cursor = 'not-allowed';
+        } else {
+          addCatBtn = createButton('Add Category', '＋', () => showAddCategoryModal(), 'muted-green-btn add-category-btn');
+        }
         gridPositions.push({
           type: 'add-category',
-          button: createButton('Add Category', '＋', () => showAddCategoryModal(), 'muted-green-btn add-category-btn')
+          button: addCatBtn
         });
       }
       // Add Next button if there are multiple pages (loops back to first page)
