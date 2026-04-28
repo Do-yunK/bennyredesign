@@ -5712,7 +5712,6 @@
       speak('Back to Categories');
       const success = await loadBoard('boards/NARBE_Default.csv');
       if (success) {
-        state.currentBoardTitle = 'NARBE House Default';
         updateHeaderForCurrentView();
         updateEmergencyBarVisibility();
       }
