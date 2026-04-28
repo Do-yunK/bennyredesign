@@ -4519,6 +4519,21 @@
           img.src = 'https://static.arasaac.org/pictograms/35545/35545_300.png';
           img.alt = 'Sad';
           btn.insertBefore(img, btn.firstChild);
+        } else if (getDisplayCategoryName(state.currentCategory).toLowerCase() === 'feelings' && (item.display || '').trim().toLowerCase() === 'excited') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/6046/6046_300.png';
+          img.alt = 'Excited';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (getDisplayCategoryName(state.currentCategory).toLowerCase() === 'feelings' && (item.display || '').trim().toLowerCase() === 'hot') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/6952/6952_300.png';
+          img.alt = 'Hot';
+          btn.insertBefore(img, btn.firstChild);
+        } else if (getDisplayCategoryName(state.currentCategory).toLowerCase() === 'feelings' && (item.display || '').trim().toLowerCase() === 'cold') {
+          const img = document.createElement('img');
+          img.src = 'https://static.arasaac.org/pictograms/35557/35557_300.png';
+          img.alt = 'Cold';
+          btn.insertBefore(img, btn.firstChild);
         } else if (item.image) {
           const img = document.createElement('img');
           img.src = item.image;
