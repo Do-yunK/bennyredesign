@@ -3410,9 +3410,9 @@
       el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
       // Don't subtract sentence row space - it's now in its own dedicated row
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
-      const showAddCategoryButton = useWhiteBordersForCurrentBoard();
       const isVoiceHelpOrEmergencyBoard = isVoiceHelpBoard() || isEmergencyBoard();
-      const showVoiceHelpCard = useWhiteBordersForCurrentBoard();
+      const showAddCategoryButton = useWhiteBordersForCurrentBoard() && !isVoiceHelpOrEmergencyBoard;
+      const showVoiceHelpCard = useWhiteBordersForCurrentBoard() && !isVoiceHelpOrEmergencyBoard;
       const showLargeMainMenuTile = !useWhiteBordersForCurrentBoard() && !isVoiceHelpOrEmergencyBoard;
       const showBackToCategoriesBtn = isVoiceHelpOrEmergencyBoard;
       const reservedBaseSlots = (showLargeMainMenuTile ? 1 : 0) + (showBackToCategoriesBtn ? 1 : 0) + (showAddCategoryButton ? 1 : 0) + (showVoiceHelpCard ? 1 : 0);
@@ -5686,7 +5686,7 @@
 
     function useWhiteBordersForCurrentBoard() {
       const boardTitle = (state.currentBoardTitle || '').toLowerCase();
-      return boardTitle.includes('narbe default') || boardTitle.includes('narbe house default');
+      return boardTitle.includes('narbe default') || boardTitle.includes('narbe house default') || boardTitle === 'voice help' || boardTitle === 'emergency';
     }
 
     function isVoiceHelpBoard() {
