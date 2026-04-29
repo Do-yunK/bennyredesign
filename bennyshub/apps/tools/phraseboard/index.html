@@ -3242,7 +3242,7 @@
 
       const coreItems = [
         // Removed Exit button
-        { text: 'Settings', icon: '⚙️', action: () => navigateTo('settings'), bgColor: 'rgba(52, 152, 219, 0.2)' },
+        { text: 'Settings', icon: '⚙️', action: null, bgColor: 'rgba(52, 152, 219, 0.2)', disabled: true },
         { text: 'Create Board', icon: '✏️', action: null, bgColor: 'rgba(126, 217, 87, 0.2)', disabled: true },
         { text: 'Load Board', icon: '📁', action: null, bgColor: 'rgba(255, 156, 0, 0.2)', disabled: true }
       ];
@@ -3393,6 +3393,14 @@
           btn.classList.add('main-menu-card');
           const priority = getMainMenuCardPriority(item);
           if (priority <= 1) btn.classList.add('priority-board-card');
+
+          // Disable core menu items if marked
+          if (item.disabled) {
+            btn.disabled = true;
+            btn.setAttribute('aria-disabled', 'true');
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+          }
 
           // Apply bgColor for core menu items
           if (item.bgColor) {
@@ -4586,7 +4594,8 @@
       }
       if (state.currentMenu === 'main') {
         // Find the main menu cards in the DOM, grouped by their classes
-        const allMainMenuCards = Array.from(el.mainGrid.querySelectorAll('.grid-button.main-menu-card'));
+        const allMainMenuCards = Array.from(el.mainGrid.querySelectorAll('.grid-button.main-menu-card'))
+          .filter(btn => !btn.disabled);
         // Top row: only the default card(s) (priority-board-card)
         const topRow = allMainMenuCards.filter(btn => btn.classList.contains('priority-board-card'));
         if (topRow.length > 0) rows.push(topRow);
@@ -4594,8 +4603,9 @@
         const bottomRow = allMainMenuCards.filter(btn => !btn.classList.contains('priority-board-card'));
         if (bottomRow.length > 0) rows.push(bottomRow);
       } else {
-        for (let i = 0; i < buttons.length; i += cols) {
-          const row = buttons.slice(i, i + cols);
+        const scannableButtons = buttons.filter(btn => !btn.disabled);
+        for (let i = 0; i < scannableButtons.length; i += cols) {
+          const row = scannableButtons.slice(i, i + cols);
           if (row.length > 0) rows.push(row);
         }
       }
