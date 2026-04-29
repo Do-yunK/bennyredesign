@@ -642,8 +642,8 @@
         background: rgba(255, 255, 255, 0.95);
         border: 2.5px solid #d1d5db;
         border-radius: 50%;
-        width: 92px;
-        height: 92px;
+        width: 106px;
+        height: 106px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -651,7 +651,7 @@
         font-size: 18px;
         font-weight: 600;
         line-height: 1.2;
-        padding: 14px 10px;
+        padding: 18px 14px;
         box-sizing: border-box;
         cursor: pointer;
         box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
@@ -3439,27 +3439,6 @@
       state.currentMenu = 'categories';
       el.mainGrid.style.setProperty('--grid-rows', state.gridSize.rows);
       el.mainGrid.style.setProperty('--grid-cols', state.gridSize.cols);
-      // Always inject 'Sign Here' as a custom category on DEFAULT
-      const isDefaultBoard = useWhiteBordersForCurrentBoard() && (state.currentBoardTitle || '').trim().toLowerCase().includes('default');
-      if (isDefaultBoard) {
-        const signHereExists = state.categories.some(c => (c.name || '').trim().toLowerCase() === 'sign here');
-        if (!signHereExists) {
-          const nextOrder = state.categories.reduce((maxOrder, category) => {
-            const order = Number.isFinite(category.order) ? category.order : 0;
-            return Math.max(maxOrder, order);
-          }, 0) + 1;
-          const newCategory = {
-            name: 'Sign Here',
-            color: '#7ed957', // green
-            order: nextOrder,
-            image: '',
-            items: []
-          };
-          state.categories = [...state.categories, newCategory]
-            .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
-          state.byCat.set('Sign Here', newCategory);
-        }
-      }
       // ...existing code...
       const totalSlots = state.gridSize.rows * state.gridSize.cols;
       const isVoiceHelpOrEmergencyBoard = isVoiceHelpBoard() || isEmergencyBoard();
@@ -6047,6 +6026,29 @@
         .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
       state.categories = cats;
       state.byCat = new Map(cats.map(c => [c.name, c]));
+      
+      // Always inject 'Sign Here' as a custom category on DEFAULT before reapplying words
+      const isDefaultBoard = useWhiteBordersForCurrentBoard() && (state.currentBoardTitle || '').trim().toLowerCase().includes('default');
+      if (isDefaultBoard) {
+        const signHereExists = state.categories.some(c => (c.name || '').trim().toLowerCase() === 'sign here');
+        if (!signHereExists) {
+          const nextOrder = state.categories.reduce((maxOrder, category) => {
+            const order = Number.isFinite(category.order) ? category.order : 0;
+            return Math.max(maxOrder, order);
+          }, 0) + 1;
+          const newCategory = {
+            name: 'Sign Here',
+            color: '#7ed957', // default to green
+            order: nextOrder,
+            image: '',
+            items: [] // Empty items to act as a blank page category
+          };
+          state.categories.push(newCategory);
+          state.categories.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+          state.byCat.set('Sign Here', newCategory);
+        }
+      }
+
       state.csvLoaded = true;
 
       // Reapply any previously added categories for this board
