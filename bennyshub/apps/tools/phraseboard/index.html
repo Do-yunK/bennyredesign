@@ -178,11 +178,11 @@
 
       .grid-button {
         border-radius: 10px;
-        border-top: 3px solid #FFF;
-        border-right: 3px solid #FFF;
+        border-top: 6px solid #FFF;
+        border-right: 6px solid #FFF;
         --footer-strip-height: 55px;
         border-bottom: var(--footer-strip-height) solid #FFF;
-        border-left: 3px solid #FFF;
+        border-left: 6px solid #FFF;
         background: #0047F112;
         box-shadow: 0 4px 10.9px 0 rgba(0, 0, 0, 0.10);
         padding: 15px;
@@ -197,8 +197,51 @@
         width: 255px;
         height: 170px;
         aspect-ratio: 3/2;
-        transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+        transition: all 0.2s ease !important;
         position: relative;
+        z-index: 1;
+      }
+
+      /* Unified Hover & Scan Highlight Animation */
+      .grid-button:hover,
+      .grid-button.scan-highlight,
+      .grid-button.row-highlight {
+        border-color: var(--hoverBorderYellow) !important;
+        transform: scale(1.02) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+        z-index: 10 !important;
+      }
+
+      /* Control Buttons Focus Theme (Navigation, Top Nav, Radial, Side Back) */
+      /* Control Buttons Focus Theme (Navigation, Top Nav, Radial, Side Back) */
+      .main-grid>.grid-button.back-btn:hover, .main-grid>.grid-button.back-btn.scan-highlight, .main-grid>.grid-button.back-btn.row-highlight,
+      .main-grid>.grid-button.next-btn:hover, .main-grid>.grid-button.next-btn.scan-highlight, .main-grid>.grid-button.next-btn.row-highlight,
+      .main-grid>.grid-button.add-category-btn:hover, .main-grid>.grid-button.add-category-btn.scan-highlight, .main-grid>.grid-button.add-category-btn.row-highlight,
+      .main-grid>.grid-button.category-nav-btn:hover, .main-grid>.grid-button.category-nav-btn.scan-highlight, .main-grid>.grid-button.category-nav-btn.row-highlight,
+      .row-back-option:hover, .row-back-option.scan-highlight, .row-back-option.row-highlight,
+      #keyboardToolBtn:hover, #keyboardToolBtn.scan-highlight, #keyboardToolBtn.row-highlight,
+      #mainMenuQuickBtn:hover, #mainMenuQuickBtn.scan-highlight, #mainMenuQuickBtn.row-highlight,
+      #yesQuickBtn:hover, #yesQuickBtn.scan-highlight, #yesQuickBtn.row-highlight,
+      #noQuickBtn:hover, #noQuickBtn.scan-highlight, #noQuickBtn.row-highlight,
+      #categoryOptionsBtn:hover, #categoryOptionsBtn.scan-highlight, #categoryOptionsBtn.row-highlight,
+      .radial-menu-item:hover, .radial-menu-item.scan-highlight {
+        background: #ffff00 !important;
+        color: #000 !important;
+        border-color: var(--hoverBorderYellow) !important;
+      }
+
+      /* Black icons on focus for Control Buttons ONLY */
+      .main-grid>.grid-button.back-btn:hover .icon, .main-grid>.grid-button.back-btn.scan-highlight .icon,
+      .main-grid>.grid-button.next-btn:hover .icon, .main-grid>.grid-button.next-btn.scan-highlight .icon,
+      .main-grid>.grid-button.add-category-btn:hover .icon, .main-grid>.grid-button.add-category-btn.scan-highlight .icon,
+      .main-grid>.grid-button.category-nav-btn:hover .icon, .main-grid>.grid-button.category-nav-btn.scan-highlight .icon,
+      .row-back-option:hover .icon, .row-back-option.scan-highlight .icon,
+      #keyboardToolBtn:hover .icon, #keyboardToolBtn.scan-highlight .icon,
+      #mainMenuQuickBtn:hover .icon-img, #mainMenuQuickBtn.scan-highlight .icon-img,
+      #yesQuickBtn:hover .icon-img, #yesQuickBtn.scan-highlight .icon-img,
+      #noQuickBtn:hover .icon-img, #noQuickBtn.scan-highlight .icon-img,
+      #categoryOptionsBtn:hover .icon, #categoryOptionsBtn.scan-highlight .icon {
+        filter: brightness(0) !important;
       }
 
       .grid-button .label {
@@ -249,8 +292,8 @@
 
       .main-grid>.grid-button.phrase-board-card,
       .main-grid>.grid-button.main-menu-card {
-        --footer-strip-height: 3px;
-        border-bottom: 3px solid #FFF;
+        --footer-strip-height: 6px;
+        border-bottom: 6px solid #FFF;
         justify-content: center;
       }
 
@@ -261,11 +304,9 @@
         transform: translateX(-50%);
       }
 
+      /* Legacy Hover Cleanup - handled by unified block above */
       .grid-button:hover {
-        border-top: 3px solid var(--hoverBorderYellow) !important;
-        border-right: 3px solid var(--hoverBorderYellow) !important;
-        border-bottom: var(--footer-strip-height) solid var(--hoverBorderYellow) !important;
-        border-left: 3px solid var(--hoverBorderYellow) !important;
+        border-color: var(--hoverBorderYellow) !important;
       }
 
       .main-grid>.grid-button.main-menu-card:hover,
@@ -302,9 +343,9 @@
       .main-grid>.grid-button.add-category-btn {
         background: rgba(0, 0, 0, 0.15) !important;
         color: #ffffff !important;
-        border: 1px solid #6b7280 !important;
-        --footer-strip-height: 1px;
-        border-bottom: 1px solid #6b7280 !important;
+        border: 3px solid #6b7280 !important;
+        --footer-strip-height: 3px;
+        border-bottom: 3px solid #6b7280 !important;
         justify-content: center !important;
         align-items: center !important;
         text-align: center !important;
@@ -329,28 +370,7 @@
         text-align: center !important;
       }
 
-      .main-grid>.grid-button.back-btn:hover,
-      .main-grid>.grid-button.next-btn:hover,
-      .main-grid>.grid-button.add-category-btn:hover {
-        background: rgba(0, 0, 0, 0.15) !important;
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        border: 1px solid var(--hoverBorderYellow) !important;
-        border-bottom: 1px solid var(--hoverBorderYellow) !important;
-      }
 
-      .main-grid>.grid-button.back-btn.row-highlight,
-      .main-grid>.grid-button.next-btn.row-highlight,
-      .main-grid>.grid-button.add-category-btn.row-highlight,
-      .main-grid>.grid-button.back-btn.scan-highlight,
-      .main-grid>.grid-button.next-btn.scan-highlight,
-      .main-grid>.grid-button.add-category-btn.scan-highlight {
-        background: var(--columnHighlight) !important;
-        color: #000 !important;
-        font-weight: 800 !important;
-        border: 1px solid var(--hoverBorderYellow) !important;
-        border-bottom: 1px solid var(--hoverBorderYellow) !important;
-      }
 
       .main-grid>.grid-button.add-category-btn {
         background: rgba(0, 0, 0, 0.15) !important;
@@ -361,8 +381,7 @@
         gap: 0 !important;
       }
 
-      .main-grid>.grid-button.category-nav-btn,
-      .main-grid>.grid-button.category-nav-btn:hover {
+      .main-grid>.grid-button.category-nav-btn {
         background: rgba(0, 0, 0, 0.15) !important;
       }
 
@@ -676,9 +695,9 @@
       }
 
       .radial-menu-item:hover {
-        background: var(--rowHighlight, #ffff00);
-        border-color: #d4af00;
-        color: #111827;
+        background: #ffff00 !important;
+        border-color: #d4af00 !important;
+        color: #000 !important;
       }
 
       .radial-menu-item.radial-cancel {
@@ -689,13 +708,15 @@
       }
 
       .radial-menu-item.radial-cancel.scan-highlight {
-        background: var(--rowHighlight, #ffff00);
-        color: #111827;
-        border-color: #eab308;
+        background: #ffff00 !important;
+        color: #000 !important;
+        border-color: #eab308 !important;
       }
 
       .radial-menu-item.radial-cancel:hover {
-        border-color: #eab308;
+        background: #ffff00 !important;
+        color: #000 !important;
+        border-color: #eab308 !important;
       }
 
       .radial-menu-item.radial-close {
@@ -706,13 +727,15 @@
       }
 
       .radial-menu-item.radial-close.scan-highlight {
-        background: var(--rowHighlight, #ffff00);
-        color: #111827;
-        border-color: #ef4444;
+        background: #ffff00 !important;
+        color: #000 !important;
+        border-color: #ef4444 !important;
       }
 
       .radial-menu-item.radial-close:hover {
-        border-color: #ef4444;
+        background: #ffff00 !important;
+        color: #000 !important;
+        border-color: #ef4444 !important;
       }
 
       footer {
@@ -1046,13 +1069,9 @@
       .row-back-option:hover,
       .row-back-option.row-highlight,
       .row-back-option.scan-highlight {
-        background: var(--columnHighlight) !important;
-        color: inherit !important;
-        font-weight: inherit !important;
-        border-top-color: var(--hoverBorderYellow) !important;
-        border-right-color: var(--hoverBorderYellow) !important;
-        border-bottom-color: var(--hoverBorderYellow) !important;
-        border-left-color: var(--hoverBorderYellow) !important;
+        background: #ffff00 !important;
+        color: #000 !important;
+        border-color: var(--hoverBorderYellow) !important;
       }
 
       .phrase-preview-toast {
@@ -1094,7 +1113,7 @@
         width: 100%;
         justify-self: stretch;
         margin-bottom: 0;
-        background: linear-gradient(180deg, #E9E9E9, #ECE5DC);
+        background: none !important;
         padding: 10px 0 0 0;
       }
 
@@ -1234,7 +1253,7 @@
     #yesQuickBtn,
     #noQuickBtn,
     #categoryOptionsBtn {
-      border: 3px solid #ffffff !important;
+      border: 5px solid #ffffff !important;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
       position: relative;
       height: 80px !important;
@@ -1329,85 +1348,35 @@
     #yesQuickBtn.row-highlight,
     #noQuickBtn.row-highlight,
     #categoryOptionsBtn.row-highlight {
+      background: #ffff00 !important;
+      color: #000 !important;
       border-color: var(--hoverBorderYellow) !important;
-      filter: brightness(1.1) !important;
       transform: scale(1.02) !important;
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
     }
 
-    #categoryOptionsBtn {
-      display: none;
-      width: 100%;
-      justify-self: stretch;
-      background: var(--muted-blue) !important;
-      color: #ffffff !important;
-      border-top: 3px solid #fff !important;
-      border-right: 3px solid #fff !important;
-      border-bottom: 3px solid #fff !important;
-      border-left: 3px solid #fff !important;
-      position: relative;
-      padding-top: 18px !important;
-      padding-bottom: 18px !important;
-      gap: 0 !important;
+    /* Black icons on focus */
+    #keyboardToolBtn:hover .icon,
+    #mainMenuQuickBtn:hover .icon-img,
+    #yesQuickBtn:hover .icon-img,
+    #noQuickBtn:hover .icon-img,
+    #categoryOptionsBtn:hover .icon,
+    #keyboardToolBtn.scan-highlight .icon,
+    #mainMenuQuickBtn.scan-highlight .icon-img,
+    #yesQuickBtn.scan-highlight .icon-img,
+    #noQuickBtn.scan-highlight .icon-img,
+    #categoryOptionsBtn.scan-highlight .icon,
+    #keyboardToolBtn.row-highlight .icon,
+    #mainMenuQuickBtn.row-highlight .icon-img,
+    #yesQuickBtn.row-highlight .icon-img,
+    #noQuickBtn.row-highlight .icon-img,
+    #categoryOptionsBtn.row-highlight .icon {
+      filter: brightness(0) !important; /* Force solid black */
     }
 
-    #categoryOptionsBtn .label {
-      display: none !important;
-    }
 
-    #categoryOptionsBtn .icon {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -58%);
-      margin: 0 !important;
-      font-size: 44px !important;
-      line-height: 1;
-    }
 
-    #categoryOptionsBtn .label {
-      position: absolute !important;
-      left: 50% !important;
-      bottom: 10px !important;
-      transform: translateX(-50%) !important;
-      width: calc(100% - 20px) !important;
-      margin: 0 !important;
-      text-align: center !important;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1.1;
-    }
 
-    #categoryOptionsBtn:hover {
-      background: var(--muted-blue) !important;
-      color: #ffffff !important;
-      border-color: var(--hoverBorderYellow) !important;
-    }
-
-    #categoryOptionsBtn.row-highlight,
-
-    #categoryOptionsBtn.scan-highlight {
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      border-color: var(--hoverBorderYellow) !important;
-      box-shadow: none;
-    }
-
-    #categoryOptionsBtn.scan-highlight.toggled {
-      border-color: #ff0000 !important;
-    }
-
-    #categoryOptionsBtn.row-highlight:hover,
-    #categoryOptionsBtn.scan-highlight.toggled:hover {
-      border-color: #ff0000 !important;
-      box-shadow: 0 0 0 3px #ff0000, 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    #categoryOptionsBtn.modal-highlight {
-      background: var(--columnHighlight) !important;
-      color: #000 !important;
-      border-color: var(--hoverBorderYellow) !important;
-    }
 
     /* Options popup panel */
     .category-options-panel {
@@ -1534,8 +1503,8 @@
       display: flex;
       align-items: center;
       padding: 18px 32px;
-      background: rgba(239, 68, 68, 0.12);
-      border-top: 2px solid rgba(239, 68, 68, 0.25);
+      background: linear-gradient(180deg, #E9E9E9, #ECE5DC);
+      border-top: 2px solid rgba(0, 0, 0, 0.1);
       cursor: pointer;
       gap: 16px;
       transition: opacity 0.18s ease;
@@ -1564,17 +1533,22 @@
     }
 
     .emergency-bar:hover {
-      background: rgba(239, 68, 68, 0.18);
+      background: #ffff00 !important;
     }
 
     .emergency-bar.scan-highlight,
     .emergency-bar.row-highlight {
-      background: var(--columnHighlight) !important;
+      background: #ffff00 !important;
       border-top-color: var(--hoverBorderYellow) !important;
     }
 
+    .emergency-bar:hover .emergency-label,
+    .emergency-bar:hover .emergency-icon,
+    .emergency-bar:hover .emergency-chevron,
     .emergency-bar.scan-highlight .emergency-label,
     .emergency-bar.row-highlight .emergency-label,
+    .emergency-bar.scan-highlight .emergency-icon,
+    .emergency-bar.row-highlight .emergency-icon,
     .emergency-bar.scan-highlight .emergency-chevron,
     .emergency-bar.row-highlight .emergency-chevron {
       color: #000 !important;
