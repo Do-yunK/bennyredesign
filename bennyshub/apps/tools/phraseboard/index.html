@@ -56,7 +56,7 @@
 
       body {
         margin: 0;
-        background: var(--bg);
+        background: linear-gradient(180deg, #E9E9E9, #ECE5DC);
         color: var(--text);
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
         overflow: hidden;
@@ -69,9 +69,10 @@
       }
 
       header {
-        background: var(--brand);
-        color: #fff;
+        background: linear-gradient(180deg, #E9E9E9, #ECE5DC);
+        color: #111827;
         padding: 12px 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
 
       .header-inner {
@@ -95,6 +96,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-transform: uppercase;
         max-width: 70vw;
       }
 
@@ -1085,13 +1087,15 @@
         grid-column: 1 / -1;
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        grid-auto-rows: 90px;
-        align-items: stretch;
+        grid-auto-rows: 96px;
+        align-items: center !important;
         justify-items: start;
         column-gap: 15px;
         width: 100%;
         justify-self: stretch;
         margin-bottom: 0;
+        background: linear-gradient(180deg, #E9E9E9, #ECE5DC);
+        padding: 10px 0 0 0;
       }
 
       .top-quick-actions.board-top-layout {
@@ -1166,41 +1170,7 @@
         justify-content: center;
       }
 
-      #mainMenuQuickBtn {
-        grid-area: main;
-        position: relative;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        gap: 0 !important;
-      }
 
-      #yesQuickBtn {
-        grid-area: yes;
-      }
-
-      #noQuickBtn {
-        grid-area: no;
-      }
-
-      #categoryOptionsBtn {
-        grid-area: options;
-      }
-
-      #keyboardToolBtn .icon {
-        color: #fff !important;
-        font-size: 48px !important;
-        font-weight: 300 !important;
-        line-height: 1;
-        margin: 0 !important;
-        letter-spacing: 0;
-        font-family: 'Segoe UI Symbol', 'Arial', sans-serif;
-        /* Use a thinner SVG if present */
-      }
-
-      /* Optional: If using SVG, target stroke-width */
-      #keyboardToolBtn .icon svg {
-        stroke-width: 1.2 !important;
-      }
     }
 
     .quick-right-actions .quick-word-option {
@@ -1218,10 +1188,7 @@
     .keyboard-tool-option:hover,
     .main-menu-tool-option:hover,
     .quick-word-option:hover {
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: 3px solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
+      border: 3px solid var(--hoverBorderYellow) !important;
     }
 
     .keyboard-tool-option.row-highlight,
@@ -1232,10 +1199,7 @@
     .quick-word-option.scan-highlight {
       background: var(--columnHighlight) !important;
       color: #000 !important;
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: 3px solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
+      border: 3px solid var(--hoverBorderYellow) !important;
     }
 
     .keyboard-tool-option:hover .icon,
@@ -1253,74 +1217,122 @@
       color: #000 !important;
     }
 
+    /* --- NEW TOP NAVIGATION BUTTON STYLES --- */
+    #keyboardToolBtn,
+    #mainMenuQuickBtn,
+    #categoryOptionsBtn {
+      border-radius: 9999px !important;
+    }
+
     #yesQuickBtn,
     #noQuickBtn {
-      color: #111827 !important;
-      border-top: 3px solid #fff !important;
-      border-right: 3px solid #fff !important;
-      border-bottom: 3px solid #fff !important;
-      border-left: 3px solid #fff !important;
+      border-radius: 12px !important;
+    }
+
+    #keyboardToolBtn,
+    #mainMenuQuickBtn,
+    #yesQuickBtn,
+    #noQuickBtn,
+    #categoryOptionsBtn {
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
       position: relative;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-      display: flex !important;
+      height: 80px !important;
+      padding: 0 !important;
+      display: flex;
+      flex-direction: row;
       align-items: center !important;
       justify-content: center !important;
       text-align: center !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      font-size: 24px !important;
+      transition: all 0.2s ease !important;
+      overflow: hidden;
+    }
+
+    /* Centered Icon + Text Layout */
+    #keyboardToolBtn,
+    #mainMenuQuickBtn,
+    #yesQuickBtn,
+    #noQuickBtn,
+    #categoryOptionsBtn {
+      gap: 22px !important;
+    }
+
+    #mainMenuQuickBtn .icon-img,
+    #yesQuickBtn .icon-img,
+    #noQuickBtn .icon-img,
+    #categoryOptionsBtn .icon {
+      position: static !important;
+      transform: none !important;
+      margin: 0 !important;
+      filter: brightness(0) invert(1) !important; /* Force solid white */
+    }
+
+    #mainMenuQuickBtn span:not(.icon-img),
+    #yesQuickBtn span:not(.icon-img),
+    #noQuickBtn span:not(.icon-img),
+    #categoryOptionsBtn .label {
+      width: auto !important;
+      display: inline-block !important;
+      padding-left: 0 !important;
+    }
+
+    #keyboardToolBtn {
+      background: linear-gradient(90deg, #E256A6, #FFABAD) !important;
+    }
+
+    #keyboardToolBtn .icon {
+      font-size: 60px !important;
+      line-height: 1 !important;
+      filter: brightness(0) invert(1) !important; /* Force solid white */
+    }
+
+    #mainMenuQuickBtn,
+    #categoryOptionsBtn {
+      background: linear-gradient(90deg, #0047F1, #9EC2FF) !important;
     }
 
     #yesQuickBtn {
-      background: rgba(34, 197, 94, 0.22) !important;
+      background: #148A4D !important;
     }
 
     #noQuickBtn {
-      background: rgba(239, 68, 68, 0.2) !important;
+      background: #C80D0D !important;
     }
-
-    #yesQuickBtn:hover {
-      background: rgba(34, 197, 94, 0.32) !important;
-      color: #111827 !important;
-      font-weight: 600 !important;
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: 3px solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
-    }
-
-    #noQuickBtn:hover {
-      background: rgba(239, 68, 68, 0.3) !important;
-      color: #111827 !important;
-      font-weight: 600 !important;
-      border-top: 3px solid var(--hoverBorderYellow) !important;
-      border-right: 3px solid var(--hoverBorderYellow) !important;
-      border-bottom: 3px solid var(--hoverBorderYellow) !important;
-      border-left: 3px solid var(--hoverBorderYellow) !important;
-    }
-
-
-
-    #yesQuickBtn.row-highlight,
-    #yesQuickBtn.scan-highlight {
-      background: #16a34a !important;
-      /* green fill */
-      color: #fff !important;
-      font-weight: 800 !important;
-      border: 3px solid var(--hoverBorderYellow) !important;
-    }
-
-
-    #noQuickBtn.row-highlight,
-    #noQuickBtn.scan-highlight {
-      background: #ef4444 !important;
-      /* red fill */
-      color: #fff !important;
-      font-weight: 800 !important;
-      border: 3px solid var(--hoverBorderYellow) !important;
+    
+    .icon-img {
+      height: 22px !important;
+      width: 22px !important;
+      object-fit: contain;
     }
 
     #yesQuickBtn::before,
     #noQuickBtn::before {
       content: none;
+    }
+
+    /* Premium Hover & Scan States */
+    #keyboardToolBtn:hover,
+    #mainMenuQuickBtn:hover,
+    #yesQuickBtn:hover,
+    #noQuickBtn:hover,
+    #categoryOptionsBtn:hover,
+    #keyboardToolBtn.scan-highlight,
+    #mainMenuQuickBtn.scan-highlight,
+    #yesQuickBtn.scan-highlight,
+    #noQuickBtn.scan-highlight,
+    #categoryOptionsBtn.scan-highlight,
+    #keyboardToolBtn.row-highlight,
+    #mainMenuQuickBtn.row-highlight,
+    #yesQuickBtn.row-highlight,
+    #noQuickBtn.row-highlight,
+    #categoryOptionsBtn.row-highlight {
+      border-color: var(--hoverBorderYellow) !important;
+      filter: brightness(1.1) !important;
+      transform: scale(1.02) !important;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
     }
 
     #categoryOptionsBtn {
@@ -1620,15 +1632,18 @@
         </button>
         <button class="grid-button muted-blue-btn keyboard-tool-option main-menu-tool-option" id="mainMenuQuickBtn"
           type="button" aria-label="Main Menu" title="Main Menu" style="grid-area: main;">
-          <span class="icon" style="font-size:2rem;line-height:1;">⌂</span>
+          <img src="../../../images/home.png" class="icon-img" alt="Home" />
+          <span>Home</span>
         </button>
         <button class="grid-button muted-blue-btn quick-word-option" id="yesQuickBtn" type="button"
           style="grid-area: yes;">
-          Yes
+          <img src="../../../images/Thumbs up.png" class="icon-img" alt="Yes" />
+          <span>Yes</span>
         </button>
         <button class="grid-button muted-blue-btn quick-word-option" id="noQuickBtn" type="button"
           style="grid-area: no;">
-          No
+          <img src="../../../images/Thumbs Down.png" class="icon-img" alt="No" />
+          <span>No</span>
         </button>
         <button class="grid-button" id="categoryOptionsBtn" type="button" style="grid-area: options;">
           <span class="icon" aria-hidden="true">+/-</span>
