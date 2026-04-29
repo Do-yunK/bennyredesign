@@ -3252,7 +3252,7 @@
       const totalSlots = mainMenuRows * mainMenuCols;
 
       const coreItems = [
-        { text: 'Exit', icon: '🚪', action: () => exitToHub(), bgColor: 'rgba(255, 0, 82, 0.08)' },
+        // Removed Exit button
         { text: 'Settings', icon: '⚙️', action: () => navigateTo('settings'), bgColor: 'rgba(52, 152, 219, 0.2)' },
         { text: 'Create Board', icon: '✏️', action: null, bgColor: 'rgba(126, 217, 87, 0.2)', disabled: true },
         { text: 'Load Board', icon: '📁', action: null, bgColor: 'rgba(255, 156, 0, 0.2)', disabled: true }
@@ -3311,8 +3311,11 @@
 
       allMainItems = sortMainMenuItems(allMainItems);
 
-      const defaultLikeNames = new Set(['default', 'narbe default', 'narbe house default', 'narbe words']);
-      const bottomActionNames = new Set(['settings', 'exit', 'create board', 'load board']);
+      // Remove Narbe Words card from main menu
+      const defaultLikeNames = new Set(['default', 'narbe default', 'narbe house default']);
+      const bottomActionNames = new Set(['settings', 'create board', 'load board']);
+      // Filter out Narbe Words card
+      allMainItems = allMainItems.filter(item => (item.text || '').toLowerCase().trim() !== 'narbe words');
       const topPriorityItems = allMainItems.filter(item => defaultLikeNames.has((item.text || '').toLowerCase().trim()));
       const bottomActionItems = allMainItems.filter(item => bottomActionNames.has((item.text || '').toLowerCase().trim()));
       const remainingItems = allMainItems.filter(item => !topPriorityItems.includes(item) && !bottomActionItems.includes(item));
@@ -4614,16 +4617,14 @@
         rows.push([el.sentenceDisplay, el.deleteWordBtn, el.clearSentenceBtn]);
       }
       if (state.currentMenu === 'main') {
-        const topRow = buttons.slice(0, 2);
+        // Find the main menu cards in the DOM, grouped by their classes
+        const allMainMenuCards = Array.from(el.mainGrid.querySelectorAll('.grid-button.main-menu-card'));
+        // Top row: only the default card(s) (priority-board-card)
+        const topRow = allMainMenuCards.filter(btn => btn.classList.contains('priority-board-card'));
         if (topRow.length > 0) rows.push(topRow);
-
-        const secondRow = buttons.slice(2, 6);
-        if (secondRow.length > 0) rows.push(secondRow);
-
-        for (let i = 6; i < buttons.length; i += cols) {
-          const row = buttons.slice(i, i + cols);
-          if (row.length > 0) rows.push(row);
-        }
+        // Bottom row: settings, create board, load board (not priority-board-card)
+        const bottomRow = allMainMenuCards.filter(btn => !btn.classList.contains('priority-board-card'));
+        if (bottomRow.length > 0) rows.push(bottomRow);
       } else {
         for (let i = 0; i < buttons.length; i += cols) {
           const row = buttons.slice(i, i + cols);
@@ -4715,7 +4716,9 @@
     function showRowBackOptionForCurrentRow() {
       if (!el.rowBackOptionBtn) return;
       if (state.userScanPreference === 'cell' || state.videoModalActive) return;
-      if (state.currentMenu !== 'main' && state.currentMenu !== 'categories' && state.currentMenu !== 'category') return;
+      // Do not show back option for main menu
+      if (state.currentMenu === 'main') return;
+      if (state.currentMenu !== 'categories' && state.currentMenu !== 'category') return;
       if (state.currentRow < 0 || !state.scannableRows[state.currentRow]) return;
 
       hideRowBackOption();
